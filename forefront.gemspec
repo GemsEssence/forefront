@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.version     = Forefront::VERSION
   spec.authors     = [ "Sumit Sharma" ]
   spec.email       = [ "sumit@gemsessence.com" ]
-  spec.homepage    = "TODO"
+  spec.homepage    = "https://github.com/GemsEssence/forefront"
   spec.summary     = "Ticket + Lead tracking engine for Rails apps"
   spec.description = "Mountable Rails engine providing ticket & lead tracking with activities, followups, reminders, and file attachments."
   spec.license     = "MIT"
@@ -15,12 +15,13 @@ Gem::Specification.new do |spec|
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
-  spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+  spec.metadata["source_code_uri"] = "https://github.com/GemsEssence/forefront"
+  spec.metadata["changelog_uri"] = "https://github.com/GemsEssence/forefront/change_log.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
   end
 
-  spec.add_dependency "rails", ">= 7.2.0"
+  spec.add_dependency "rails", ['>= 6.0', '< 9']
+  spec.add_dependency "sqlite3"
 end

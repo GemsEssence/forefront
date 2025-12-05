@@ -3,10 +3,6 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in forefront.gemspec.
 gemspec
 
-gem "puma"
-
-gem "sqlite3"
-
 gem "sprockets-rails"
 
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
