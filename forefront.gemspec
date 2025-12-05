@@ -3,16 +3,16 @@ require_relative "lib/forefront/version"
 Gem::Specification.new do |spec|
   spec.name        = "forefront"
   spec.version     = Forefront::VERSION
-  spec.authors     = [ "" ]
-  spec.email       = [ "" ]
+  spec.authors     = [ "Sumit Sharma" ]
+  spec.email       = [ "sumit@gemsessence.com" ]
   spec.homepage    = "TODO"
-  spec.summary     = "TODO: Summary of Forefront."
-  spec.description = "TODO: Description of Forefront."
+  spec.summary     = "Ticket + Lead tracking engine for Rails apps"
+  spec.description = "Mountable Rails engine providing ticket & lead tracking with activities, followups, reminders, and file attachments."
   spec.license     = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the "allowed_push_host"
   # to allow pushing to a single host or delete this section to allow pushing to any host.
-  spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
+  spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
