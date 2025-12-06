@@ -1,0 +1,36 @@
+<li>
+  <%= link_to ticket_path(ticket), class: "block hover:bg-gray-50" do %>
+    <div class="px-4 py-4 sm:px-6">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <div class="flex items-center">
+            <p class="text-sm font-medium text-indigo-600 truncate"><%= ticket.title %></p>
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<%= ticket.priority == 'critical' ? 'red' : ticket.priority == 'high' ? 'orange' : ticket.priority == 'medium' ? 'yellow' : 'gray' %>-100 text-<%= ticket.priority == 'critical' ? 'red' : ticket.priority == 'high' ? 'orange' : ticket.priority == 'medium' ? 'yellow' : 'gray' %>-800">
+              <%= ticket.priority.humanize %>
+            </span>
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <%= ticket.status.humanize %>
+            </span>
+          </div>
+          <div class="mt-2 sm:flex sm:justify-between">
+            <div class="sm:flex">
+              <p class="flex items-center text-sm text-gray-500">
+                <%= ticket.customer.name %>
+              </p>
+              <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                <%= ticket.category.humanize %>
+              </p>
+            </div>
+            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+              <% if ticket.due_at.present? %>
+                <p class="<%= ticket.overdue? ? 'text-red-600 font-semibold' : ticket.due_soon? ? 'text-orange-600' : '' %>">
+                  Due: <%= ticket.due_at.strftime("%b %d, %Y") %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</li>

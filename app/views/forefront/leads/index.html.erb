@@ -1,0 +1,30 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Leads</h1>
+        <%= link_to "New Lead", new_lead_path, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+      </div>
+
+      <%= render "forefront/shared/messages" %>
+
+      <!-- Filters -->
+      <%= render 'filter_form' %>
+
+      <!-- Leads Table -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <% if @leads.any? %>
+          <ul class="divide-y divide-gray-200">
+            <%= render @leads %>
+          </ul>
+        <% else %>
+          <div class="text-center py-12">
+            <p class="text-gray-500">No leads found.</p>
+            <%= link_to "Create your first lead", new_lead_path, class: "mt-4 inline-block text-indigo-600 hover:text-indigo-500" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+

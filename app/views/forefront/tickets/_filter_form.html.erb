@@ -1,0 +1,12 @@
+<%= form_with url: tickets_path, method: :get, local: true, class: "mb-6 bg-white p-4 rounded-lg shadow" do |f| %>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+  <%= f.text_field :search, placeholder: "Search...", value: params[:search], class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+  <%= f.select :status, options_for_select(Ticket.statuses.map { |k, v| [k.humanize, v] }, params[:status]), { include_blank: "All Statuses" }, { class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+  <%= f.select :priority, options_for_select(Ticket.priorities.map { |k, v| [k.humanize, v] }, params[:priority]), { include_blank: "All Priorities" }, { class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+  <%= f.select :category, options_for_select(Ticket.categories.map { |k, v| [k.humanize, v] }, params[:category]), { include_blank: "All Categories" }, { class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+  <div class="flex space-x-2">
+    <%= f.submit "Filter", class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+    <%= link_to "Clear", tickets_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium text-center" %>
+  </div>
+</div>
+<% end %>

@@ -1,0 +1,8 @@
+<%= form_with url: customers_path, method: :get, local: true, class: "mb-6 bg-white p-4 rounded-lg shadow" do |f| %>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <%= f.text_field :search, placeholder: "Search...", value: params[:search], class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    <%= f.select :sort_by, options_for_select([["Name", "name"], ["Email", "email"], ["Created At", "created_at"]], params[:sort_by]), { include_blank: "Sort by..." }, { class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+    <%= f.submit "Filter", class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+    <%= link_to "Clear", customers_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium text-center" %>
+  </div>
+<% end %>

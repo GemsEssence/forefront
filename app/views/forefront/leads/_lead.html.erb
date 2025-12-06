@@ -1,0 +1,38 @@
+<li>
+  <%= link_to lead_path(lead), class: "block hover:bg-gray-50" do %>
+    <div class="px-4 py-4 sm:px-6">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <div class="flex items-center">
+            <p class="text-sm font-medium text-indigo-600 truncate"><%= lead.title %></p>
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= lead.won? ? 'bg-green-100 text-green-800' : lead.lost? ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' %>">
+              <%= lead.status.humanize %>
+            </span>
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              <%= lead.source.humanize %>
+            </span>
+          </div>
+          <div class="mt-2 sm:flex sm:justify-between">
+            <div class="sm:flex">
+              <p class="flex items-center text-sm text-gray-500">
+                <%= lead.customer.name %>
+              </p>
+              <% if lead.assigned_to.present? %>
+                <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                  Assigned to: <%= lead.assigned_to.name %>
+                </p>
+              <% end %>
+            </div>
+            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+              <% if lead.due_at.present? %>
+                <p class="<%= lead.overdue? ? 'text-red-600 font-semibold' : lead.due_soon? ? 'text-orange-600' : '' %>">
+                  Due: <%= lead.due_at.strftime("%b %d, %Y") %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</li>

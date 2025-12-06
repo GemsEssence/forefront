@@ -1,0 +1,52 @@
+<%= form_with model: @lead, url: path, local: true, class: "space-y-6" do |f| %>
+  <div>
+    <%= f.label :title, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+  </div>
+
+  <div>
+    <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_area :description, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <%= f.label :customer_id, "Customer", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :customer_id, options_from_collection_for_select(@customers, :id, :full_name, @lead.customer_id), { prompt: "Select Customer" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true } %>
+    </div>
+
+    <div>
+      <%= f.label :assigned_to_id, "Assigned To", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :assigned_to_id, options_from_collection_for_select(@admins, :id, :name, @lead.assigned_to_id), { include_blank: "Unassigned" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <%= f.label :source, class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :source, options_for_select(Lead.sources.map { |k, v| [k.humanize, k] }, @lead.source || 'website'), {}, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true } %>
+    </div>
+
+    <div>
+      <%= f.label :status, class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :status, options_for_select(Lead.statuses.map { |k, v| [k.humanize, k] }, @lead.status || 'new'), {}, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true } %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <%= f.label :due_at, "Due Date", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_local_field :due_at, value: @lead.due_at&.strftime("%Y-%m-%d"), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    </div>
+
+    <div>
+      <%= f.label :next_followup_at, "Next Follow-up", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.datetime_local_field :next_followup_at, value: @lead.next_followup_at&.strftime("%Y-%m-%dT%H:%M"), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    </div>
+  </div>
+
+  <div class="flex justify-end space-x-3">
+    <%= link_to "Cancel", path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
+    <%= f.submit class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+  </div>
+<% end %>
