@@ -2,14 +2,15 @@ require "forefront/version"
 require "forefront/engine"
 
 module Forefront
-  mattr_accessor :user_class, :authenticate_with, :current_user_method, default: nil
+  mattr_accessor :admin_class, :authenticate_with, :current_admin_method, default: nil
 
   def self.setup
     yield self
   end
 
-  # Defaults, can be overridden in host app initializer
-  self.user_class          = "User"
-  self.authenticate_with   = :authenticate_user!
-  self.current_user_method = :current_user
+  # Defaults for Devise Admin authentication
+  # Can be overridden in host app initializer if needed
+  self.admin_class          = "Forefront::Admin"
+  self.authenticate_with    = :authenticate_admin!
+  self.current_admin_method = :current_admin
 end
