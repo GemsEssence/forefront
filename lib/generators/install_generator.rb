@@ -9,12 +9,16 @@ module Forefront
         template "forefront_initializer.rb", "config/initializers/forefront.rb"
       end
 
+      def create_devise_initializer
+        template "devise.rb", "config/initializers/devise.rb" unless File.exist?(Rails.root.join("config", "initializers", "devise.rb"))
+      end
+
       def mount_engine
         route 'mount Forefront::Engine, at: "/forefront"'
       end
 
       def create_migrations
-        run 'bundle exec rake railties:install:migrations FROM=spree_reviews'
+        run 'bundle exec rake railties:install:migrations FROM=forefront'
       end
 
       def run_migrations

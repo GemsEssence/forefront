@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-50">
+  <nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <h1 class="text-xl font-bold text-gray-900">Forefront</h1>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <% if admin_signed_in? %>
+            <span class="text-gray-700 mr-4">Welcome, <%= current_admin.name %></span>
+            <%= link_to "Edit Profile", edit_admin_registration_path, class: "text-gray-700 hover:text-gray-900 mr-4" %>
+            <%= button_to "Sign out", destroy_admin_session_path, method: :delete, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+          <% else %>
+            <%= link_to "Sign in", new_admin_session_path, class: "text-gray-700 hover:text-gray-900 mr-4" %>
+            <%= link_to "Sign up", new_admin_registration_path, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="border-4 border-dashed border-gray-200 rounded-lg h-96 p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Dashboard</h2>
+        <p class="text-gray-600">Welcome to the Forefront ticket and lead management system.</p>
+      </div>
+    </div>
+  </main>
+</div>
+

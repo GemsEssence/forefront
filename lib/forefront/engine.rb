@@ -5,5 +5,11 @@ module Forefront
     initializer "forefront.assets.precompile" do |app|
       app.config.assets.precompile += %w[forefront_manifest.js forefront.css]
     end
+
+    config.to_prepare do
+      Devise::SessionsController.layout "forefront/application"
+      Devise::RegistrationsController.layout "forefront/application"
+      Devise::PasswordsController.layout "forefront/application"
+    end
   end
 end

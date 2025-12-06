@@ -25,7 +25,7 @@ $ gem install forefront
 
 ```bash
 bundle install
-rails g ticket_lead:install
+rails g forefront:install
 rails db:migrate
 ```
 
@@ -33,11 +33,11 @@ Mount the engine (generator does this automatically):
 
 ```ruby
 # config/routes.rb
-mount TicketLead::Engine, at: "/ticket_lead"
+mount TicketLead::Engine, at: "/forefront"
 ```
 
 ## Configure
-you can override the authentication (optional) in `config/initializers/ticket_lead.rb`.
+you can override the authentication (optional) in `config/initializers/forefront.rb`.
 ```ruby
 Forefront.setup do |config|
   config.user_class          = "User"
