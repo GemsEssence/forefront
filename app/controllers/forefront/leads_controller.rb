@@ -3,7 +3,7 @@ module Forefront
     before_action :set_lead, only: [:show, :edit, :update, :destroy]
 
     def index
-      @leads = LeadOperations::Filter.new(
+      @leads = LeadServices::Filter.new(
         scope: Lead.all,
         filters: filter_params
       ).call
@@ -12,6 +12,7 @@ module Forefront
     end
 
     def show
+      @activities = @lead.activities.recent
     end
 
     def new

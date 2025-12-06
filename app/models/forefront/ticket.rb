@@ -3,6 +3,7 @@ module Forefront
     belongs_to :customer
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
+    has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
 
     enum category: {
       tech: 'Tech',
@@ -47,18 +48,18 @@ module Forefront
     scope :by_customer, ->(customer_id) { where(customer_id: customer_id) }
     scope :by_created_by, ->(admin_id) { where(created_by_id: admin_id) }
     scope :by_assigned_to, ->(admin_id) { where(assigned_to_id: admin_id) }
-    scope :overdue, -> { where("due_at < ? AND status NOT IN (?)", Time.current, ['resolved', 'closed']) }
-    scope :due_soon, -> { where("due_at BETWEEN ? AND ? AND status NOT IN (?)", Time.current, 24.hours.from_now, ['resolved', 'closed']) }
+    scope :overdue, -> { where("due_at < ? AND status NOT IN (?)", Date.current, ['Resolved', 'Closed']) }
+    scope :due_soon, -> { where("due_at BETWEEN ? AND ? AND status NOT IN (?)", Date.current, 1.day.from_now, ['Resolved', 'Closed']) }
     scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['resolved', 'closed']) }
     scope :recent, -> { order(created_at: :desc) }
     scope :by_due_date, -> { order(due_at: :asc) }
 
     def overdue?
-      due_at.present? && due_at < Time.current && !resolved? && !closed?
+      due_at.present? && due_at < Date.current && !resolved? && !closed?
     end
 
     def due_soon?
-      due_at.present? && due_at.between?(Time.current, 24.hours.from_now) && !resolved? && !closed?
+      due_at.present? && due_at.between?(Date.current, 1.day.from_now) && !resolved? && !closed?
     end
 
     def needs_followup?

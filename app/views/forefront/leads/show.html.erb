@@ -10,7 +10,9 @@
         </div>
       </div>
 
-      <%= render "forefront/shared/messages" %>
+      <div id="flash_messages">
+        <%= render "forefront/shared/messages" %>
+      </div>
 
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 sm:px-6">
@@ -49,7 +51,7 @@
               <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Due Date</dt>
                 <dd class="mt-1 text-sm <%= @lead.overdue? ? 'text-red-600 font-semibold' : @lead.due_soon? ? 'text-orange-600' : 'text-gray-900' %> sm:mt-0 sm:col-span-2">
-                  <%= @lead.due_at.strftime("%B %d, %Y at %I:%M %p") %>
+                  <%= @lead.due_at.strftime("%B %d, %Y") %>
                   <% if @lead.overdue? %>
                     <span class="ml-2 text-red-600">(Overdue)</span>
                   <% elsif @lead.due_soon? %>
@@ -76,6 +78,12 @@
           </dl>
         </div>
       </div>
+
+      <!-- Activity Form -->
+      <%= render "forefront/activities/form", actable: @lead %>
+
+      <!-- Activities List -->
+      <%= render "forefront/activities/list", activities: @activities, actable: @lead %>
     </div>
   </div>
 </div>

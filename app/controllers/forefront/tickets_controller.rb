@@ -3,7 +3,7 @@ module Forefront
     before_action :set_ticket, only: [:show, :edit, :update, :destroy]
 
     def index
-      @tickets = TicketOperations::Filter.new(
+      @tickets = TicketServices::Filter.new(
         scope: Ticket.all,
         filters: filter_params
       ).call
@@ -12,6 +12,7 @@ module Forefront
     end
 
     def show
+      @activities = @ticket.activities.recent
     end
 
     def new

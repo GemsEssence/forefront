@@ -3,7 +3,7 @@ module Forefront
     before_action :set_customer, only: [:show, :edit, :update, :destroy]
 
     def index
-      @customers = CustomerOperations::Filter.new(
+      @customers = CustomerServices::Filter.new(
         scope: Customer.all,
         filters: filter_params
       ).call
