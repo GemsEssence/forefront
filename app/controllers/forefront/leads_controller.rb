@@ -6,9 +6,14 @@ module Forefront
       @leads = LeadServices::Filter.new(
         scope: Lead.all,
         filters: filter_params
-      ).call
+      ).call.page(params[:page])
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
+
+      respond_to do |format|
+        format.html
+        format.turbo_stream
+      end
     end
 
     def show

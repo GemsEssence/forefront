@@ -1,4 +1,4 @@
-<%= form_with url: customers_path, method: :get, local: true, class: "mb-6 bg-white p-4 rounded-lg shadow" do |f| %>
+<%= form_with url: customers_path, method: :get, data: { turbo_frame: "customers_list" }, class: "mb-6 bg-white p-4 rounded-lg shadow" do |f| %>
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
     <%= f.text_field :search, placeholder: "Search...", value: params[:search], class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
     <%= f.select :sort_by, options_for_select([["Name", "name"], ["Email", "email"], ["Created At", "created_at"]], params[:sort_by]), { include_blank: "Sort by..." }, { class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>

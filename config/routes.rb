@@ -4,11 +4,11 @@ Forefront::Engine.routes.draw do
   root to: "dashboard#index"
 
   resources :tickets do
-    resources :activities, only: [:create], controller: 'activities'
+    resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
   end
 
   resources :leads do
-    resources :activities, only: [:create], controller: 'activities'
+    resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
   end
 
   resources :customers

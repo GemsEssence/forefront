@@ -1,0 +1,4 @@
+<%= turbo_stream.replace "activity_#{@activity.id}" do %>
+  <%= render "forefront/activities/activity", activity: @activity, index: 0, total: 1, actable: @actable, editing: true %>
+<% end %>
+

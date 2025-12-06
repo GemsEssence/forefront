@@ -2,27 +2,118 @@
 <% actable = local_assigns[:actable] %>
 
 <div id="activities_list_container_<%= actable&.id || 'default' %>">
-  <% if activities.any? %>
-    <div class="mt-8 bg-white shadow sm:rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Activities</h3>
-        
-        <div class="flow-root">
-          <ul id="activities_list_<%= actable&.id || 'default' %>" class="-mb-8">
-            <% activities.each_with_index do |activity, index| %>
-              <%= render "forefront/activities/activity", activity: activity, index: index, total: activities.length %>
-            <% end %>
-          </ul>
-        </div>
+  <div class="mt-8 bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Activities</h3>
+
+      <!-- Tabs -->
+      <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+          <button onclick="showTab('comments_remarks_<%= actable&.id %>')" id="tab_comments_remarks_<%= actable&.id %>" class="tab-button border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm active">
+            Comments & Remarks
+            <span class="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
+              <%= activities.select { |a| a.comment? || a.remark? }.count %>
+            </span>
+          </button>
+          <button onclick="showTab('next_steps_<%= actable&.id %>')" id="tab_next_steps_<%= actable&.id %>" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Next Steps
+            <span class="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
+              <%= activities.select { |a| a.next_step? }.count %>
+            </span>
+          </button>
+          <button onclick="showTab('internal_notes_<%= actable&.id %>')" id="tab_internal_notes_<%= actable&.id %>" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Internal Notes
+            <span class="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
+              <%= activities.select { |a| a.internal_note? }.count %>
+            </span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div id="comments_remarks_<%= actable&.id %>" class="tab-content">
+        <% comments_remarks = activities.select { |a| a.comment? || a.remark? } %>
+        <% if comments_remarks.any? %>
+          <div class="flow-root mt-4">
+            <ul id="activities_list_<%= actable&.id || 'default' %>_comments" class="-mb-8">
+              <% comments_remarks.each_with_index do |activity, index| %>
+                <%= render "forefront/activities/activity", activity: activity, index: index, total: comments_remarks.length, actable: actable %>
+              <% end %>
+            </ul>
+          </div>
+        <% else %>
+          <div class="mt-4 text-center py-8">
+            <p class="text-gray-500">No comments or remarks yet.</p>
+          </div>
+          <ul id="activities_list_<%= actable&.id || 'default' %>_comments" class="hidden"></ul>
+        <% end %>
+      </div>
+
+      <div id="next_steps_<%= actable&.id %>" class="tab-content hidden">
+        <% next_steps = activities.select { |a| a.next_step? } %>
+        <% if next_steps.any? %>
+          <div class="flow-root mt-4">
+            <ul id="activities_list_<%= actable&.id || 'default' %>_next_steps" class="-mb-8">
+              <% next_steps.each_with_index do |activity, index| %>
+                <%= render "forefront/activities/activity", activity: activity, index: index, total: next_steps.length, actable: actable %>
+              <% end %>
+            </ul>
+          </div>
+        <% else %>
+          <div class="mt-4 text-center py-8">
+            <p class="text-gray-500">No next steps yet.</p>
+          </div>
+          <ul id="activities_list_<%= actable&.id || 'default' %>_next_steps" class="hidden"></ul>
+        <% end %>
+      </div>
+
+      <div id="internal_notes_<%= actable&.id %>" class="tab-content hidden">
+        <% internal_notes = activities.select { |a| a.internal_note? } %>
+        <% if internal_notes.any? %>
+          <div class="flow-root mt-4">
+            <ul id="activities_list_<%= actable&.id || 'default' %>_internal_notes" class="-mb-8">
+              <% internal_notes.each_with_index do |activity, index| %>
+                <%= render "forefront/activities/activity", activity: activity, index: index, total: internal_notes.length, actable: actable %>
+              <% end %>
+            </ul>
+          </div>
+        <% else %>
+          <div class="mt-4 text-center py-8">
+            <p class="text-gray-500">No internal notes yet.</p>
+          </div>
+          <ul id="activities_list_<%= actable&.id || 'default' %>_internal_notes" class="hidden"></ul>
+        <% end %>
       </div>
     </div>
-  <% else %>
-    <div class="mt-8 bg-white shadow sm:rounded-lg">
-      <div class="px-4 py-5 sm:p-6 text-center">
-        <p class="text-gray-500">No activities yet. Be the first to add one!</p>
-      </div>
-      <ul id="activities_list_<%= actable&.id || 'default' %>" class="hidden"></ul>
-    </div>
-  <% end %>
+  </div>
 </div>
+
+<script>
+function showTab(tabId) {
+  const actableId = tabId.split('_').pop();
+  const tabs = ['comments_remarks', 'next_steps', 'internal_notes'];
+
+  tabs.forEach(tab => {
+    const content = document.getElementById(tab + '_' + actableId);
+    const button = document.getElementById('tab_' + tab + '_' + actableId);
+    if (content) {
+      content.classList.add('hidden');
+    }
+    if (button) {
+      button.classList.remove('border-indigo-500', 'text-indigo-600', 'active');
+      button.classList.add('border-transparent', 'text-gray-500');
+    }
+  });
+
+  const activeContent = document.getElementById(tabId);
+  const activeButton = document.getElementById('tab_' + tabId);
+  if (activeContent) {
+    activeContent.classList.remove('hidden');
+  }
+  if (activeButton) {
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
+    activeButton.classList.add('border-indigo-500', 'text-indigo-600', 'active');
+  }
+}
+</script>
 

@@ -1,39 +1,103 @@
 <% activity = local_assigns[:activity] %>
 <% index = local_assigns[:index] || 0 %>
 <% total = local_assigns[:total] || 1 %>
+<% actable = local_assigns[:actable] || activity.actable %>
+<% editing = local_assigns[:editing] || false %>
 
-<li>
-  <div class="relative pb-8">
-    <% unless index == total - 1 %>
-      <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-    <% end %>
-    <div class="relative flex items-start space-x-3">
-      <div class="relative">
-        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-          <span class="text-indigo-600 font-medium text-sm"><%= activity.created_by.name.first.upcase %></span>
-        </div>
-      </div>
-      <div class="min-w-0 flex-1">
-        <div>
-          <div class="text-sm">
-            <span class="font-medium text-gray-900"><%= activity.created_by.name %></span>
-            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-              <%= activity.comment? ? 'bg-blue-100 text-blue-800' : 
-                  activity.remark? ? 'bg-yellow-100 text-yellow-800' :
-                  activity.next_step? ? 'bg-green-100 text-green-800' :
-                  'bg-gray-100 text-gray-800' %>">
-              <%= activity.activity_type.humanize %>
-            </span>
+<li id="activity_<%= activity.id %>">
+  <% if editing && activity.created_by_id == current_admin.id %>
+    <%= turbo_frame_tag "activity_edit_form_#{activity.id}" do %>
+      <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <% update_path = actable.is_a?(Forefront::Ticket) ? ticket_activity_path(actable, activity) : lead_activity_path(actable, activity) %>
+        <%= form_with model: [actable, activity], url: update_path, class: "space-y-4" do |f| %>
+          <div>
+            <%= f.label :activity_type, "Activity Type", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.select :activity_type,
+                options_for_select([
+                  ['Comment', 'comment'],
+                  ['Remark', 'remark'],
+                  ['Next Step', 'next_step'],
+                  ['Internal Note', 'internal_note']
+                ], activity.activity_type),
+                {},
+                { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
           </div>
-          <p class="mt-0.5 text-sm text-gray-500">
-            <%= time_ago_in_words(activity.created_at) %> ago
-          </p>
+
+          <div>
+            <%= f.label :body, "Content", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_area :body, rows: 4,
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 #{'border-red-300' if activity.errors[:body].any?}", 
+                placeholder: "Enter your comment, remark, next step, or internal note...",
+                required: true %>
+            <% if activity.errors[:body].any? %>
+              <p class="mt-1 text-sm text-red-600"><%= activity.errors[:body].first %></p>
+            <% end %>
+          </div>
+
+          <% if activity.errors.any? %>
+            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative" role="alert">
+              <ul class="list-disc list-inside">
+                <% activity.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="flex justify-end space-x-2">
+            <%= link_to "Cancel", actable.is_a?(Forefront::Ticket) ? ticket_path(actable) : lead_path(actable), class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium", data: { turbo_frame: "_top" } %>
+            <%= f.submit "Update Activity", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="relative pb-8">
+      <% unless index == total - 1 %>
+        <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+      <% end %>
+      <div class="relative flex items-start space-x-3">
+        <div class="relative">
+          <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+            <span class="text-indigo-600 font-medium text-sm"><%= activity.created_by.name.first.upcase %></span>
+          </div>
         </div>
-        <div class="mt-2 text-sm text-gray-700">
-          <%= simple_format(activity.body) %>
+        <div class="min-w-0 flex-1">
+          <div>
+            <div class="text-sm flex items-center justify-between">
+              <div>
+                <span class="font-medium text-gray-900"><%= activity.created_by.name %></span>
+                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                  <%= activity.comment? ? 'bg-blue-100 text-blue-800' :
+                      activity.remark? ? 'bg-yellow-100 text-yellow-800' :
+                      activity.next_step? ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800' %>">
+                  <%= activity.activity_type.humanize %>
+                </span>
+              </div>
+              <% if activity.created_by_id == current_admin.id %>
+                <div class="flex space-x-2">
+                  <% edit_path = actable.is_a?(Forefront::Ticket) ? edit_ticket_activity_path(actable, activity) : edit_lead_activity_path(actable, activity) %>
+                  <% delete_path = actable.is_a?(Forefront::Ticket) ? ticket_activity_path(actable, activity) : lead_activity_path(actable, activity) %>
+                  <%= link_to edit_path, class: "text-indigo-600 hover:text-indigo-800 text-xs", data: { turbo_method: :get } do %>
+                    Edit
+                  <% end %>
+                  <%= button_to delete_path, method: :delete, class: "text-red-600 hover:text-red-800 text-xs", data: { confirm: "Are you sure?", turbo_frame: "_top" } do %>
+                    Delete
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <p class="mt-0.5 text-sm text-gray-500">
+              <%= time_ago_in_words(activity.created_at) %> ago
+            </p>
+          </div>
+          <div class="mt-2 text-sm text-gray-700">
+            <%= simple_format(activity.body) %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </li>
 

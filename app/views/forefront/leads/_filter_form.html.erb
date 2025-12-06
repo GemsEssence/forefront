@@ -1,4 +1,4 @@
-<%= form_with url: leads_path, method: :get, local: true, class: "mb-6 bg-white p-4 rounded-lg shadow" do |f| %>
+<%= form_with url: leads_path, method: :get, data: { turbo_frame: "leads_list" }, class: "mb-6 bg-white p-4 rounded-lg shadow" do |f| %>
   <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
     <%= f.text_field :search, placeholder: "Search...", value: params[:search], class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
     <%= f.select :status, options_for_select(Lead.statuses.map { |k, v| [k.humanize, v] }, params[:status]), { include_blank: "All Statuses" }, { class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>

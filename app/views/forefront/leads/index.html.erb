@@ -12,18 +12,23 @@
       <%= render 'filter_form' %>
 
       <!-- Leads Table -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <% if @leads.any? %>
-          <ul class="divide-y divide-gray-200">
-            <%= render @leads %>
-          </ul>
-        <% else %>
-          <div class="text-center py-12">
-            <p class="text-gray-500">No leads found.</p>
-            <%= link_to "Create your first lead", new_lead_path, class: "mt-4 inline-block text-indigo-600 hover:text-indigo-500" %>
-          </div>
-        <% end %>
-      </div>
+      <%= turbo_frame_tag "leads_list" do %>
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <% if @leads.any? %>
+            <ul class="divide-y divide-gray-200">
+              <%= render @leads %>
+            </ul>
+            <div class="px-4 py-3 border-t border-gray-200">
+              <%= paginate @leads, params: { turbo_frame: "leads_list" } %>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <p class="text-gray-500">No leads found.</p>
+              <%= link_to "Create your first lead", new_lead_path, class: "mt-4 inline-block text-indigo-600 hover:text-indigo-500" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

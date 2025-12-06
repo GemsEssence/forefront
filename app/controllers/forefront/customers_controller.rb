@@ -6,7 +6,12 @@ module Forefront
       @customers = CustomerServices::Filter.new(
         scope: Customer.all,
         filters: filter_params
-      ).call
+      ).call.page(params[:page])
+
+      respond_to do |format|
+        format.html
+        format.turbo_stream
+      end
     end
 
     def show
