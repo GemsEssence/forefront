@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", ['>= 6.0', '< 9']
   spec.add_dependency "sqlite3"
   spec.add_dependency "devise", "~> 4.9"
+  spec.add_dependency "turbo-rails"
   spec.add_dependency "kaminari", "~> 1.2"
   spec.add_dependency "pundit", "~> 2.3"
 end

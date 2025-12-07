@@ -1,3 +1,5 @@
+require "turbo-rails"
+
 module Forefront
   class Engine < ::Rails::Engine
     isolate_namespace Forefront
@@ -7,9 +9,11 @@ module Forefront
     end
 
     config.to_prepare do
-      Devise::SessionsController.layout "forefront/application"
-      Devise::RegistrationsController.layout "forefront/application"
-      Devise::PasswordsController.layout "forefront/application"
+      if defined?(Devise)
+        Devise::SessionsController.layout "forefront/application"
+        Devise::RegistrationsController.layout "forefront/application"
+        Devise::PasswordsController.layout "forefront/application"
+      end
     end
   end
 end
