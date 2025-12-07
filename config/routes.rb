@@ -5,10 +5,12 @@ Forefront::Engine.routes.draw do
 
   resources :tickets do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
+    resources :assignments, only: [:create], controller: 'assignments'
   end
 
   resources :leads do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
+    resources :assignments, only: [:create], controller: 'assignments'
   end
 
   resources :customers

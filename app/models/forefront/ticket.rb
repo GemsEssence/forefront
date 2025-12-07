@@ -4,6 +4,7 @@ module Forefront
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
+    has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
 
     enum category: {
       tech: 'Tech',

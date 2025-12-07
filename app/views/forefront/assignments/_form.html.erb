@@ -1,0 +1,39 @@
+<div id="<%= "assignment_modal_#{assignable.class.name.demodulize.underscore}_#{assignable.id}" %>" class="fixed inset-0 z-50 flex items-center justify-center" style="display:none;">
+  <div class="fixed inset-0 bg-black opacity-50" onclick="closeAssignmentModal('<%= "assignment_modal_#{assignable.class.name.demodulize.underscore}_#{assignable.id}" %>')"></div>
+  <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
+    <h3 class="text-lg font-medium mb-4">Assign <%= assignable.class.name.demodulize %></h3>
+
+    <%= form_with url: assignments_path, method: :post, data: { turbo: true }, html: { class: 'assignment-form' } do |f| %>
+
+      <div class="mb-3">
+        <%= f.label :to_user_id, 'Assignee', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.select :to_user_id, options_from_collection_for_select(admins, :id, :name, assignable.assigned_to_id), {}, class: 'mt-1 block w-full border rounded' %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :note, 'Note (optional)', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.text_area :note, rows: 3, class: 'mt-1 block w-full border rounded' %>
+      </div>
+
+      <% if defined?(errors) && errors.present? %>
+        <div class="text-sm text-red-600 mb-2"><%= errors.join(', ') %></div>
+      <% end %>
+
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closeAssignmentModal('<%= "assignment_modal_#{assignable.class.name.demodulize.underscore}_#{assignable.id}" %>')" class="px-3 py-1 border rounded">Cancel</button>
+        <%= f.submit 'Assign', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+    function openAssignmentModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'flex';
+    }
+    function closeAssignmentModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+  </script>
+</div>

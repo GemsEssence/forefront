@@ -1,0 +1,15 @@
+<div id="<%= "assignments_#{assignable.class.name.demodulize.underscore}_#{assignable.id}" %>">
+  <ul class="divide-y divide-gray-200">
+    <% assignments.order(created_at: :desc).each do |a| %>
+      <li class="px-4 py-2">
+        <p class="text-sm text-gray-700">
+          <%= a.from_user&.name || 'Unassigned' %> → <strong><%= a.to_user.name %></strong>
+          <span class="text-xs text-gray-500">by <%= a.changed_by&.name || 'System' %> • <%= a.created_at.strftime('%b %d, %Y %I:%M %p') %></span>
+        </p>
+        <% if a.note.present? %>
+          <p class="text-sm text-gray-600 mt-1"><%= a.note %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>

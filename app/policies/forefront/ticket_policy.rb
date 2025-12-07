@@ -34,6 +34,10 @@ module Forefront
     def destroy?
       super_admin?
     end
+ 
+    def change_assignee?
+      super_admin? || assignee?
+    end
 
     class Scope
       def initialize(current_admin, scope)

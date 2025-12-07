@@ -15,6 +15,14 @@ module Forefront
         @ticket.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
 
         if @ticket.save
+          # Record initial assignment (from system / nil to assigned admin)
+          if @ticket.assigned_to_id.present?
+            Forefront::AssignmentOperations::Create.new(
+              assignable: @ticket,
+              params: { to_user_id: @ticket.assigned_to_id },
+              current_admin: current_admin
+            ).call
+          end
           { success: true, ticket: @ticket }
         else
           @errors = @ticket.errors.full_messages
@@ -43,7 +51,18 @@ module Forefront
       end
 
       def call
+        previous_assignee = @ticket.assigned_to_id
+
         if @ticket.update(ticket_params)
+          # If assignee changed, record assignment
+          if previous_assignee != @ticket.assigned_to_id
+            Forefront::AssignmentOperations::Create.new(
+              assignable: @ticket,
+              params: { from_user_id: previous_assignee, to_user_id: @ticket.assigned_to_id },
+              current_admin: current_admin
+            ).call
+          end
+
           { success: true, ticket: @ticket }
         else
           @errors = @ticket.errors.full_messages

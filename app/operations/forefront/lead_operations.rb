@@ -15,7 +15,14 @@ module Forefront
         @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
 
         if @lead.save
-          { success: true, lead: @lead }
+          # Record initial assignment
+          if @lead.assigned_to_id.present?
+            Forefront::AssignmentOperations::Create.new(
+              assignable: @lead,
+              params: { to_user_id: @lead.assigned_to_id },
+              current_admin: current_admin
+            ).call
+          end
         else
           @errors = @lead.errors.full_messages
           { success: false, errors: @errors, lead: @lead }
@@ -43,7 +50,18 @@ module Forefront
       end
 
       def call
+        previous_assignee = @lead.assigned_to_id
+
         if @lead.update(lead_params)
+          # Record assignment change
+          if previous_assignee != @lead.assigned_to_id
+            Forefront::AssignmentOperations::Create.new(
+              assignable: @lead,
+              params: { from_user_id: previous_assignee, to_user_id: @lead.assigned_to_id },
+              current_admin: current_admin
+            ).call
+          end
+
           { success: true, lead: @lead }
         else
           @errors = @lead.errors.full_messages

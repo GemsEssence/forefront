@@ -35,4 +35,12 @@
       </div>
     </div>
   <% end %>
+
+  <% if policy(lead).change_assignee? %>
+    <div class="mt-2 ml-4">
+      <button type="button" onclick="event.stopPropagation(); openAssignmentModal('<%= "assignment_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Assign</button>
+      <%= render 'forefront/assignments/form', assignable: lead, admins: @admins %>
+    </div>
+  <% end %>
+
 </li>

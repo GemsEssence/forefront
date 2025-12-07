@@ -27,6 +27,9 @@
               <%= activities.select { |a| a.internal_note? }.count %>
             </span>
           </button>
+          <button onclick="showTab('assignments_<%= actable&.id %>')" id="tab_assignments_<%= actable&.id %>" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Assignment History
+          </button>
         </nav>
       </div>
 
@@ -84,6 +87,12 @@
           <ul id="activities_list_<%= actable&.id || 'default' %>_internal_notes" class="hidden"></ul>
         <% end %>
       </div>
+
+      <div id="assignments_<%= actable&.id %>" class="tab-content hidden">
+        <div class="mt-4">
+          <%= render 'forefront/assignments/history', assignable: actable, assignments: @assignments %>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -91,7 +100,7 @@
 <script>
 function showTab(tabId) {
   const actableId = tabId.split('_').pop();
-  const tabs = ['comments_remarks', 'next_steps', 'internal_notes'];
+  const tabs = ['comments_remarks', 'next_steps', 'internal_notes', 'assignments'];
 
   tabs.forEach(tab => {
     const content = document.getElementById(tab + '_' + actableId);

@@ -19,6 +19,8 @@ module Forefront
 
     def show
       @activities = @ticket.activities.recent
+      @assignments = @ticket.assignments.order(created_at: :desc)
+      @admins = Admin.all.order(:name)
     end
 
     def new
