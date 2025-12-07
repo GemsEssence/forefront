@@ -28,7 +28,6 @@ module Forefront
     }
 
     enum status: {
-      new: 'New',
       open: 'Open',
       in_progress: 'In Progress',
       on_hold: 'On Hold',

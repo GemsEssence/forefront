@@ -22,7 +22,7 @@ module Forefront
     }
 
     enum status: {
-      new: 'New',
+      open: 'Open',
       contacted: 'Contacted',
       follow_up: 'Follow Up',
       proposal: 'Proposal',
