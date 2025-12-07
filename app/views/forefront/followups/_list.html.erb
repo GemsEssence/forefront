@@ -1,0 +1,88 @@
+<div id="<%= "followups_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>" class="mt-6">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-medium text-gray-900">Upcoming Followups</h3>
+    <button type="button" onclick="openFollowupModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">+ Add Followup</button>
+  </div>
+
+  <% if followupable.followups.upcoming.any? %>
+    <div class="space-y-2">
+      <% followupable.followups.upcoming.order(:scheduled_for).each do |f| %>
+        <div id="followup_<%= f.id %>" class="bg-white border rounded-lg p-4 flex items-center justify-between">
+          <div class="flex-1">
+            <p class="text-sm font-medium text-gray-900">
+              <%= f.followup_type.humanize %> - <%= f.scheduled_for.strftime('%b %d, %Y %I:%M %p') rescue f.scheduled_for %>
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              <strong>Assigned to:</strong> <%= f.assigned_to&.name || 'Unassigned' %>
+              <% if f.outcome.present? %>
+                | <strong>Notes:</strong> <%= truncate(f.outcome, length: 50) %>
+              <% end %>
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<%= f.status == 'completed' ? 'green' : f.status == 'pending' ? 'blue' : 'gray' %>-100 text-<%= f.status == 'completed' ? 'green' : f.status == 'pending' ? 'blue' : 'gray' %>-800">
+              <%= f.status.humanize %>
+            </span>
+            <button type="button" onclick="openFollowupEditModal('<%= "followup_edit_modal_#{f.id}" %>')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded text-xs">Edit</button>
+          </div>
+        </div>
+
+        <!-- Edit Modal for this followup -->
+        <div id="<%= "followup_edit_modal_#{f.id}" %>" class="fixed inset-0 z-50 flex items-center justify-center" style="display:none;">
+          <div class="fixed inset-0 bg-black opacity-50" onclick="closeFollowupEditModal('<%= "followup_edit_modal_#{f.id}" %>')"></div>
+          <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
+            <h3 class="text-lg font-medium mb-4">Edit Followup</h3>
+
+            <%= form_with model: f, url: polymorphic_path([:forefront, followupable, f]), method: :patch, local: false, data: { turbo: true } do |ff| %>
+              <div class="mb-3">
+                <%= ff.label :followup_type, 'Type', class: 'block text-sm font-medium text-gray-700' %>
+                <%= ff.select :followup_type, Forefront::Followup::FOLLOWUP_TYPES.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded' } %>
+              </div>
+
+              <div class="mb-3">
+                <%= ff.label :scheduled_for, "Scheduled For", class: 'block text-sm font-medium text-gray-700' %>
+                <%= ff.datetime_local_field :scheduled_for, value: f.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: 'mt-1 block w-full border rounded' %>
+              </div>
+
+              <div class="mb-3">
+                <%= ff.label :assigned_to_id, "Assign to", class: 'block text-sm font-medium text-gray-700' %>
+                <%= ff.collection_select :assigned_to_id, Forefront::Admin.all.order(:name), :id, :name, {}, { class: 'mt-1 block w-full border rounded' } %>
+              </div>
+
+              <div class="mb-3">
+                <%= ff.label :status, 'Status', class: 'block text-sm font-medium text-gray-700' %>
+                <%= ff.select :status, Forefront::Followup::STATUSES.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded' } %>
+              </div>
+
+              <div class="mb-3">
+                <%= ff.label :outcome, 'Notes', class: 'block text-sm font-medium text-gray-700' %>
+                <%= ff.text_area :outcome, rows: 3, class: 'mt-1 block w-full border rounded' %>
+              </div>
+
+              <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeFollowupEditModal('<%= "followup_edit_modal_#{f.id}" %>')" class="px-3 py-1 border rounded">Cancel</button>
+                <%= ff.submit 'Update Followup', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-8 border rounded-lg bg-gray-50">
+      <p class="text-gray-500 text-sm">No upcoming followups scheduled.</p>
+      <button type="button" onclick="openFollowupModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="mt-2 text-indigo-600 hover:text-indigo-500 text-sm font-medium">Schedule your first followup</button>
+    </div>
+  <% end %>
+
+  <script>
+    function openFollowupEditModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'flex';
+    }
+    function closeFollowupEditModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+  </script>
+</div>

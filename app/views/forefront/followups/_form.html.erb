@@ -1,0 +1,48 @@
+<div id="<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>" class="fixed inset-0 z-50 flex items-center justify-center" style="display:none;">
+  <div class="fixed inset-0 bg-black opacity-50" onclick="closeFollowupModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')"></div>
+  <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
+    <h3 class="text-lg font-medium mb-4">Schedule Followup</h3>
+
+    <%= form_with model: Forefront::Followup.new, url: polymorphic_path([:forefront, followupable, :followups]), local: false, data: { turbo: true } do |f| %>
+      <div class="mb-3">
+        <%= f.label :followup_type, 'Type', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.select :followup_type, Forefront::Followup::FOLLOWUP_TYPES.map { |k, v| [k.humanize, k] }, { prompt: 'Select type' }, { class: 'mt-1 block w-full border rounded' } %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :scheduled_for, "Scheduled For", class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.datetime_local_field :scheduled_for, class: 'mt-1 block w-full border rounded' %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :assigned_to_id, "Assign to", class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.collection_select :assigned_to_id, Forefront::Admin.all.order(:name), :id, :name, { prompt: "Default: #{followupable.assigned_to&.name || 'Unassigned'}", selected: followupable.assigned_to_id }, { class: 'mt-1 block w-full border rounded' } %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :outcome, 'Notes', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.text_area :outcome, rows: 3, placeholder: 'Add any notes about this followup', class: 'mt-1 block w-full border rounded' %>
+      </div>
+
+      <% if defined?(errors) && errors.present? %>
+        <div class="text-sm text-red-600 mb-2"><%= errors.join(', ') %></div>
+      <% end %>
+
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closeFollowupModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="px-3 py-1 border rounded">Cancel</button>
+        <%= f.submit 'Schedule Followup', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+    function openFollowupModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'flex';
+    }
+    function closeFollowupModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+  </script>
+</div>

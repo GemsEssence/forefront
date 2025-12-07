@@ -114,6 +114,10 @@
         <%= render 'forefront/status_histories/form', trackable: @ticket %>
       </div>
 
+      <!-- Followups Section -->
+      <%= render 'forefront/followups/list', followupable: @ticket %>
+      <%= render 'forefront/followups/form', followupable: @ticket %>
+
       <!-- Activity Form -->
       <%= render "forefront/activities/form", actable: @ticket %>
 

@@ -31,15 +31,26 @@
               <% end %>
             </div>
           </div>
+          <% if lead.followups.upcoming.any? %>
+            <div class="mt-2 text-xs text-gray-500">
+              <span class="font-medium"><%= lead.followups.upcoming.count %> upcoming followup(s)</span>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
   <% end %>
 
-  <% if policy(lead).change_assignee? %>
-    <div class="mt-2 ml-4">
-      <button type="button" onclick="event.stopPropagation(); openAssignmentModal('<%= "assignment_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Assign</button>
-      <%= render 'forefront/assignments/form', assignable: lead, admins: @admins %>
+  <% if policy(lead).change_assignee? || policy(lead).update? %>
+    <div class="px-4 py-2 bg-gray-50 flex space-x-2 border-t">
+      <% if policy(lead).change_assignee? %>
+        <button type="button" onclick="event.stopPropagation(); openAssignmentModal('<%= "assignment_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Assign</button>
+        <%= render 'forefront/assignments/form', assignable: lead, admins: @admins %>
+      <% end %>
+      <% if policy(lead).update? %>
+        <button type="button" onclick="event.stopPropagation(); openFollowupModal('<%= "followup_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">+ Followup</button>
+        <%= render 'forefront/followups/form', followupable: lead %>
+      <% end %>
     </div>
   <% end %>
 
