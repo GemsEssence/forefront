@@ -1,5 +1,6 @@
 require "forefront/version"
 require "forefront/engine"
+require "forefront/pundit"
 
 module Forefront
   mattr_accessor :admin_class, :authenticate_with, :current_admin_method, default: nil

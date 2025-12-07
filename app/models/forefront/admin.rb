@@ -13,6 +13,10 @@ module Forefront
 
     validates :name, presence: true
     validates :email, presence: true, uniqueness: true
+
+    def super_admin?
+      super_admin
+    end
   end
 end
 

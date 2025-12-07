@@ -5,7 +5,7 @@
 <% editing = local_assigns[:editing] || false %>
 
 <li id="activity_<%= activity.id %>">
-  <% if editing && activity.created_by_id == current_admin.id %>
+  <% if editing && policy(activity).update? %>
     <%= turbo_frame_tag "activity_edit_form_#{activity.id}" do %>
       <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <% update_path = actable.is_a?(Forefront::Ticket) ? ticket_activity_path(actable, activity) : lead_activity_path(actable, activity) %>
@@ -75,15 +75,19 @@
                   <%= activity.activity_type.humanize %>
                 </span>
               </div>
-              <% if activity.created_by_id == current_admin.id %>
+              <% if policy(activity).update? || policy(activity).destroy? %>
                 <div class="flex space-x-2">
-                  <% edit_path = actable.is_a?(Forefront::Ticket) ? edit_ticket_activity_path(actable, activity) : edit_lead_activity_path(actable, activity) %>
-                  <% delete_path = actable.is_a?(Forefront::Ticket) ? ticket_activity_path(actable, activity) : lead_activity_path(actable, activity) %>
-                  <%= link_to edit_path, class: "text-indigo-600 hover:text-indigo-800 text-xs", data: { turbo_method: :get } do %>
-                    Edit
+                  <% if policy(activity).update? %>
+                    <% edit_path = actable.is_a?(Forefront::Ticket) ? edit_ticket_activity_path(actable, activity) : edit_lead_activity_path(actable, activity) %>
+                    <%= link_to edit_path, class: "text-indigo-600 hover:text-indigo-800 text-xs", data: { turbo_method: :get } do %>
+                      Edit
+                    <% end %>
                   <% end %>
-                  <%= button_to delete_path, method: :delete, class: "text-red-600 hover:text-red-800 text-xs", data: { confirm: "Are you sure?", turbo_frame: "_top" } do %>
-                    Delete
+                  <% if policy(activity).destroy? %>
+                    <% delete_path = actable.is_a?(Forefront::Ticket) ? ticket_activity_path(actable, activity) : lead_activity_path(actable, activity) %>
+                    <%= button_to delete_path, method: :delete, class: "text-red-600 hover:text-red-800 text-xs", data: { confirm: "Are you sure?", turbo_frame: "_top" } do %>
+                      Delete
+                    <% end %>
                   <% end %>
                 </div>
               <% end %>

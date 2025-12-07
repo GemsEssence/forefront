@@ -1,10 +1,11 @@
 module Forefront
   class CustomersController < ApplicationController
     before_action :set_customer, only: [:show, :edit, :update, :destroy]
+    before_action :authorize_customer, only: [:show, :edit, :update, :destroy]
 
     def index
       @customers = CustomerServices::Filter.new(
-        scope: Customer.all,
+        scope: policy_scope(Customer),
         filters: filter_params
       ).call.page(params[:page])
 
@@ -19,9 +20,13 @@ module Forefront
 
     def new
       @customer = Customer.new
+      authorize @customer
     end
 
     def create
+      @customer = Customer.new(customer_params)
+      authorize @customer
+
       result = CustomerOperations::Create.new(params: customer_params).call
 
       if result[:success]
@@ -67,6 +72,10 @@ module Forefront
       @customer = Customer.find(params[:id])
     end
 
+    def authorize_customer
+      authorize @customer
+    end
+
     def customer_params
       params.require(:customer).permit(:name, :email, :phone, :address, :business_name)
     end
@@ -76,4 +85,5 @@ module Forefront
     end
   end
 end
+
 

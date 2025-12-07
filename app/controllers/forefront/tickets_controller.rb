@@ -1,10 +1,11 @@
 module Forefront
   class TicketsController < ApplicationController
     before_action :set_ticket, only: [:show, :edit, :update, :destroy]
+    before_action :authorize_ticket, only: [:show, :edit, :update, :destroy]
 
     def index
       @tickets = TicketServices::Filter.new(
-        scope: Ticket.all,
+        scope: policy_scope(Ticket),
         filters: filter_params
       ).call.page(params[:page])
       @customers = Customer.all.order(:name)
@@ -23,11 +24,16 @@ module Forefront
     def new
       @ticket = Ticket.new
       @ticket.customer_id = params[:customer_id] if params[:customer_id].present?
+      authorize @ticket
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
     end
 
     def create
+      @ticket = Ticket.new(ticket_params)
+      @ticket.created_by = current_admin
+      authorize @ticket
+
       result = TicketOperations::Create.new(
         params: ticket_params,
         current_admin: current_admin
@@ -83,6 +89,10 @@ module Forefront
       @ticket = Ticket.find(params[:id])
     end
 
+    def authorize_ticket
+      authorize @ticket
+    end
+
     def ticket_params
       params.require(:ticket).permit(
         :title, :description, :customer_id, :assigned_to_id,
@@ -99,4 +109,5 @@ module Forefront
     end
   end
 end
+
 

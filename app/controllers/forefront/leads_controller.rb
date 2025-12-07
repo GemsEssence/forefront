@@ -1,10 +1,11 @@
 module Forefront
   class LeadsController < ApplicationController
     before_action :set_lead, only: [:show, :edit, :update, :destroy]
+    before_action :authorize_lead, only: [:show, :edit, :update, :destroy]
 
     def index
       @leads = LeadServices::Filter.new(
-        scope: Lead.all,
+        scope: policy_scope(Lead),
         filters: filter_params
       ).call.page(params[:page])
       @customers = Customer.all.order(:name)
@@ -23,11 +24,16 @@ module Forefront
     def new
       @lead = Lead.new
       @lead.customer_id = params[:customer_id] if params[:customer_id].present?
+      authorize @lead
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
     end
 
     def create
+      @lead = Lead.new(lead_params)
+      @lead.created_by = current_admin
+      authorize @lead
+
       result = LeadOperations::Create.new(
         params: lead_params,
         current_admin: current_admin
@@ -83,6 +89,10 @@ module Forefront
       @lead = Lead.find(params[:id])
     end
 
+    def authorize_lead
+      authorize @lead
+    end
+
     def lead_params
       params.require(:lead).permit(
         :title, :description, :customer_id, :assigned_to_id,
@@ -99,4 +109,5 @@ module Forefront
     end
   end
 end
+
 

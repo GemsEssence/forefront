@@ -4,19 +4,9 @@ module Forefront
     before_action :find_actable
 
     def create
-      unless can_create_activity?
-        respond_to do |format|
-          format.turbo_stream do
-            render turbo_stream: turbo_stream.replace(
-              "activity_form_#{@actable.id}",
-              partial: "forefront/activities/form",
-              locals: { actable: @actable, error: "You don't have permission to add activities to this #{actable_type}." }
-            )
-          end
-          format.html { redirect_to actable_path, alert: "You don't have permission to add activities to this #{actable_type}." }
-        end
-        return
-      end
+      @activity = @actable.activities.build(activity_params)
+      @activity.created_by = current_admin
+      authorize @activity
 
       result = ActivityOperations::Create.new(
         params: activity_params,
@@ -44,10 +34,7 @@ module Forefront
     end
 
     def edit
-      unless can_modify_activity?
-        redirect_to actable_path, alert: "You don't have permission to edit this activity."
-        return
-      end
+      authorize @activity
 
       respond_to do |format|
         format.html
@@ -56,19 +43,7 @@ module Forefront
     end
 
     def update
-      unless can_modify_activity?
-        respond_to do |format|
-          format.turbo_stream do
-            render turbo_stream: turbo_stream.replace(
-              "activity_#{@activity.id}",
-              partial: "forefront/activities/activity",
-              locals: { activity: @activity, index: 0, total: 1 }
-            )
-          end
-          format.html { redirect_to actable_path, alert: "You don't have permission to edit this activity." }
-        end
-        return
-      end
+      authorize @activity
 
       result = ActivityOperations::Update.new(activity: @activity, params: activity_params).call
 
@@ -91,13 +66,7 @@ module Forefront
     end
 
     def destroy
-      unless can_modify_activity?
-        respond_to do |format|
-          format.turbo_stream
-          format.html { redirect_to actable_path, alert: "You don't have permission to delete this activity." }
-        end
-        return
-      end
+      authorize @activity
 
       result = ActivityOperations::Destroy.new(activity: @activity).call
 
@@ -137,16 +106,6 @@ module Forefront
       end
     end
 
-    def find_actable
-      if params[:ticket_id].present?
-        Ticket.find(params[:ticket_id])
-      elsif params[:lead_id].present?
-        Lead.find(params[:lead_id])
-      else
-        raise ActiveRecord::RecordNotFound
-      end
-    end
-
     def actable_type
       @actable.class.name.demodulize.downcase
     end
@@ -159,18 +118,10 @@ module Forefront
       end
     end
 
-    def can_create_activity?
-      @actable.created_by_id == current_admin.id || 
-      (@actable.respond_to?(:assigned_to_id) && @actable.assigned_to_id == current_admin.id)
-    end
-
-    def can_modify_activity?
-      @activity.created_by_id == current_admin.id
-    end
-
     def activity_params
       params.require(:activity).permit(:activity_type, :body)
     end
   end
 end
+
 

@@ -33,7 +33,7 @@ Mount the engine (generator does this automatically):
 
 ```ruby
 # config/routes.rb
-mount TicketLead::Engine, at: "/forefront"
+mount Forefront::Engine, at: "/forefront"
 ```
 
 ## Configure

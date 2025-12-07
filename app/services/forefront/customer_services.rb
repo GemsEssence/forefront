@@ -9,20 +9,41 @@ module Forefront
       end
 
       def call
-        result = @scope
+        conditions = []
+        params = {}
 
-        result = result.by_name(filters[:name]) if filters[:name].present?
-        result = result.by_email(filters[:email]) if filters[:email].present?
-        result = result.by_phone(filters[:phone]) if filters[:phone].present?
-        result = result.by_business_name(filters[:business_name]) if filters[:business_name].present?
-
-        # Search
+        # Build conditions - search takes precedence
         if filters[:search].present?
-          search_term = "%#{filters[:search]}%"
-          result = result.where(
-            "name ILIKE ? OR email ILIKE ? OR phone ILIKE ? OR business_name ILIKE ?",
-            search_term, search_term, search_term, search_term
-          )
+          conditions << "(name ILIKE :search OR email ILIKE :search OR phone ILIKE :search OR business_name ILIKE :search)"
+          params[:search] = "%#{filters[:search]}%"
+        else
+          # Individual field filters (only if no general search)
+          if filters[:name].present?
+            conditions << "name ILIKE :name"
+            params[:name] = "%#{filters[:name]}%"
+          end
+
+          if filters[:email].present?
+            conditions << "email ILIKE :email"
+            params[:email] = "%#{filters[:email]}%"
+          end
+
+          if filters[:phone].present?
+            conditions << "phone ILIKE :phone"
+            params[:phone] = "%#{filters[:phone]}%"
+          end
+
+          if filters[:business_name].present?
+            conditions << "business_name ILIKE :business_name"
+            params[:business_name] = "%#{filters[:business_name]}%"
+          end
+        end
+
+        # Build result with all conditions
+        result = @scope
+        if conditions.any?
+          query_string = conditions.join(" AND ")
+          result = result.where(query_string, params)
         end
 
         # Sorting
