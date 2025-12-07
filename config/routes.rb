@@ -6,11 +6,13 @@ Forefront::Engine.routes.draw do
   resources :tickets do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
     resources :assignments, only: [:create], controller: 'assignments'
+    resources :status_histories, only: [:create], controller: 'status_histories'
   end
 
   resources :leads do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
     resources :assignments, only: [:create], controller: 'assignments'
+    resources :status_histories, only: [:create], controller: 'status_histories'
   end
 
   resources :customers

@@ -5,6 +5,7 @@ module Forefront
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
+    has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
 
     enum category: {
       tech: 'Tech',

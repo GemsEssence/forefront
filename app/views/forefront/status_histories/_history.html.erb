@@ -1,0 +1,15 @@
+<div id="<%= "status_history_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>">
+  <ul class="divide-y divide-gray-200">
+    <% trackable.status_histories.order(created_at: :desc).each do |h| %>
+      <li class="px-4 py-2">
+        <p class="text-sm text-gray-700">
+          <strong><%= h.old_status || 'Initial' %></strong> → <strong><%= h.new_status %></strong>
+          <span class="text-xs text-gray-500">by <%= h.changed_by&.name || 'System' %> • <%= h.created_at.strftime('%b %d, %Y %I:%M %p') %></span>
+        </p>
+        <% if h.note.present? %>
+          <p class="text-sm text-gray-600 mt-1"><%= h.note %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>

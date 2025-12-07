@@ -100,6 +100,20 @@
         <%= render 'forefront/assignments/form', assignable: @ticket, admins: @admins %>
       </div>
 
+      <div class="mt-6 flex items-center justify-between">
+        <h2 class="text-lg font-medium text-gray-900">Status</h2>
+        <% if policy(@ticket).update? %>
+          <div>
+            <button type="button" onclick="openStatusHistoryModal('<%= "status_history_modal_#{@ticket.class.name.demodulize.underscore}_#{@ticket.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Change Status</button>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-2">
+        <!-- status history form modal -->
+        <%= render 'forefront/status_histories/form', trackable: @ticket %>
+      </div>
+
       <!-- Activity Form -->
       <%= render "forefront/activities/form", actable: @ticket %>
 

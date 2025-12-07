@@ -1,0 +1,43 @@
+<div id="<%= "status_history_modal_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>" class="fixed inset-0 z-50 flex items-center justify-center" style="display:none;">
+  <div class="fixed inset-0 bg-black opacity-50" onclick="closeStatusHistoryModal('<%= "status_history_modal_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>')"></div>
+  <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
+    <h3 class="text-lg font-medium mb-4">Change Status</h3>
+
+    <%= form_with url: polymorphic_path([trackable, :status_histories]), method: :post, data: { turbo: true }, html: { class: 'status-history-form' } do |f| %>
+
+      <div class="mb-3">
+        <%= f.label :status, 'New Status', class: 'block text-sm font-medium text-gray-700' %>
+        <% status_options = {} %>
+        <% if trackable.class.respond_to?(:statuses) %>
+          <% status_options = trackable.class.statuses.map { |k, v| [v, v] } %>
+        <% end %>
+        <%= f.select :status, status_options, {}, class: 'mt-1 block w-full border rounded' %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :status_note, 'Note (optional)', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.text_area :status_note, rows: 3, class: 'mt-1 block w-full border rounded' %>
+      </div>
+
+      <% if defined?(errors) && errors.present? %>
+        <div class="text-sm text-red-600 mb-2"><%= errors.join(', ') %></div>
+      <% end %>
+
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="closeStatusHistoryModal('<%= "status_history_modal_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>')" class="px-3 py-1 border rounded">Cancel</button>
+        <%= f.submit 'Change Status', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+    function openStatusHistoryModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'flex';
+    }
+    function closeStatusHistoryModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+  </script>
+</div>

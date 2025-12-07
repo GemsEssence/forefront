@@ -93,8 +93,20 @@
       </div>
 
       <div class="mt-2">
-        <!-- history is shown in the Activities tab; modal form is included here for the show page -->
-        <%= render 'forefront/assignments/form', assignable: @lead, admins: @admins %>
+        <%= render 'forefront/assignments/form', assignable: @ticket, admins: @admins %>
+      </div>
+
+      <div class="mt-6 flex items-center justify-between">
+        <h2 class="text-lg font-medium text-gray-900">Status</h2>
+        <% if policy(@lead).update? %>
+          <div>
+            <button type="button" onclick="openStatusHistoryModal('<%= "status_history_modal_#{@lead.class.name.demodulize.underscore}_#{@lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Change Status</button>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-2">
+        <%= render 'forefront/status_histories/form', trackable: @lead %>
       </div>
 
       <!-- Activity Form -->
