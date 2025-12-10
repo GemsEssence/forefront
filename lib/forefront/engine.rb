@@ -1,4 +1,5 @@
 require "turbo-rails"
+require "pundit"
 
 module Forefront
   class Engine < ::Rails::Engine

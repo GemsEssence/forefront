@@ -15,16 +15,6 @@ module Forefront
       current_admin
     end
 
-    # Get the current authenticated user from the configured method
-    def current_admin
-      send(Forefront.current_admin_method)
-    end
-
-    # Check if a user is signed in using the configured method
-    def admin_signed_in?
-      current_admin.present?
-    end
-
     private
 
     def user_not_authorized

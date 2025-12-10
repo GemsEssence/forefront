@@ -1,5 +1,10 @@
 Forefront::Engine.routes.draw do
-  devise_for :admins, class_name: "Forefront::Admin", path: "admins"
+  devise_for :admins, class_name: "Forefront::Admin", path: "admins",
+    controllers: {
+      sessions: "forefront/admins/sessions",
+      passwords: "forefront/admins/passwords",
+      registrations: "forefront/admins/registrations"
+    }
 
   root to: "dashboard#index"
 
