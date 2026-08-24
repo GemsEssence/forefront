@@ -1,0 +1,44 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Staff</h1>
+        <% if policy(Forefront::Admin).new? %>
+          <%= link_to "New Staff Member", new_admin_path, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        <% end %>
+      </div>
+
+      <%= render "forefront/shared/messages" %>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <% if @admins.any? %>
+          <ul class="divide-y divide-gray-200">
+            <% @admins.each do |admin| %>
+              <li class="px-4 py-4 sm:px-6 flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-indigo-600"><%= admin.name %></p>
+                  <p class="text-sm text-gray-500"><%= admin.email %></p>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <%= admin.role.humanize %>
+                  </span>
+                  <span class="text-sm text-gray-500">
+                    <%= admin.manager&.name || "No manager" %>
+                  </span>
+                  <% if policy(admin).edit? %>
+                    <%= link_to "Edit", edit_admin_path(admin), class: "text-indigo-600 hover:text-indigo-500 text-sm font-medium" %>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <div class="text-center py-12">
+            <p class="text-gray-500">No staff members found.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
