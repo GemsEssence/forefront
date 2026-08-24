@@ -71,7 +71,7 @@ module Forefront
         puts "       name: 'Your Name',"
         puts "       email: 'you@example.com',"
         puts "       password: 'your_password',"
-        puts "       super_admin: true"
+        puts "       role: 'admin'"
         puts "     )\n\n"
 
         puts "Sign-up is invite-only; the console is the only way to create the first admin.\n\n"

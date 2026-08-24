@@ -37,7 +37,7 @@ Forefront::Admin.create!(
   name: "Your Name",
   email: "admin@example.com",
   password: "password123",
-  super_admin: true
+  role: "admin"
 )
 ```
 
@@ -54,7 +54,8 @@ way to swap in a host app's own user model — that pluggable-auth seam is plann
 future release once the engine's own role model (Admin/Manager/Sales person) is built out.
 
 Sign-up is invite-only: there is no public registration form. Create the first admin via
-the Rails console (see below); an already-signed-in admin can also create further admins.
+the Rails console (see below). There is no web UI yet for creating further Admins,
+Managers, or Sales persons — for now, use the console the same way (see Admin Roles).
 
 ## Installation
 
@@ -98,24 +99,31 @@ Once installed, visit:
 
 ### Admin Roles
 
-- **Super Admin**: Full access to all resources
-- **Regular Admin**: Can only access/edit their own resources
+Every `Forefront::Admin` has a `role`, one of three tiers:
+
+- **Admin**: Full access to all resources.
+- **Manager**: Access to their own resources plus those of their direct reports
+  (Sales persons and Managers where `manager_id` points to them).
+- **Sales person**: Access only to resources they created or are assigned to.
 
 ```ruby
-# Create super admin (full access)
-Forefront::Admin.create!(name: "Admin", email: "admin@example.com", password: "pass", super_admin: true)
+# Create an admin (full access)
+Forefront::Admin.create!(name: "Admin", email: "admin@example.com", password: "pass", role: "admin")
 
-# Create regular admin (limited access)
-Forefront::Admin.create!(name: "User", email: "user@example.com", password: "pass", super_admin: false)
+# Create a manager
+manager = Forefront::Admin.create!(name: "Manager", email: "manager@example.com", password: "pass", role: "manager")
+
+# Create a sales person reporting to that manager
+Forefront::Admin.create!(name: "Rep", email: "rep@example.com", password: "pass", role: "sales_person", manager: manager)
 ```
 
 ### Authorization
 
 Uses Pundit policies:
 - **Create**: Any admin
-- **Read**: Created by or assigned to the admin (super admin sees all)
-- **Update**: Created by, assigned to, or super admin
-- **Delete**: Super admin only
+- **Read**: Created by, assigned to, or (for a Manager) one of their direct reports; Admin sees all
+- **Update**: Same as Read
+- **Delete**: Admin only
 
 ## Contributing
 

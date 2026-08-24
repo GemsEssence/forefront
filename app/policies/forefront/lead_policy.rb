@@ -12,7 +12,7 @@ module Forefront
     end
 
     def show?
-      super_admin? || owner? || assignee?
+      super_admin? || owner? || assignee? || manages_owner_or_assignee?
     end
 
     def create?
@@ -24,7 +24,7 @@ module Forefront
     end
 
     def update?
-      owner? || assignee?
+      owner? || assignee? || manages_owner_or_assignee?
     end
 
     def edit?
@@ -34,9 +34,9 @@ module Forefront
     def destroy?
       super_admin?
     end
- 
+
     def change_assignee?
-      super_admin? || assignee?
+      super_admin? || assignee? || manages_owner_or_assignee?
     end
 
     class Scope
@@ -48,6 +48,9 @@ module Forefront
       def resolve
         if super_admin?
           @scope
+        elsif @current_admin.manager?
+          ids = @current_admin.direct_report_ids << @current_admin.id
+          @scope.where("created_by_id IN (:ids) OR assigned_to_id IN (:ids)", ids: ids)
         else
           @scope.where(
             "created_by_id = ? OR assigned_to_id = ?",
@@ -76,6 +79,13 @@ module Forefront
 
     def assignee?
       lead.assigned_to_id == current_admin.id
+    end
+
+    def manages_owner_or_assignee?
+      current_admin.manager? && (
+        current_admin.direct_report_ids.include?(lead.created_by_id) ||
+        current_admin.direct_report_ids.include?(lead.assigned_to_id)
+      )
     end
   end
 end
