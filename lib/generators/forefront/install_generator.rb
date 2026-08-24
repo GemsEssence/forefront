@@ -13,12 +13,6 @@ module Forefront
         puts "="*70
       end
 
-      def create_initializer
-        template "forefront_initializer.rb", "config/initializers/forefront.rb"
-        say "✓ Created config/initializers/forefront.rb"
-        say "  (Optional: Customize authentication if using your own user model)"
-      end
-
       def create_devise_initializer
         if defined?(Devise)
           unless File.exist?(Rails.root.join("config", "initializers", "devise.rb"))
@@ -79,13 +73,9 @@ module Forefront
         puts "       password: 'your_password',"
         puts "       super_admin: true"
         puts "     )\n\n"
-        
-        puts "Or sign up through the web interface at /forefront/admins/sign_up\n\n"
-        
-        puts "📚 For detailed information:"
-        puts "   - GETTING_STARTED.md (how to use Forefront)"
-        puts "   - AUTHENTICATION_CONFIGURATION.md (custom authentication)\n\n"
-        
+
+        puts "Sign-up is invite-only; the console is the only way to create the first admin.\n\n"
+
         puts "="*70 + "\n"
       end
     end

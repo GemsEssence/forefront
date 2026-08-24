@@ -5,7 +5,7 @@ A comprehensive Rails engine for ticket and lead management with built-in authen
 ## Features
 
 ✨ **Ticket & Lead Management** - Track customer issues and sales leads
-👥 **Admin Users** - Built-in or custom authentication
+👥 **Admin Users** - Built-in Devise authentication, invite-only sign-up
 🔒 **Pundit Authorization** - Fine-grained access control
 📝 **Activities Tracking** - Log all interactions
 👤 **Assignments** - Assign tickets/leads to team members with history
@@ -47,38 +47,14 @@ Navigate to: `http://localhost:3000/forefront`
 
 Sign in and start managing tickets and leads!
 
-## Authentication Options
+## Authentication
 
-### Option 1: Use Forefront's Built-in Admin (Recommended for New Apps)
+Forefront ships its own `Forefront::Admin` model (Devise-backed). There is currently no
+way to swap in a host app's own user model — that pluggable-auth seam is planned as a
+future release once the engine's own role model (Admin/Manager/Sales person) is built out.
 
-**No configuration needed!** Just install and use. The gem provides:
-- `Forefront::Admin` model with Devise
-- Built-in sign up/sign in
-- Super admin support
-- All features ready to use
-
-👉 See [GETTING_STARTED.md](./GETTING_STARTED.md) for detailed guide
-
-### Option 2: Use Your Own User Model (For Existing Apps)
-
-Configure in `config/initializers/forefront.rb`:
-
-```ruby
-Forefront.setup do |config|
-  config.admin_class = "User"
-  config.authenticate_with = :authenticate_user!
-  config.current_admin_method = :current_user
-end
-```
-
-Your User model must implement:
-```ruby
-def super_admin?
-  role == 'admin'  # or your custom logic
-end
-```
-
-👉 See [AUTHENTICATION_CONFIGURATION.md](./AUTHENTICATION_CONFIGURATION.md) for detailed guide
+Sign-up is invite-only: there is no public registration form. Create the first admin via
+the Rails console (see below); an already-signed-in admin can also create further admins.
 
 ## Installation
 
@@ -113,34 +89,10 @@ mount Forefront::Engine, at: "/forefront"
 
 Once installed, visit:
 - **Dashboard**: `http://localhost:3000/forefront`
-- **Sign up**: `http://localhost:3000/forefront/admins/sign_up`
 - **Sign in**: `http://localhost:3000/forefront/admins/sign_in`
 - **Tickets**: `http://localhost:3000/forefront/tickets`
 - **Leads**: `http://localhost:3000/forefront/leads`
 - **Customers**: `http://localhost:3000/forefront/customers`
-
-## Configuration
-
-### Default (No Setup Required)
-
-Works out of the box with:
-- `Forefront::Admin` model
-- Devise authentication
-- Built-in authorization with Pundit
-
-### Custom Authentication (Optional)
-
-In `config/initializers/forefront.rb`:
-
-```ruby
-Forefront.setup do |config|
-  config.admin_class = "User"
-  config.authenticate_with = :authenticate_user!
-  config.current_admin_method = :current_user
-end
-```
-
-See [AUTHENTICATION_CONFIGURATION.md](./AUTHENTICATION_CONFIGURATION.md) for examples.
 
 ## Key Concepts
 
