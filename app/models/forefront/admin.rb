@@ -12,7 +12,7 @@ module Forefront
     has_many :activities, class_name: "Forefront::Activity", foreign_key: "created_by_id", dependent: :destroy
 
     validates :name, presence: true
-    validates :email, presence: true, uniqueness: true
+    # validates :email, presence: true, uniqueness: true
 
     def super_admin?
       super_admin

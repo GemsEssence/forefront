@@ -1,4 +1,4 @@
-class CreateForefrontCustomers < ActiveRecord::Migration[7.0]
+class CreateForefrontCustomers < ActiveRecord::Migration[6.1]
   def change
     create_table :forefront_customers do |t|
       t.string :name, null: false

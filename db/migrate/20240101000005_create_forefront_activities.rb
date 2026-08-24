@@ -1,4 +1,4 @@
-class CreateForefrontActivities < ActiveRecord::Migration[7.0]
+class CreateForefrontActivities < ActiveRecord::Migration[6.1]
   def change
     create_table :forefront_activities do |t|
       t.references :actable, polymorphic: true, null: false, index: true

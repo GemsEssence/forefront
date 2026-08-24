@@ -1,4 +1,4 @@
-class CreateForefrontAdmins < ActiveRecord::Migration[7.0]
+class CreateForefrontAdmins < ActiveRecord::Migration[6.1]
   def change
     create_table :forefront_admins do |t|
       ## Database authenticatable

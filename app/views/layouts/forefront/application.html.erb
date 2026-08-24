@@ -1,21 +1,52 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Forefront</title>
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-  <%= turbo_include_tags %>
+  <head>
+    <title>Forefront</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= turbo_include_tags %>
 
-  <%= yield :head %>
+    <%= yield :head %>
 
-  <!-- Load TailwindCSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <%= stylesheet_link_tag    "forefront/application", media: "all" %>
-  <!-- Note: This gem uses Tailwind CSS classes. Make sure Tailwind CSS is configured in your host application. -->
-</head>
-<body>
+    <!-- Load TailwindCSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <%= stylesheet_link_tag    "forefront/application", media: "all" %>
+    <!-- Note: This gem uses Tailwind CSS classes. Make sure Tailwind CSS is configured in your host application. -->
+  </head>
+  <body>
+    <div class="min-h-screen bg-gray-50">
+      <% if admin_signed_in? %>
+        <nav class="bg-white shadow">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+              <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                  <%= link_to root_path, class: "text-xl font-bold text-gray-900 hover:text-indigo-600" do %>
+                    Forefront
+                  <% end %>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                  <%= link_to "Dashboard", root_path, class: "border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Tickets", tickets_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Leads", leads_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Customers", customers_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <span class="text-gray-700 mr-4">Welcome, <%= current_admin.name %></span>
+                <%= link_to "Edit Profile", edit_admin_registration_path, class: "text-gray-700 hover:text-gray-900 mr-4" %>
+                <%= button_to "Sign out", destroy_admin_session_path, method: :delete, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+              </div>
+            </div>
+          </div>
+        </nav>
+      <% end %>
 
-<%= yield %>
-
-</body>
+      <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+          <%= yield %>
+        </div>
+      </main> 
+    </div>
+  </body>
 </html>
