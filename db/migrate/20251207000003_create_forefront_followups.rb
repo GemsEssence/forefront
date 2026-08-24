@@ -1,4 +1,4 @@
-class CreateForefrontFollowups < ActiveRecord::Migration[6.0]
+class CreateForefrontFollowups < ActiveRecord::Migration[6.1]
   def change
     create_table :forefront_followups do |t|
       t.references :followupable, polymorphic: true, null: false, index: true
@@ -15,8 +15,5 @@ class CreateForefrontFollowups < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-
-    add_index :forefront_followups, [:followupable_type, :followupable_id]
-    add_index :forefront_followups, :assigned_to_id
   end
 end
