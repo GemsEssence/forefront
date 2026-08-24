@@ -28,6 +28,10 @@ Money owed by a Customer for the Product on a won Lead. Paid in full, or split i
 **Installment**:
 A single scheduled portion of a Payment — amount and due date entered manually by the Sales person, not system-generated from a count/split. Each Installment drives an automated reminder Followup ahead of its due date.
 
+**Product**:
+What's sold — created by an Admin or Manager, with a name and a price. A Sales person may only be assigned a Lead for a Product that's been allocated to them; Admins and Managers are unrestricted.
+_Avoid_: Assign/Assignment for the Product-to-Sales-person link — say "allocate"/"Allocation" instead, since Assignment already means something specific (who currently owns a Ticket or Lead).
+
 **Ticket**:
 A trackable action item connected to a Customer (always) and optionally to a Lead. Covers things like scheduling a demo, a support issue, a complaint, a feature request, or a Renewal reminder — it is not itself revenue-bearing and is independent of whether a Lead ever exists or wins. Created by any Staff member (Sales person, Manager, or Admin); customer self-service creation is a possible future phase, not current scope.
 _Avoid_: Support ticket, SupportRequest (not a separate concept — Ticket already covers this ground)

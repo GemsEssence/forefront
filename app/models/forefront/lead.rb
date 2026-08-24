@@ -3,6 +3,7 @@ module Forefront
     belongs_to :customer
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
+    belongs_to :product, class_name: "Forefront::Product", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
@@ -37,6 +38,7 @@ module Forefront
     validates :description, presence: true
     validates :source, presence: true
     validates :status, presence: true
+    validate :product_allocated_to_sales_person
 
     # Scopes for filtering
     scope :by_source, ->(source) { where(source: source) }
@@ -67,6 +69,16 @@ module Forefront
 
     def active?
       !won? && !lost?
+    end
+
+    private
+
+    def product_allocated_to_sales_person
+      return if product.nil? || assigned_to.nil?
+      return unless assigned_to.sales_person?
+      return if assigned_to.products.include?(product)
+
+      errors.add(:product, "is not assigned to this sales person")
     end
   end
 end

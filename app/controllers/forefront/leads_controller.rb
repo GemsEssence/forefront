@@ -29,6 +29,7 @@ module Forefront
       authorize @lead
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
+      @products = products_for_form
     end
 
     def create
@@ -47,6 +48,7 @@ module Forefront
         @lead = result[:lead]
         @customers = Customer.all.order(:name)
         @admins = Admin.all.order(:name)
+        @products = products_for_form
         flash.now[:alert] = result[:errors].join(', ')
         render :new, status: :unprocessable_entity
       end
@@ -55,6 +57,7 @@ module Forefront
     def edit
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
+      @products = products_for_form
     end
 
     def update
@@ -70,6 +73,7 @@ module Forefront
         @lead = result[:lead]
         @customers = Customer.all.order(:name)
         @admins = Admin.all.order(:name)
+        @products = products_for_form
         flash.now[:alert] = result[:errors].join(', ')
         render :edit, status: :unprocessable_entity
       end
@@ -98,8 +102,12 @@ module Forefront
     def lead_params
       params.require(:lead).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :source, :status, :due_at, :next_followup_at
+        :source, :status, :due_at, :next_followup_at, :product_id
       )
+    end
+
+    def products_for_form
+      current_admin.sales_person? ? current_admin.products.order(:name) : Product.all.order(:name)
     end
 
     def filter_params

@@ -9,6 +9,7 @@ Forefront::Engine.routes.draw do
   root to: "dashboard#index"
 
   resources :admins, path: "staff", only: [ :index, :new, :create, :edit, :update ]
+  resources :products, only: [ :index, :new, :create, :edit, :update ]
 
   resources :tickets do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'

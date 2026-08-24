@@ -10,6 +10,9 @@ module Forefront
     belongs_to :manager, class_name: "Forefront::Admin", optional: true
     has_many :direct_reports, class_name: "Forefront::Admin", foreign_key: "manager_id", dependent: :nullify
 
+    has_many :product_allocations, class_name: "Forefront::ProductAllocation", dependent: :destroy
+    has_many :products, through: :product_allocations
+
     has_many :created_tickets, class_name: "Forefront::Ticket", foreign_key: "created_by_id", dependent: :nullify
     has_many :assigned_tickets, class_name: "Forefront::Ticket", foreign_key: "assigned_to_id", dependent: :nullify
     has_many :created_leads, class_name: "Forefront::Lead", foreign_key: "created_by_id", dependent: :nullify

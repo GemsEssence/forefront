@@ -1,0 +1,37 @@
+<%= form_with model: @product, url: path, local: true, class: "space-y-6" do |f| %>
+  <div>
+    <%= f.label :name, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+  </div>
+
+  <div>
+    <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_area :description, rows: 3, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :price, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_field :price, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+  </div>
+
+  <div>
+    <p class="block text-sm font-medium text-gray-700 mb-2">Allocated Sales Persons</p>
+    <% if @sales_persons.any? %>
+      <div class="space-y-2">
+        <% @sales_persons.each do |sales_person| %>
+          <label class="flex items-center">
+            <%= check_box_tag "product[admin_ids][]", sales_person.id, @product.admin_ids.include?(sales_person.id), id: "admin_ids_#{sales_person.id}", class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+            <span class="ml-2 text-sm text-gray-700"><%= sales_person.name %></span>
+          </label>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500">No sales persons yet.</p>
+    <% end %>
+  </div>
+
+  <div class="flex justify-end space-x-3">
+    <%= link_to "Cancel", products_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
+    <%= f.submit class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+  </div>
+<% end %>

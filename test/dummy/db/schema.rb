@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000002) do
     t.text "description"
     t.date "due_at"
     t.datetime "next_followup_at", precision: nil
+    t.bigint "product_id"
     t.string "source", default: "website", null: false
     t.string "status", default: "Open", null: false
     t.string "title", null: false
@@ -106,8 +107,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000002) do
     t.index ["customer_id"], name: "index_forefront_leads_on_customer_id"
     t.index ["due_at"], name: "index_forefront_leads_on_due_at"
     t.index ["next_followup_at"], name: "index_forefront_leads_on_next_followup_at"
+    t.index ["product_id"], name: "index_forefront_leads_on_product_id"
     t.index ["source"], name: "index_forefront_leads_on_source"
     t.index ["status"], name: "index_forefront_leads_on_status"
+  end
+
+  create_table "forefront_product_allocations", force: :cascade do |t|
+    t.bigint "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "product_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id"], name: "index_forefront_product_allocations_on_admin_id"
+    t.index ["product_id", "admin_id"], name: "index_forefront_product_allocations_on_product_id_and_admin_id", unique: true
+    t.index ["product_id"], name: "index_forefront_product_allocations_on_product_id"
+  end
+
+  create_table "forefront_products", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.decimal "price", precision: 10, scale: 2, default: "0.0", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "forefront_status_histories", force: :cascade do |t|
@@ -156,6 +176,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000002) do
   add_foreign_key "forefront_leads", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_leads", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_leads", "forefront_customers", column: "customer_id"
+  add_foreign_key "forefront_leads", "forefront_products", column: "product_id"
+  add_foreign_key "forefront_product_allocations", "forefront_admins", column: "admin_id"
+  add_foreign_key "forefront_product_allocations", "forefront_products", column: "product_id"
   add_foreign_key "forefront_status_histories", "forefront_admins", column: "changed_by_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "created_by_id"
