@@ -40,6 +40,8 @@ module Forefront
     validates :status, presence: true
     validate :product_allocated_to_sales_person
 
+    before_save :set_won_at, if: :status_changed?
+
     # Scopes for filtering
     scope :by_source, ->(source) { where(source: source) }
     scope :by_status, ->(status) { where(status: status) }
@@ -72,6 +74,10 @@ module Forefront
     end
 
     private
+
+    def set_won_at
+      self.won_at = won? ? (won_at || Time.current) : nil
+    end
 
     def product_allocated_to_sales_person
       return if product.nil? || assigned_to.nil?

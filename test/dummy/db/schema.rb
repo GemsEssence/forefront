@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_000005) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_000007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -102,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000005) do
     t.string "status", default: "Open", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.datetime "won_at", precision: nil
     t.index ["assigned_to_id"], name: "index_forefront_leads_on_assigned_to_id"
     t.index ["created_by_id"], name: "index_forefront_leads_on_created_by_id"
     t.index ["customer_id"], name: "index_forefront_leads_on_customer_id"
@@ -143,6 +144,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000005) do
     t.index ["trackable_type", "trackable_id"], name: "index_forefront_status_histories_on_trackable"
   end
 
+  create_table "forefront_targets", force: :cascade do |t|
+    t.bigint "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.decimal "goal_value", precision: 12, scale: 2, null: false
+    t.string "metric", null: false
+    t.string "period", null: false
+    t.bigint "product_id", null: false
+    t.date "starts_on", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id", "product_id", "starts_on", "period"], name: "index_forefront_targets_on_admin_product_period", unique: true
+    t.index ["admin_id"], name: "index_forefront_targets_on_admin_id"
+    t.index ["product_id"], name: "index_forefront_targets_on_product_id"
+  end
+
   create_table "forefront_tickets", force: :cascade do |t|
     t.bigint "assigned_to_id"
     t.string "category", default: "issue", null: false
@@ -180,6 +195,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000005) do
   add_foreign_key "forefront_product_allocations", "forefront_admins", column: "admin_id"
   add_foreign_key "forefront_product_allocations", "forefront_products", column: "product_id"
   add_foreign_key "forefront_status_histories", "forefront_admins", column: "changed_by_id"
+  add_foreign_key "forefront_targets", "forefront_admins", column: "admin_id"
+  add_foreign_key "forefront_targets", "forefront_products", column: "product_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_tickets", "forefront_customers", column: "customer_id"

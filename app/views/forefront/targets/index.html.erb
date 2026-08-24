@@ -1,0 +1,55 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Targets</h1>
+        <% if policy(Forefront::Target).new? %>
+          <%= link_to "New Target", new_target_path, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        <% end %>
+      </div>
+
+      <%= render "forefront/shared/messages" %>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <% if @targets.any? %>
+          <ul class="divide-y divide-gray-200">
+            <% @targets.each do |target| %>
+              <li class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-sm font-medium text-indigo-600"><%= target.admin.name %> &middot; <%= target.product.name %></p>
+                    <p class="text-sm text-gray-500">
+                      <%= target.period.humanize %> starting <%= target.starts_on.strftime("%b %d, %Y") %> &middot;
+                      goal: <%= target.lead_count? ? target.goal_value.to_i : number_to_currency(target.goal_value) %>
+                      (<%= target.metric.humanize %>)
+                    </p>
+                  </div>
+                  <div class="flex items-center space-x-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= target.achieved? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                      <%= target.achieved? ? "Achieved" : "In progress" %>
+                    </span>
+                    <% if policy(target).edit? %>
+                      <%= link_to "Edit", edit_target_path(target), class: "text-indigo-600 hover:text-indigo-500 text-sm font-medium" %>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= target.progress_percentage %>%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                  <%= target.lead_count? ? target.achieved_value.to_i : number_to_currency(target.achieved_value) %> of
+                  <%= target.lead_count? ? target.goal_value.to_i : number_to_currency(target.goal_value) %>
+                  (<%= target.progress_percentage %>%)
+                </p>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <div class="text-center py-12">
+            <p class="text-gray-500">No targets found.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

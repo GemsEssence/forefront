@@ -10,6 +10,7 @@ Forefront::Engine.routes.draw do
 
   resources :admins, path: "staff", only: [ :index, :new, :create, :edit, :update ]
   resources :products, only: [ :index, :new, :create, :edit, :update ]
+  resources :targets, only: [ :index, :new, :create, :edit, :update ]
 
   resources :tickets do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'

@@ -12,6 +12,7 @@ module Forefront
 
     has_many :product_allocations, class_name: "Forefront::ProductAllocation", dependent: :destroy
     has_many :products, through: :product_allocations
+    has_many :targets, class_name: "Forefront::Target", dependent: :destroy
 
     has_many :created_tickets, class_name: "Forefront::Ticket", foreign_key: "created_by_id", dependent: :nullify
     has_many :assigned_tickets, class_name: "Forefront::Ticket", foreign_key: "assigned_to_id", dependent: :nullify
