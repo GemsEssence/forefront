@@ -6,13 +6,13 @@
       </h2>
       <p class="mt-2 text-center text-sm text-gray-600">
         Or
-        <%= link_to "sign in to your account", new_session_path(resource_name), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+        <%= link_to "sign in to your account", new_admin_session_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>
       </p>
     </div>
 
     <%= render "forefront/shared/messages" %>
 
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "mt-8 space-y-6" }) do |f| %>
+    <%= form_for(resource, as: resource_name, url: admin_password_path, html: { method: :post, class: "mt-8 space-y-6" }) do |f| %>
       <div class="rounded-md shadow-sm">
         <div>
           <%= f.label :email, class: "sr-only" %>

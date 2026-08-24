@@ -3,10 +3,10 @@
   <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
     <h3 class="text-lg font-medium mb-4">Schedule Followup</h3>
 
-    <%= form_with model: Forefront::Followup.new, url: polymorphic_path([:forefront, followupable, :followups]), local: false, data: { turbo: true } do |f| %>
+    <%= form_with model: Forefront::Followup.new, url: polymorphic_path([followupable, :followups]), local: false, data: { turbo: true } do |f| %>
       <div class="mb-3">
         <%= f.label :followup_type, 'Type', class: 'block text-sm font-medium text-gray-700' %>
-        <%= f.select :followup_type, Forefront::Followup::FOLLOWUP_TYPES.map { |k, v| [k.humanize, k] }, { prompt: 'Select type' }, { class: 'mt-1 block w-full border rounded' } %>
+        <%= f.select :followup_type, Forefront::Followup.followup_types.map { |k, v| [k.humanize, k] }, { prompt: 'Select type' }, { class: 'mt-1 block w-full border rounded' } %>
       </div>
 
       <div class="mb-3">

@@ -1,5 +1,8 @@
 require "turbo-rails"
 require "pundit"
+require "devise"
+require "devise/orm/active_record"
+require "kaminari"
 
 module Forefront
   class Engine < ::Rails::Engine

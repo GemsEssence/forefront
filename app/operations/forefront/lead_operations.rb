@@ -19,10 +19,12 @@ module Forefront
           if @lead.assigned_to_id.present?
             Forefront::AssignmentOperations::Create.new(
               assignable: @lead,
-              params: { to_user_id: @lead.assigned_to_id },
+              params: { to_user_id: @lead.assigned_to_id, from_user_id: nil },
               current_admin: current_admin
             ).call
           end
+
+          { success: true, lead: @lead }
         else
           @errors = @lead.errors.full_messages
           { success: false, errors: @errors, lead: @lead }

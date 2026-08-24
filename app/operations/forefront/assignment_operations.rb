@@ -12,11 +12,16 @@ module Forefront
 
       def call
         to_id = params[:to_user_id]
-        from_id = assignable.assigned_to_id
+        from_id = params.key?(:from_user_id) ? params[:from_user_id] : assignable.assigned_to_id
 
         # update assignable's assignee
         if assignable.update(assigned_to_id: to_id)
-          assignable.assignments.create(assignment_params)
+          assignable.assignments.create(
+            to_user_id: to_id,
+            from_user_id: from_id,
+            note: params[:note],
+            changed_by_id: current_admin&.id
+          )
 
           # cascade reassign upcoming followups if assignee changed
           if from_id != to_id
@@ -31,10 +36,6 @@ module Forefront
       end
 
       private
-
-      def assignment_params
-        params.merge!( changed_by_id: current_admin&.id )
-      end
 
       def cascade_reassign_followups(from_id, to_id)
         # find upcoming followups assigned to the old assignee

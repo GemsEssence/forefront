@@ -3,7 +3,7 @@
   <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
     <h3 class="text-lg font-medium mb-4">Assign <%= assignable.class.name.demodulize %></h3>
 
-    <%= form_with url: assignments_path, method: :post, data: { turbo: true }, html: { class: 'assignment-form' } do |f| %>
+    <%= form_with url: polymorphic_path([assignable, :assignments]), method: :post, data: { turbo: true }, html: { class: 'assignment-form' } do |f| %>
 
       <div class="mb-3">
         <%= f.label :to_user_id, 'Assignee', class: 'block text-sm font-medium text-gray-700' %>

@@ -1,5 +1,7 @@
 module Forefront
-  class PasswordsController < Devise::PasswordsController
-    layout "forefront/application"
+  module Admins
+    class PasswordsController < Devise::PasswordsController
+      layout "forefront/application"
+    end
   end
 end

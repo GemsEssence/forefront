@@ -19,7 +19,7 @@ module Forefront
           if @ticket.assigned_to_id.present?
             Forefront::AssignmentOperations::Create.new(
               assignable: @ticket,
-              params: { to_user_id: @ticket.assigned_to_id },
+              params: { to_user_id: @ticket.assigned_to_id, from_user_id: nil },
               current_admin: current_admin
             ).call
           end

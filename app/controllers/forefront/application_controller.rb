@@ -2,12 +2,9 @@ module Forefront
   class ApplicationController < ActionController::Base
     include Pundit::Authorization
 
-    # Dynamically set the authentication filter based on Forefront config
-    before_action -> { send(Forefront.authenticate_with) }
-    after_action :verify_authorized, except: :index
-    after_action :verify_policy_scoped, only: :index
-
-    helper_method :current_admin, :admin_signed_in?
+    before_action :authenticate_admin!
+    after_action :verify_authorized, unless: -> { action_name == "index" }
+    after_action :verify_policy_scoped, if: -> { action_name == "index" }
 
     rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 

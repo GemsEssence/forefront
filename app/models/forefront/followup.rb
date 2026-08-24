@@ -1,10 +1,10 @@
 module Forefront
   class Followup < ApplicationRecord
     belongs_to :followupable, polymorphic: true
-    belongs_to :assigned_to, class_name: 'Forefront::Admin', optional: true
-    belongs_to :created_by, class_name: 'Forefront::Admin', optional: true
+    belongs_to :assigned_to, class_name: 'Forefront::Admin'
+    belongs_to :created_by, class_name: 'Forefront::Admin'
 
-    enum followup_type: {
+    enum :followup_type, {
       call: 'Call',
       email: 'Email',
       meeting: 'Meeting',
@@ -12,7 +12,7 @@ module Forefront
       other: 'Other'
     }
 
-    enum status: {
+    enum :status, {
       pending: 'Pending',
       completed: 'Completed',
       cancelled: 'Cancelled'

@@ -3,7 +3,7 @@ module Forefront
     belongs_to :actable, polymorphic: true
     belongs_to :created_by, class_name: "Forefront::Admin"
 
-    enum activity_type: {
+    enum :activity_type, {
       comment: 'comment',
       remark: 'remark',
       next_step: 'next_step',

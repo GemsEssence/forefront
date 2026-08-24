@@ -6,8 +6,9 @@ module Forefront
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
+    has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
 
-    enum category: {
+    enum :category, {
       tech: 'Tech',
       issue: 'Issue',
       request: 'Request',
@@ -20,14 +21,14 @@ module Forefront
       white_label_app: 'White Label App'
     }
 
-    enum priority: {
+    enum :priority, {
       low: 'Low',
       medium: 'Medium',
       high: 'High',
       critical: 'Critical'
     }
 
-    enum status: {
+    enum :status, {
       open: 'Open',
       in_progress: 'In Progress',
       on_hold: 'On Hold',
@@ -51,7 +52,7 @@ module Forefront
     scope :by_assigned_to, ->(admin_id) { where(assigned_to_id: admin_id) }
     scope :overdue, -> { where("due_at < ? AND status NOT IN (?)", Date.current, ['Resolved', 'Closed']) }
     scope :due_soon, -> { where("due_at BETWEEN ? AND ? AND status NOT IN (?)", Date.current, 1.day.from_now, ['Resolved', 'Closed']) }
-    scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['resolved', 'closed']) }
+    scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['Resolved', 'Closed']) }
     scope :recent, -> { order(created_at: :desc) }
     scope :by_due_date, -> { order(due_at: :asc) }
 

@@ -8,7 +8,7 @@
 
     <%= render "forefront/shared/messages" %>
 
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "mt-8 space-y-6" }) do |f| %>
+    <%= form_for(resource, as: resource_name, url: admin_password_path, html: { method: :put, class: "mt-8 space-y-6" }) do |f| %>
       <%= f.hidden_field :reset_password_token %>
 
       <div class="rounded-md shadow-sm space-y-4">

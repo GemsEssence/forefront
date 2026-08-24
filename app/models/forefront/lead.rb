@@ -6,8 +6,9 @@ module Forefront
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
+    has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
 
-    enum source: {
+    enum :source, {
       website: 'Website',
       phone: 'Phone',
       email: 'Email',
@@ -21,7 +22,7 @@ module Forefront
       other: 'Other'
     }
 
-    enum status: {
+    enum :status, {
       open: 'Open',
       contacted: 'Contacted',
       follow_up: 'Follow Up',
@@ -45,7 +46,7 @@ module Forefront
     scope :by_assigned_to, ->(admin_id) { where(assigned_to_id: admin_id) }
     scope :overdue, -> { where("due_at < ? AND status NOT IN (?)", Date.current, ['Won', 'Lost']) }
     scope :due_soon, -> { where("due_at BETWEEN ? AND ? AND status NOT IN (?)", Date.current, 1.day.from_now, ['Won', 'Lost']) }
-    scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['won', 'lost']) }
+    scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['Won', 'Lost']) }
     scope :active, -> { where.not(status: ['won', 'lost']) }
     scope :won, -> { where(status: 'won') }
     scope :lost, -> { where(status: 'lost') }

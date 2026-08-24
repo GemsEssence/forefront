@@ -10,7 +10,7 @@
   </div>
 <% end %>
 
-<% if resource.errors.any? %>
+<% if defined?(resource) && resource.present? && resource.errors.any? %>
   <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative mb-4" role="alert">
     <h2 class="font-bold mb-2">
       <%= pluralize(resource.errors.count, "error") %> prohibited this account from being saved:

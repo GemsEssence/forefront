@@ -33,10 +33,10 @@
           <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
             <h3 class="text-lg font-medium mb-4">Edit Followup</h3>
 
-            <%= form_with model: f, url: polymorphic_path([:forefront, followupable, f]), method: :patch, local: false, data: { turbo: true } do |ff| %>
+            <%= form_with model: f, url: polymorphic_path([followupable, f]), method: :patch, local: false, data: { turbo: true } do |ff| %>
               <div class="mb-3">
                 <%= ff.label :followup_type, 'Type', class: 'block text-sm font-medium text-gray-700' %>
-                <%= ff.select :followup_type, Forefront::Followup::FOLLOWUP_TYPES.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded' } %>
+                <%= ff.select :followup_type, Forefront::Followup.followup_types.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded' } %>
               </div>
 
               <div class="mb-3">
@@ -51,7 +51,7 @@
 
               <div class="mb-3">
                 <%= ff.label :status, 'Status', class: 'block text-sm font-medium text-gray-700' %>
-                <%= ff.select :status, Forefront::Followup::STATUSES.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded' } %>
+                <%= ff.select :status, Forefront::Followup.statuses.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded' } %>
               </div>
 
               <div class="mb-3">
