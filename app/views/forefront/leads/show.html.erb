@@ -109,6 +109,9 @@
         <%= render 'forefront/status_histories/form', trackable: @lead %>
       </div>
 
+      <!-- Payment Section -->
+      <%= render 'forefront/payments/section', lead: @lead %>
+
       <!-- Followups Section -->
       <%= render 'forefront/followups/list', followupable: @lead %>
       <%= render 'forefront/followups/form', followupable: @lead %>

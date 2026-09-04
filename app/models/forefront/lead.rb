@@ -8,6 +8,7 @@ module Forefront
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
     has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
+    has_one :payment, class_name: "Forefront::Payment", dependent: :destroy
 
     enum :source, {
       website: 'Website',

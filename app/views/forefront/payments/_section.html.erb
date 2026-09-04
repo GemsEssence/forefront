@@ -1,0 +1,63 @@
+<% if lead.won? %>
+  <div class="mt-6 flex items-center justify-between">
+    <h2 class="text-lg font-medium text-gray-900">Payment</h2>
+  </div>
+
+  <div class="mt-2 bg-white shadow overflow-hidden sm:rounded-lg p-4">
+    <% if lead.payment.nil? %>
+      <% if policy(lead).update? %>
+        <%= link_to "Record Payment", new_lead_payment_path(lead), class: "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" %>
+      <% else %>
+        <p class="text-sm text-gray-500">No payment recorded yet.</p>
+      <% end %>
+    <% else %>
+      <% payment = lead.payment %>
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-sm text-gray-900">
+          Total: <span class="font-medium"><%= number_to_currency(payment.total_amount) %></span>
+        </p>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= payment.fully_paid? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+          <%= payment.fully_paid? ? "Paid" : "Pending" %>
+        </span>
+      </div>
+
+      <% if payment.installments.empty? %>
+        <% if !payment.fully_paid? && policy(lead).update? %>
+          <%= button_to "Mark as Paid", lead_payment_path(lead), method: :patch, class: "bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm" %>
+        <% end %>
+      <% else %>
+        <ul class="divide-y divide-gray-200 mb-4">
+          <% payment.installments.order(:due_on).each do |installment| %>
+            <li class="py-2 flex items-center justify-between">
+              <span class="text-sm text-gray-900">
+                <%= number_to_currency(installment.amount) %> due <%= installment.due_on.strftime("%b %d, %Y") %>
+              </span>
+              <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= installment.paid? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                  <%= installment.status.humanize %>
+                </span>
+                <% if installment.pending? && policy(lead).update? %>
+                  <%= button_to "Mark Paid", lead_payment_installment_path(lead, installment), method: :patch, class: "bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded text-xs" %>
+                <% end %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <% if !payment.fully_paid? && policy(lead).update? %>
+        <%= form_with url: lead_payment_installments_path(lead), method: :post, scope: :installment, local: true, class: "flex items-end space-x-2 mt-2" do |f| %>
+          <div>
+            <%= f.label :amount, "Installment Amount", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.text_field :amount, class: "mt-1 block w-32 rounded-md border-gray-300 shadow-sm text-sm" %>
+          </div>
+          <div>
+            <%= f.label :due_on, "Due Date", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.date_field :due_on, class: "mt-1 block rounded-md border-gray-300 shadow-sm text-sm" %>
+          </div>
+          <%= f.submit "Add Installment", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-sm" %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
