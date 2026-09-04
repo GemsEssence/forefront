@@ -3,6 +3,51 @@
   <p class="text-gray-600">Welcome to the Forefront ticket and lead management system.</p>
 </div>
 
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+    <dt class="text-sm font-medium text-gray-500 truncate">Revenue Collected</dt>
+    <dd class="text-2xl font-semibold text-gray-900 mt-1"><%= number_to_currency(@summary.total_revenue) %></dd>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+    <dt class="text-sm font-medium text-gray-500 truncate">Leads Won / Open</dt>
+    <dd class="text-2xl font-semibold text-gray-900 mt-1"><%= @summary.won_leads_count %> / <%= @summary.open_leads_count %></dd>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+    <dt class="text-sm font-medium text-gray-500 truncate">Targets Achieved / Missed</dt>
+    <dd class="text-2xl font-semibold text-gray-900 mt-1">
+      <span class="text-green-700"><%= @summary.target_summary[:achieved] %></span> /
+      <span class="text-red-700"><%= @summary.target_summary[:missed] %></span>
+      <span class="text-sm text-gray-500 font-normal">(<%= @summary.target_summary[:in_progress] %> in progress)</span>
+    </dd>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+    <dt class="text-sm font-medium text-gray-500 truncate">Overdue Followups</dt>
+    <dd class="text-2xl font-semibold <%= @summary.overdue_followups_count > 0 ? 'text-red-700' : 'text-gray-900' %> mt-1"><%= @summary.overdue_followups_count %></dd>
+  </div>
+</div>
+
+<% if @summary.show_leaderboard? %>
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Leaderboard</h3>
+    <% leaderboard = @summary.leaderboard %>
+    <% if leaderboard.any? %>
+      <ol class="divide-y divide-gray-200">
+        <% leaderboard.each_with_index do |row, index| %>
+          <li class="py-2 flex items-center justify-between">
+            <span class="text-sm text-gray-900"><%= index + 1 %>. <%= row[:admin].name %></span>
+            <span class="text-sm font-medium text-gray-900"><%= number_to_currency(row[:revenue]) %></span>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="text-sm text-gray-500">No sales persons yet.</p>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
   <div class="bg-white overflow-hidden shadow rounded-lg">
     <div class="p-5">
