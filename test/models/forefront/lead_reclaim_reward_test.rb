@@ -47,4 +47,26 @@ class Forefront::LeadReclaimRewardTest < ActiveSupport::TestCase
 
     assert_equal 0, new_lead.reload.reclaim_reward_amount
   end
+
+  test "reclaim_reward_amount_for splits the total reward according to the lead's share" do
+    alice = Forefront::Admin.create!(name: "Alice", email: "alice-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    bob = Forefront::Admin.create!(name: "Bob", email: "bob-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    @product.admins << alice << bob
+
+    new_lead = Forefront::Lead.create!(title: "New", description: "D", customer: @customer, created_by: @admin, assigned_to: alice, source: "website", status: "open", product: @product)
+    Forefront::AssignmentOperations::Create.new(assignable: new_lead, params: { to_user_id: alice.id, from_user_id: nil }, current_admin: @admin).call
+    Forefront::AssignmentOperations::Create.new(assignable: new_lead, params: { to_user_id: bob.id }, current_admin: @admin).call
+    new_lead.update!(status: "won")
+    Forefront::Payment.create!(lead: new_lead, total_amount: 300, status: "paid", paid_at: Time.current)
+
+    assert_equal 60, new_lead.reload.reclaim_reward_amount_for(bob.id)
+
+    share = Forefront::LeadShare.new(lead: new_lead, recorded_by: @admin)
+    share.lead_share_participants.build(admin: alice, percentage: 25)
+    share.lead_share_participants.build(admin: bob, percentage: 75)
+    share.save!
+
+    assert_equal 15, new_lead.reload.reclaim_reward_amount_for(alice.id)
+    assert_equal 45, new_lead.reload.reclaim_reward_amount_for(bob.id)
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_04_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -98,6 +98,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_000004) do
     t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
     t.index ["payment_id"], name: "index_forefront_installments_on_payment_id"
+  end
+
+  create_table "forefront_lead_share_participants", force: :cascade do |t|
+    t.bigint "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "lead_share_id", null: false
+    t.decimal "percentage", precision: 5, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id"], name: "index_forefront_lead_share_participants_on_admin_id"
+    t.index ["lead_share_id", "admin_id"], name: "index_forefront_lsp_on_lead_share_and_admin", unique: true
+    t.index ["lead_share_id"], name: "index_forefront_lead_share_participants_on_lead_share_id"
+  end
+
+  create_table "forefront_lead_shares", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "lead_id", null: false
+    t.bigint "recorded_by_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lead_id"], name: "index_forefront_lead_shares_on_lead_id", unique: true
+    t.index ["recorded_by_id"], name: "index_forefront_lead_shares_on_recorded_by_id"
   end
 
   create_table "forefront_leads", force: :cascade do |t|
@@ -232,6 +252,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_000004) do
   add_foreign_key "forefront_followups", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_followups", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_installments", "forefront_payments", column: "payment_id"
+  add_foreign_key "forefront_lead_share_participants", "forefront_admins", column: "admin_id"
+  add_foreign_key "forefront_lead_share_participants", "forefront_lead_shares", column: "lead_share_id"
+  add_foreign_key "forefront_lead_shares", "forefront_admins", column: "recorded_by_id"
+  add_foreign_key "forefront_lead_shares", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_leads", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_leads", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_leads", "forefront_customers", column: "customer_id"

@@ -24,7 +24,7 @@ module Forefront
     end
 
     def update?
-      owner? || assignee? || manages_owner_or_assignee?
+      super_admin? || owner? || assignee? || manages_owner_or_assignee?
     end
 
     def edit?

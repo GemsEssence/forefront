@@ -26,8 +26,10 @@ module Forefront
     end
 
     def achieved_value
-      won_leads = product.leads.won.where(assigned_to_id: admin_id, won_at: starts_on.beginning_of_day..ends_on.end_of_day)
-      lead_count? ? won_leads.count : won_leads.count * product.price
+      won_leads_in_period = product.leads.won.where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
+      shares = won_leads_in_period.map { |lead| lead.share_fraction_for(admin_id) }.select(&:positive?)
+
+      lead_count? ? shares.sum : shares.sum * product.price
     end
 
     def achieved?

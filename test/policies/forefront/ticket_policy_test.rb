@@ -40,4 +40,9 @@ class Forefront::TicketPolicyTest < ActiveSupport::TestCase
     assert_not policy.show?
     assert_not policy.update?
   end
+
+  test "an admin can update any ticket, even one they neither created nor are assigned to" do
+    policy = Forefront::TicketPolicy.new(@admin, @other_reps_ticket)
+    assert policy.update?
+  end
 end

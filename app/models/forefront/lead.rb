@@ -10,6 +10,7 @@ module Forefront
     has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
     has_one :payment, class_name: "Forefront::Payment", dependent: :destroy
     has_one :subscription, class_name: "Forefront::Subscription", dependent: :destroy
+    has_one :lead_share, class_name: "Forefront::LeadShare", dependent: :destroy
 
     enum :source, {
       website: 'Website',
@@ -76,6 +77,23 @@ module Forefront
       !won? && !lost?
     end
 
+    def past_assignees
+      ids = assignments.pluck(:to_user_id)
+      ids << assigned_to_id if assigned_to_id.present?
+      Admin.where(id: ids.uniq)
+    end
+
+    def share_fraction_for(admin_id)
+      if lead_share.present?
+        participant = lead_share.lead_share_participants.find_by(admin_id: admin_id)
+        participant ? participant.percentage / 100.0 : 0
+      elsif assigned_to_id == admin_id
+        1.0
+      else
+        0
+      end
+    end
+
     def reclaim?
       return false if product.blank?
 
@@ -92,6 +110,10 @@ module Forefront
       return 0 if payment.blank?
 
       product.reclaim_reward_percentage / 100.0 * payment.total_amount
+    end
+
+    def reclaim_reward_amount_for(admin_id)
+      reclaim_reward_amount * share_fraction_for(admin_id)
     end
 
     private

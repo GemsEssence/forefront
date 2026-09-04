@@ -55,6 +55,27 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     assert target.achieved?
   end
 
+  test "achieved_value only counts an admin's own share of a shared lead" do
+    other_rep = Forefront::Admin.create!(name: "Other Rep", email: "otherrep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    @product.admins << other_rep
+    target = Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", goal_value: 1000, period: "monthly", starts_on: Date.new(2026, 3, 1))
+
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    Forefront::AssignmentOperations::Create.new(assignable: lead, params: { to_user_id: @rep.id, from_user_id: nil }, current_admin: @rep).call
+    Forefront::AssignmentOperations::Create.new(assignable: lead, params: { to_user_id: other_rep.id }, current_admin: @rep).call
+    lead.update!(status: "won")
+    lead.update_column(:won_at, Time.utc(2026, 3, 10))
+
+    assert_equal 0, target.achieved_value, "rep was reassigned away and the lead isn't shared, so they get no credit yet"
+
+    share = Forefront::LeadShare.new(lead: lead, recorded_by: @rep)
+    share.lead_share_participants.build(admin: @rep, percentage: 40)
+    share.lead_share_participants.build(admin: other_rep, percentage: 60)
+    share.save!
+
+    assert_equal 40, target.reload.achieved_value
+  end
+
   private
 
   def create_won_lead(won_at:)

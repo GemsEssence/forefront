@@ -40,4 +40,9 @@ class Forefront::LeadPolicyTest < ActiveSupport::TestCase
     assert_not policy.show?
     assert_not policy.update?
   end
+
+  test "an admin can update any lead, even one they neither created nor are assigned to" do
+    policy = Forefront::LeadPolicy.new(@admin, @other_reps_lead)
+    assert policy.update?
+  end
 end

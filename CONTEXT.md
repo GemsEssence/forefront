@@ -20,7 +20,7 @@ A prospect's entire journey with exactly one Product, from first contact through
 _Avoid_: Deal, Opportunity, Sale (colloquial use of "deal" to mean "a Lead" is fine in conversation, but there is no separate Deal model)
 
 **Shared Lead**:
-A Lead that has been reassigned between Sales persons at some point in its history, where everyone it was ever assigned to has unanimously agreed to split reward/target credit for the win among themselves — evenly by default, or at custom percentages they agree on — rather than crediting only whoever holds it at the moment it's won.
+A Lead that has been reassigned between Sales persons at some point in its history, where everyone it was ever assigned to (its "past assignees") has agreed, outside the system, to split reward/target credit for the win among themselves — evenly by default, or at custom percentages — rather than crediting only whoever holds it at the moment it's won. One person (the current assignee, or an Admin/Manager) records the already-reached agreement in one action; Forefront doesn't implement a per-person digital approval step, so recording it is an attestation, not a request awaiting sign-off. Sharing must name every past assignee (no subset) with percentages summing to exactly 100, and it changes real numbers, not just a note: Target achievement, and a Reclaim's own reward, are computed per Sales person from their share of each Lead (100% for an unshared Lead's current assignee, their recorded percentage otherwise) rather than always crediting the win in full to one person.
 
 **Payment**:
 Money owed by a Customer for the Product on a won Lead. Paid in full, or split into Installments.
