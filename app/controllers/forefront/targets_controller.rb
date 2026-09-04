@@ -58,7 +58,7 @@ module Forefront
     end
 
     def target_params
-      params.require(:target).permit(:admin_id, :product_id, :metric, :goal_value, :period, :starts_on)
+      params.require(:target).permit(:admin_id, :product_id, :metric, :goal_value, :period, :starts_on, :reward_type, :reward_value, :bonus_type, :bonus_value)
     end
 
     def load_form_collections

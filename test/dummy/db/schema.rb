@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_000007) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_000008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -146,11 +146,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000007) do
 
   create_table "forefront_targets", force: :cascade do |t|
     t.bigint "admin_id", null: false
+    t.string "bonus_type"
+    t.decimal "bonus_value", precision: 12, scale: 2
     t.datetime "created_at", null: false
     t.decimal "goal_value", precision: 12, scale: 2, null: false
     t.string "metric", null: false
     t.string "period", null: false
     t.bigint "product_id", null: false
+    t.string "reward_type"
+    t.decimal "reward_value", precision: 12, scale: 2
     t.date "starts_on", null: false
     t.datetime "updated_at", null: false
     t.index ["admin_id", "product_id", "starts_on", "period"], name: "index_forefront_targets_on_admin_product_period", unique: true

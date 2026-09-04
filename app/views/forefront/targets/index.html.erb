@@ -25,8 +25,9 @@
                     </p>
                   </div>
                   <div class="flex items-center space-x-4">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= target.achieved? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
-                      <%= target.achieved? ? "Achieved" : "In progress" %>
+                    <% status_class = target.achieved? ? 'bg-green-100 text-green-800' : (target.missed? ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_class %>">
+                      <%= target.achieved? ? "Achieved" : (target.missed? ? "Missed" : "In progress") %>
                     </span>
                     <% if policy(target).edit? %>
                       <%= link_to "Edit", edit_target_path(target), class: "text-indigo-600 hover:text-indigo-500 text-sm font-medium" %>
@@ -41,6 +42,11 @@
                   <%= target.lead_count? ? target.goal_value.to_i : number_to_currency(target.goal_value) %>
                   (<%= target.progress_percentage %>%)
                 </p>
+                <% if target.total_payout > 0 %>
+                  <p class="text-xs text-green-700 mt-1">
+                    Payout: <%= number_to_currency(target.reward_amount) %> reward<% if target.bonus_amount > 0 %> + <%= number_to_currency(target.bonus_amount) %> bonus<% end %>
+                  </p>
+                <% end %>
               </li>
             <% end %>
           </ul>

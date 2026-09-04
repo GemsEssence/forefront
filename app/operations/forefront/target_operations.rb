@@ -22,7 +22,7 @@ module Forefront
       private
 
       def attributes
-        params.slice(:admin_id, :product_id, :metric, :goal_value, :period, :starts_on)
+        params.slice(:admin_id, :product_id, :metric, :goal_value, :period, :starts_on, :reward_type, :reward_value, :bonus_type, :bonus_value)
       end
     end
 
@@ -47,7 +47,7 @@ module Forefront
       private
 
       def attributes
-        params.slice(:admin_id, :product_id, :metric, :goal_value, :period, :starts_on)
+        params.slice(:admin_id, :product_id, :metric, :goal_value, :period, :starts_on, :reward_type, :reward_value, :bonus_type, :bonus_value)
       end
     end
   end

@@ -5,10 +5,16 @@ module Forefront
 
     enum :metric, { amount: "amount", lead_count: "lead_count" }
     enum :period, { monthly: "monthly", quarterly: "quarterly", half_yearly: "half_yearly", yearly: "yearly" }
+    enum :reward_type, { fixed: "fixed", percentage: "percentage" }, prefix: true
+    enum :bonus_type, { fixed: "fixed", percentage: "percentage" }, prefix: true
 
     validates :goal_value, presence: true, numericality: { greater_than: 0 }
     validates :starts_on, presence: true
     validate :starts_on_is_calendar_aligned
+    validates :reward_value, presence: true, numericality: { greater_than: 0 }, if: :reward_type?
+    validates :reward_value, numericality: { less_than_or_equal_to: 100 }, if: :reward_type_percentage?
+    validates :bonus_value, presence: true, numericality: { greater_than: 0 }, if: :bonus_type?
+    validates :bonus_value, numericality: { less_than_or_equal_to: 100 }, if: :bonus_type_percentage?
 
     def ends_on
       case period
@@ -32,6 +38,26 @@ module Forefront
       return 0 if goal_value.zero?
 
       [ (achieved_value / goal_value * 100).round, 100 ].min
+    end
+
+    def missed?
+      Date.current > ends_on && !achieved?
+    end
+
+    def reward_amount
+      return 0 unless achieved? && reward_type?
+
+      reward_type_fixed? ? reward_value : (reward_value / 100.0 * goal_value)
+    end
+
+    def bonus_amount
+      return 0 unless achieved_value > goal_value && bonus_type?
+
+      bonus_type_fixed? ? bonus_value : (bonus_value / 100.0 * goal_value)
+    end
+
+    def total_payout
+      reward_amount + bonus_amount
     end
 
     private
