@@ -29,6 +29,7 @@ module Forefront
       authorize @ticket
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
+      @products = Product.all.order(:name)
     end
 
     def create
@@ -47,6 +48,7 @@ module Forefront
         @ticket = result[:ticket]
         @customers = Customer.all.order(:name)
         @admins = Admin.all.order(:name)
+        @products = Product.all.order(:name)
         flash.now[:alert] = result[:errors].join(', ')
         render :new, status: :unprocessable_entity
       end
@@ -55,6 +57,7 @@ module Forefront
     def edit
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
+      @products = Product.all.order(:name)
     end
 
     def update
@@ -70,6 +73,7 @@ module Forefront
         @ticket = result[:ticket]
         @customers = Customer.all.order(:name)
         @admins = Admin.all.order(:name)
+        @products = Product.all.order(:name)
         flash.now[:alert] = result[:errors].join(', ')
         render :edit, status: :unprocessable_entity
       end
@@ -98,7 +102,7 @@ module Forefront
     def ticket_params
       params.require(:ticket).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :category, :priority, :status, :due_at, :next_followup_at
+        :category, :priority, :status, :due_at, :next_followup_at, :product_id, :renewal_outcome
       )
     end
 

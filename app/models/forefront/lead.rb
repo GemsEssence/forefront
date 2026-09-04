@@ -9,6 +9,7 @@ module Forefront
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
     has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
     has_one :payment, class_name: "Forefront::Payment", dependent: :destroy
+    has_one :subscription, class_name: "Forefront::Subscription", dependent: :destroy
 
     enum :source, {
       website: 'Website',
@@ -42,6 +43,7 @@ module Forefront
     validate :product_allocated_to_sales_person
 
     before_save :set_won_at, if: :status_changed?
+    after_save :ensure_subscription
 
     # Scopes for filtering
     scope :by_source, ->(source) { where(source: source) }
@@ -74,10 +76,38 @@ module Forefront
       !won? && !lost?
     end
 
+    def reclaim?
+      return false if product.blank?
+
+      customer.subscriptions
+              .where(product_id: product_id)
+              .where.not(lead_id: id)
+              .where("expires_at <= ?", 3.months.ago.to_date)
+              .exists?
+    end
+
+    def reclaim_reward_amount
+      return 0 unless won? && reclaim?
+      return 0 if product.reclaim_reward_percentage.blank?
+      return 0 if payment.blank?
+
+      product.reclaim_reward_percentage / 100.0 * payment.total_amount
+    end
+
     private
 
     def set_won_at
       self.won_at = won? ? (won_at || Time.current) : nil
+    end
+
+    def ensure_subscription
+      return unless won? && product.present? && expires_at.present?
+
+      if subscription.present?
+        subscription.update!(expires_at: expires_at) if subscription.expires_at != expires_at
+      else
+        create_subscription!(customer: customer, product: product, expires_at: expires_at)
+      end
     end
 
     def product_allocated_to_sales_person

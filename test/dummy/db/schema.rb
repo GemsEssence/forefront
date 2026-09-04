@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
     t.bigint "customer_id", null: false
     t.text "description"
     t.date "due_at"
+    t.date "expires_at"
     t.datetime "next_followup_at", precision: nil
     t.bigint "product_id"
     t.string "source", default: "website", null: false
@@ -149,6 +150,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
     t.text "description"
     t.string "name", null: false
     t.decimal "price", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "reclaim_reward_percentage", precision: 5, scale: 2
+    t.decimal "renewal_reward_percentage", precision: 5, scale: 2
     t.datetime "updated_at", null: false
   end
 
@@ -163,6 +166,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
     t.datetime "updated_at", null: false
     t.index ["changed_by_id"], name: "index_forefront_status_histories_on_changed_by_id"
     t.index ["trackable_type", "trackable_id"], name: "index_forefront_status_histories_on_trackable"
+  end
+
+  create_table "forefront_subscriptions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "customer_id", null: false
+    t.date "expires_at", null: false
+    t.bigint "lead_id", null: false
+    t.bigint "product_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_forefront_subscriptions_on_customer_id"
+    t.index ["lead_id"], name: "index_forefront_subscriptions_on_lead_id", unique: true
+    t.index ["product_id"], name: "index_forefront_subscriptions_on_product_id"
   end
 
   create_table "forefront_targets", force: :cascade do |t|
@@ -193,6 +208,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
     t.date "due_at"
     t.datetime "next_followup_at", precision: nil
     t.string "priority", default: "medium", null: false
+    t.bigint "product_id"
+    t.string "renewal_outcome"
     t.string "status", default: "Open", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
@@ -203,6 +220,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
     t.index ["due_at"], name: "index_forefront_tickets_on_due_at"
     t.index ["next_followup_at"], name: "index_forefront_tickets_on_next_followup_at"
     t.index ["priority"], name: "index_forefront_tickets_on_priority"
+    t.index ["product_id"], name: "index_forefront_tickets_on_product_id"
     t.index ["status"], name: "index_forefront_tickets_on_status"
   end
 
@@ -222,9 +240,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_000010) do
   add_foreign_key "forefront_product_allocations", "forefront_admins", column: "admin_id"
   add_foreign_key "forefront_product_allocations", "forefront_products", column: "product_id"
   add_foreign_key "forefront_status_histories", "forefront_admins", column: "changed_by_id"
+  add_foreign_key "forefront_subscriptions", "forefront_customers", column: "customer_id"
+  add_foreign_key "forefront_subscriptions", "forefront_leads", column: "lead_id"
+  add_foreign_key "forefront_subscriptions", "forefront_products", column: "product_id"
   add_foreign_key "forefront_targets", "forefront_admins", column: "admin_id"
   add_foreign_key "forefront_targets", "forefront_products", column: "product_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_tickets", "forefront_customers", column: "customer_id"
+  add_foreign_key "forefront_tickets", "forefront_products", column: "product_id"
 end

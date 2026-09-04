@@ -2,6 +2,7 @@ module Forefront
   class Customer < ApplicationRecord
     has_many :tickets, dependent: :destroy
     has_many :leads, dependent: :destroy
+    has_many :subscriptions, class_name: "Forefront::Subscription", dependent: :destroy
 
     validates :name, presence: true
     validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }

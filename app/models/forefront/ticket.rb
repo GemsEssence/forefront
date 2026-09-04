@@ -3,6 +3,7 @@ module Forefront
     belongs_to :customer
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
+    belongs_to :product, class_name: "Forefront::Product", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
@@ -37,6 +38,8 @@ module Forefront
       closed: 'Closed'
     }
 
+    enum :renewal_outcome, { renewed: "renewed", declined: "declined" }
+
     validates :title, presence: true
     validates :description, presence: true
     validates :category, presence: true
@@ -66,6 +69,19 @@ module Forefront
 
     def needs_followup?
       next_followup_at.present? && next_followup_at <= Time.current && !resolved? && !closed?
+    end
+
+    def renewal_reward_amount
+      return 0 unless plan_expired? && renewed? && product.present?
+      return 0 if product.renewal_reward_percentage.blank?
+
+      subscription = customer.subscriptions.find_by(product_id: product_id)
+      return 0 if subscription.blank?
+
+      payment = subscription.lead.payment
+      return 0 if payment.blank?
+
+      product.renewal_reward_percentage / 100.0 * payment.total_amount
     end
   end
 end

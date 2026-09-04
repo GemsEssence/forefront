@@ -48,6 +48,24 @@
               <dt class="text-sm font-medium text-gray-500">Created By</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @ticket.created_by.name %></dd>
             </div>
+            <% if @ticket.product.present? %>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Product</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  <%= @ticket.product.name %>
+                  <% if @ticket.plan_expired? %>
+                    <% if @ticket.renewal_outcome.present? %>
+                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= @ticket.renewed? ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                        <%= @ticket.renewal_outcome.humanize %>
+                      </span>
+                      <% if @ticket.renewal_reward_amount > 0 %>
+                        <span class="ml-2 text-green-700 text-xs">Reward: <%= number_to_currency(@ticket.renewal_reward_amount) %></span>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
             <% if @ticket.assigned_to.present? %>
               <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Assigned To</dt>

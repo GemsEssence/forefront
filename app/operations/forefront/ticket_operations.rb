@@ -35,7 +35,7 @@ module Forefront
       def ticket_params
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
-          :category, :priority, :status, :due_at, :next_followup_at
+          :category, :priority, :status, :due_at, :next_followup_at, :product_id, :renewal_outcome
         )
       end
     end
@@ -75,7 +75,7 @@ module Forefront
       def ticket_params
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
-          :category, :priority, :status, :due_at, :next_followup_at
+          :category, :priority, :status, :due_at, :next_followup_at, :product_id, :renewal_outcome
         )
       end
     end

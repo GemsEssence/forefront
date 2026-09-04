@@ -33,12 +33,15 @@ What's sold — created by an Admin or Manager, with a name and a price. A Sales
 _Avoid_: Assign/Assignment for the Product-to-Sales-person link — say "allocate"/"Allocation" instead, since Assignment already means something specific (who currently owns a Ticket or Lead).
 
 **Ticket**:
-A trackable action item connected to a Customer (always) and optionally to a Lead. Covers things like scheduling a demo, a support issue, a complaint, a feature request, or a Renewal reminder — it is not itself revenue-bearing and is independent of whether a Lead ever exists or wins. Created by any Staff member (Sales person, Manager, or Admin); customer self-service creation is a possible future phase, not current scope.
+A trackable action item connected to a Customer (always) and optionally to a Product (never directly to a Lead — a renewal Ticket names which Product's Subscription it's about, not which Lead originally sold it). Covers things like scheduling a demo, a support issue, a complaint, a feature request, or a Renewal reminder — it is not itself revenue-bearing and is independent of whether a Lead ever exists or wins. Created by any Staff member (Sales person, Manager, or Admin); customer self-service creation, and external systems creating renewal Tickets via an API once Forefront supports being used as a plugin, are both possible future phases, not current scope.
 _Avoid_: Support ticket, SupportRequest (not a separate concept — Ticket already covers this ground)
 
+**Subscription**:
+The ongoing record of a Customer's access to a Product, created automatically the moment a Lead with a Product is won and given an `expires_at`. One Subscription per won Lead; its `expires_at` is what Renewal reminders and Reclaim eligibility are computed from — it starts as a copy of the originating Lead's `expires_at` but is the one that moves when a renewal pushes the expiry out further.
+
 **Renewal**:
-A Ticket (not a Lead) reminding a Sales person to ask a Customer to renew their subscription before it lapses.
+A Ticket (naming a Customer and a Product, not a Lead) reminding a Sales person to ask a Customer to renew before their Subscription lapses. Resolving it records a structured `renewal_outcome` (renewed/declined) — a renewal reward is paid only on "renewed", as a percentage of the original Subscription's Payment total.
 
 **Reclaim**:
-Re-engaging a Customer whose subscription has already lapsed, once a cooldown period has passed (e.g. 3 months post-expiry). Represented as a brand-new Lead for that Customer, not a reopened old one.
-_Avoid_: Expired lead (as a stored status — "expired" is time-based staleness derived from dates, not a status value stored anywhere)
+Re-engaging a Customer whose Subscription for a given Product has already lapsed, once a cooldown period has passed (3 months post-expiry). Represented as a brand-new Lead for that Customer and Product, not a reopened old one. A reclaim reward, when the new Lead is won and paid, is a percentage of that new Lead's own Payment total.
+_Avoid_: Expired lead (as a stored status — "expired" is time-based staleness derived from a Subscription's `expires_at`, not a status value stored anywhere)

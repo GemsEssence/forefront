@@ -102,7 +102,7 @@ module Forefront
     def lead_params
       params.require(:lead).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :source, :status, :due_at, :next_followup_at, :product_id
+        :source, :status, :due_at, :next_followup_at, :product_id, :expires_at
       )
     end
 

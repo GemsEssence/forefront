@@ -27,6 +27,14 @@
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
               <%= @lead.source.humanize %>
             </span>
+            <% if @lead.reclaim? %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                Reclaim
+              </span>
+              <% if @lead.won? && @lead.reclaim_reward_amount > 0 %>
+                <span class="text-sm text-green-700">Reward: <%= number_to_currency(@lead.reclaim_reward_amount) %></span>
+              <% end %>
+            <% end %>
           </div>
         </div>
         <div class="border-t border-gray-200">
