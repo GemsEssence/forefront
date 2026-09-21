@@ -4,16 +4,17 @@ module Forefront
     before_action :authorize_lead, only: [:show, :edit, :update, :destroy]
 
     def index
-      @leads = LeadServices::Filter.new(
+      filtered_leads = LeadServices::Filter.new(
         scope: policy_scope(Lead),
         filters: filter_params
-      ).call.page(params[:page])
+      ).call
       @customers = Customer.all.order(:name)
       @admins = Admin.all.order(:name)
 
       respond_to do |format|
-        format.html
-        format.turbo_stream
+        format.html { @leads = filtered_leads.page(params[:page]) }
+        format.turbo_stream { @leads = filtered_leads.page(params[:page]) }
+        format.csv { send_data LeadCsvExport.new(filtered_leads).call, filename: "leads-#{Date.current.iso8601}.csv" }
       end
     end
 
