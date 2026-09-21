@@ -15,6 +15,7 @@ module Forefront
         # Build conditions
         filters.each do |key, value|
           next if value.blank?
+          key = key.to_sym
           case key
           when :overdue
             next if value != 'true'
@@ -30,7 +31,7 @@ module Forefront
           when :needs_followup
             next if value != 'true'
 
-            conditions << "(next_followup_at <= :current_time AND status NOT IN ('resolved', 'closed'))"
+            conditions << "(next_followup_at <= :current_time AND status NOT IN ('Resolved', 'Closed'))"
             params[:current_time] = Time.current
           when :due_from
             conditions << "due_at >= :due_from"

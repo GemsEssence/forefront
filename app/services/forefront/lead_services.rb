@@ -15,6 +15,7 @@ module Forefront
         # Build conditions
         filters.each do |key, value|
           next if value.blank?
+          key = key.to_sym
           case key
           when :overdue
             next if value != 'true'
@@ -30,7 +31,7 @@ module Forefront
           when :needs_followup
             next if value != 'true'
 
-            conditions << "(next_followup_at <= :current_time AND status NOT IN ('won', 'lost'))"
+            conditions << "(next_followup_at <= :current_time AND status NOT IN ('Won', 'Lost'))"
             params[:current_time] = Time.current
           when :due_from
             conditions << "due_at >= :due_from"
@@ -43,13 +44,13 @@ module Forefront
             params[:search] = "%#{value}%"
           when :active
             next if value != 'true'
-            conditions << "status NOT IN ('won', 'lost')"
+            conditions << "status NOT IN ('Won', 'Lost')"
           when :won
             next if value != 'true'
-            conditions << "status = 'won'"
+            conditions << "status = 'Won'"
           when :lost
             next if value != 'true'
-            conditions << "status = 'lost'"
+            conditions << "status = 'Lost'"
           else
             conditions << "#{key} = :#{key}"
             params[key] = value
