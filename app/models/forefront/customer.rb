@@ -7,6 +7,11 @@ module Forefront
     validates :name, presence: true
     validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :phone, presence: true
+    validates :external_id, uniqueness: { scope: :external_type }, allow_nil: true
+
+    def self.find_by_external(external_type:, external_id:)
+      find_by(external_type: external_type, external_id: external_id)
+    end
 
     scope :by_name, ->(name) { where("name ILIKE ?", "%#{name}%") }
     scope :by_email, ->(email) { where("email ILIKE ?", "%#{email}%") }
@@ -18,4 +23,3 @@ module Forefront
     end
   end
 end
-

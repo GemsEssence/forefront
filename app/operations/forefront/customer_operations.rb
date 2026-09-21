@@ -22,7 +22,7 @@ module Forefront
       private
 
       def customer_params
-        params.permit(:name, :email, :phone, :address, :business_name)
+        params.permit(:name, :email, :phone, :address, :business_name, :external_type, :external_id)
       end
     end
 
@@ -47,7 +47,7 @@ module Forefront
       private
 
       def customer_params
-        params.permit(:name, :email, :phone, :address, :business_name)
+        params.permit(:name, :email, :phone, :address, :business_name, :external_type, :external_id)
       end
     end
 
@@ -70,4 +70,3 @@ module Forefront
     end
   end
 end
-

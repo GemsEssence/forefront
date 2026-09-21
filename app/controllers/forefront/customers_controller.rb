@@ -1,7 +1,7 @@
 module Forefront
   class CustomersController < ApplicationController
-    before_action :set_customer, only: [:show, :edit, :update, :destroy]
-    before_action :authorize_customer, only: [:show, :edit, :update, :destroy]
+    before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
+    before_action :authorize_customer, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @customers = CustomerServices::Filter.new(
@@ -30,10 +30,10 @@ module Forefront
       result = CustomerOperations::Create.new(params: customer_params).call
 
       if result[:success]
-        redirect_to customer_path(result[:customer]), notice: 'Customer was successfully created.'
+        redirect_to customer_path(result[:customer]), notice: "Customer was successfully created."
       else
         @customer = result[:customer]
-        flash.now[:alert] = result[:errors].join(', ')
+        flash.now[:alert] = result[:errors].join(", ")
         render :new, status: :unprocessable_entity
       end
     end
@@ -48,10 +48,10 @@ module Forefront
       ).call
 
       if result[:success]
-        redirect_to customer_path(result[:customer]), notice: 'Customer was successfully updated.'
+        redirect_to customer_path(result[:customer]), notice: "Customer was successfully updated."
       else
         @customer = result[:customer]
-        flash.now[:alert] = result[:errors].join(', ')
+        flash.now[:alert] = result[:errors].join(", ")
         render :edit, status: :unprocessable_entity
       end
     end
@@ -60,9 +60,9 @@ module Forefront
       result = CustomerOperations::Destroy.new(customer: @customer).call
 
       if result[:success]
-        redirect_to customers_path, notice: 'Customer was successfully deleted.'
+        redirect_to customers_path, notice: "Customer was successfully deleted."
       else
-        redirect_to customers_path, alert: result[:errors].join(', ')
+        redirect_to customers_path, alert: result[:errors].join(", ")
       end
     end
 
@@ -77,7 +77,7 @@ module Forefront
     end
 
     def customer_params
-      params.require(:customer).permit(:name, :email, :phone, :address, :business_name)
+      params.require(:customer).permit(:name, :email, :phone, :address, :business_name, :external_type, :external_id)
     end
 
     def filter_params
@@ -85,5 +85,3 @@ module Forefront
     end
   end
 end
-
-
