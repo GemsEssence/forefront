@@ -35,4 +35,21 @@ class Forefront::DashboardTest < ActionDispatch::IntegrationTest
     assert_match "$500.00", response.body
     assert_no_match "Leaderboard", response.body
   end
+
+  test "an admin can filter the dashboard to a date range that excludes the win" do
+    sign_in_as(@admin)
+
+    get "/forefront/", params: { from: 10.years.ago.to_date, to: 5.years.ago.to_date }
+    assert_response :success
+    assert_match "$0.00", response.body
+    assert_no_match "$500.00", response.body
+  end
+
+  test "an admin can filter the dashboard to a date range that includes the win" do
+    sign_in_as(@admin)
+
+    get "/forefront/", params: { from: 1.day.ago.to_date, to: 1.day.from_now.to_date }
+    assert_response :success
+    assert_match "$500.00", response.body
+  end
 end

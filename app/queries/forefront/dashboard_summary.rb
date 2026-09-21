@@ -2,8 +2,10 @@ module Forefront
   class DashboardSummary
     attr_reader :current_admin
 
-    def initialize(current_admin)
+    def initialize(current_admin, from: nil, to: nil)
       @current_admin = current_admin
+      @from = from
+      @to = to
     end
 
     def visible_admins
@@ -29,7 +31,9 @@ module Forefront
     end
 
     def won_leads_count
-      Lead.where(assigned_to_id: visible_admins.select(:id)).won.count
+      scope = Lead.where(assigned_to_id: visible_admins.select(:id)).won
+      scope = scope.where(won_at: date_range) if date_range
+      scope.count
     end
 
     def overdue_followups_count
@@ -61,7 +65,16 @@ module Forefront
     private
 
     def payments_for(admins)
-      Payment.joins(:lead).where(forefront_leads: { assigned_to_id: admins.select(:id) }).includes(:installments)
+      scope = Payment.joins(:lead).where(forefront_leads: { assigned_to_id: admins.select(:id) }).includes(:installments)
+      scope = scope.where(forefront_leads: { won_at: date_range }) if date_range
+      scope
+    end
+
+    def date_range
+      return @date_range if defined?(@date_range)
+      return @date_range = nil unless @from || @to
+
+      @date_range = (@from&.beginning_of_day || Time.at(0))..(@to&.end_of_day || Time.current.end_of_day)
     end
 
     def revenue_for(admin)

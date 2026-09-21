@@ -4,8 +4,17 @@ module Forefront
 
     def index
       authorize :dashboard, :index?, policy_class: Forefront::DashboardPolicy
-      @summary = DashboardSummary.new(current_admin)
+      @from = parse_date(params[:from])
+      @to = parse_date(params[:to])
+      @summary = DashboardSummary.new(current_admin, from: @from, to: @to)
+    end
+
+    private
+
+    def parse_date(value)
+      Date.parse(value) if value.present?
+    rescue ArgumentError
+      nil
     end
   end
 end
-

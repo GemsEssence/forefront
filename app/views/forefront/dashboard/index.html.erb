@@ -3,6 +3,28 @@
   <p class="text-gray-600">Welcome to the Forefront ticket and lead management system.</p>
 </div>
 
+<div class="bg-white shadow rounded-lg p-4 mb-6">
+  <%= form_with url: root_path, method: :get, local: true, class: "flex flex-wrap items-end gap-4" do %>
+    <div>
+      <label class="block text-xs font-medium text-gray-500">From</label>
+      <input type="date" name="from" value="<%= @from %>" class="mt-1 block rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-500">To</label>
+      <input type="date" name="to" value="<%= @to %>" class="mt-1 block rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+    </div>
+    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">Filter</button>
+    <% if @from || @to %>
+      <%= link_to "Clear", root_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
+    <% end %>
+    <div class="flex gap-3 ml-auto text-sm">
+      <%= link_to "This Month", root_path(from: Date.current.beginning_of_month, to: Date.current.end_of_month), class: "text-indigo-600 hover:text-indigo-500" %>
+      <%= link_to "This Quarter", root_path(from: Date.current.beginning_of_quarter, to: Date.current.end_of_quarter), class: "text-indigo-600 hover:text-indigo-500" %>
+      <%= link_to "This Year", root_path(from: Date.current.beginning_of_year, to: Date.current.end_of_year), class: "text-indigo-600 hover:text-indigo-500" %>
+    </div>
+  <% end %>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
   <div class="bg-white overflow-hidden shadow rounded-lg p-5">
     <dt class="text-sm font-medium text-gray-500 truncate">Revenue Collected</dt>

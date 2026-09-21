@@ -60,6 +60,42 @@ class Forefront::DashboardSummaryTest < ActiveSupport::TestCase
     assert_equal [ 500, 300 ], leaderboard.map { |row| row[:revenue] }
   end
 
+  test "total_revenue only counts wins within the given date range, when one is given" do
+    win_and_pay(@rep, amount: 300, paid: true, won_at: Time.utc(2020, 1, 15))
+    win_and_pay(@rep, amount: 700, paid: true, won_at: Time.utc(2020, 3, 15))
+
+    summary = Forefront::DashboardSummary.new(@rep, from: Date.new(2020, 1, 1), to: Date.new(2020, 1, 31))
+
+    assert_equal 300, summary.total_revenue
+  end
+
+  test "won_leads_count only counts wins within the given date range, when one is given" do
+    win_lead(@rep, won_at: Time.utc(2020, 1, 15))
+    win_lead(@rep, won_at: Time.utc(2020, 3, 15))
+
+    summary = Forefront::DashboardSummary.new(@rep, from: Date.new(2020, 1, 1), to: Date.new(2020, 1, 31))
+
+    assert_equal 1, summary.won_leads_count
+  end
+
+  test "leaderboard revenue only counts wins within the given date range, when one is given" do
+    win_and_pay(@rep, amount: 300, paid: true, won_at: Time.utc(2020, 1, 15))
+    win_and_pay(@other_rep, amount: 700, paid: true, won_at: Time.utc(2020, 3, 15))
+
+    leaderboard = Forefront::DashboardSummary.new(@admin, from: Date.new(2020, 1, 1), to: Date.new(2020, 1, 31)).leaderboard
+
+    assert_equal({ @rep => 300, @other_rep => 0 }, leaderboard.to_h { |row| [ row[:admin], row[:revenue] ] })
+  end
+
+  test "without a date range, totals remain all-time" do
+    win_and_pay(@rep, amount: 300, paid: true, won_at: Time.utc(2020, 1, 15))
+    win_and_pay(@rep, amount: 700, paid: true, won_at: Time.utc(2021, 3, 15))
+
+    summary = Forefront::DashboardSummary.new(@rep)
+
+    assert_equal 1000, summary.total_revenue
+  end
+
   private
 
   def win_lead(rep, won_at: Time.current)
