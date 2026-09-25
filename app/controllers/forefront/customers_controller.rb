@@ -8,11 +8,6 @@ module Forefront
         scope: policy_scope(Customer),
         filters: filter_params
       ).call.page(params[:page])
-
-      respond_to do |format|
-        format.html
-        format.turbo_stream
-      end
     end
 
     def show

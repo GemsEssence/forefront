@@ -13,7 +13,6 @@ module Forefront
 
       respond_to do |format|
         format.html { @leads = filtered_leads.page(params[:page]) }
-        format.turbo_stream { @leads = filtered_leads.page(params[:page]) }
         format.csv { send_data LeadCsvExport.new(filtered_leads).call, filename: "leads-#{Date.current.iso8601}.csv" }
       end
     end

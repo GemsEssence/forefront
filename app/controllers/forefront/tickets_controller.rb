@@ -10,11 +10,6 @@ module Forefront
       ).call.page(params[:page])
       @customers = Customer.all.order(:name)
       @admins = Admin.assignable
-
-      respond_to do |format|
-        format.html
-        format.turbo_stream
-      end
     end
 
     def show
