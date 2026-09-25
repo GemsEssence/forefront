@@ -1,16 +1,13 @@
 <%= form_with model: @ticket, url: path, local: true, class: "mt-8 space-y-6" do |f| %>
-  <div class="rounded-md shadow-sm -space-y-px">
-    <div>
-      <%= f.label :title, class: "sr-only" %>
-      <%= f.text_field :title, class: "appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", required: true %>
-    </div>
-    <div>
-      <%= f.label :description, class: "sr-only" %>
-      <%= f.text_area :description, rows: 4, class: "appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", required: true %>
-    </div>
+  <div>
+    <%= f.label :title, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
   </div>
 
-  
+  <div>
+    <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.text_area :description, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+  </div>
 
   <div class="grid grid-cols-2 gap-4">
     <div>
