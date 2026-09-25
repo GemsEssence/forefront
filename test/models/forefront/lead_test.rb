@@ -8,7 +8,7 @@ class Forefront::LeadTest < ActiveSupport::TestCase
 
   test "has a followups association" do
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open")
-    followup = lead.followups.create!(assigned_to: @admin, created_by: @admin, followup_type: "call", status: "pending")
+    followup = lead.followups.create!(assigned_to: @admin, created_by: @admin, followup_type: "call", status: "pending", scheduled_for: 1.day.from_now)
 
     assert_equal [followup], lead.followups.to_a
   end

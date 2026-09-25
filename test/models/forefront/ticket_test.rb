@@ -8,14 +8,14 @@ class Forefront::TicketTest < ActiveSupport::TestCase
 
   test "has a followups association" do
     ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium", status: "open")
-    followup = ticket.followups.create!(assigned_to: @admin, created_by: @admin, followup_type: "call", status: "pending")
+    followup = ticket.followups.create!(assigned_to: @admin, created_by: @admin, followup_type: "call", status: "pending", scheduled_for: 1.day.from_now)
 
     assert_equal [followup], ticket.followups.to_a
   end
 
   test "destroying a ticket destroys its followups" do
     ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium", status: "open")
-    followup = ticket.followups.create!(assigned_to: @admin, created_by: @admin, followup_type: "call", status: "pending")
+    followup = ticket.followups.create!(assigned_to: @admin, created_by: @admin, followup_type: "call", status: "pending", scheduled_for: 1.day.from_now)
 
     ticket.destroy
 
