@@ -85,7 +85,7 @@
                   <% end %>
                   <% if policy(activity).destroy? %>
                     <% delete_path = actable.is_a?(Forefront::Ticket) ? ticket_activity_path(actable, activity) : lead_activity_path(actable, activity) %>
-                    <%= button_to delete_path, method: :delete, class: "text-red-600 hover:text-red-800 text-xs", data: { confirm: "Are you sure?", turbo_frame: "_top" } do %>
+                    <%= button_to delete_path, method: :delete, class: "text-red-600 hover:text-red-800 text-xs", form: { data: { turbo_confirm: "Are you sure?" } }, data: { turbo_frame: "_top" } do %>
                       Delete
                     <% end %>
                   <% end %>

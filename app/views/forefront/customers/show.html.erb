@@ -8,7 +8,7 @@
             <%= link_to "Edit", edit_customer_path(@customer), class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
           <% end %>
           <% if policy(@customer).destroy? %>
-            <%= button_to "Delete", customer_path(@customer), method: :delete, data: { confirm: "Are you sure?" }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+            <%= button_to "Delete", customer_path(@customer), method: :delete, form: { data: { turbo_confirm: "Are you sure?" } }, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
           <% end %>
           <%= link_to "Back", customers_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
         </div>
