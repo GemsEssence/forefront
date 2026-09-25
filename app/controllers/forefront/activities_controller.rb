@@ -4,9 +4,7 @@ module Forefront
     before_action :find_actable
 
     def create
-      @activity = @actable.activities.build(activity_params)
-      @activity.created_by = current_admin
-      authorize @activity
+      authorize Activity.new(actable: @actable, created_by: current_admin)
 
       result = ActivityOperations::Create.new(
         params: activity_params,
@@ -15,12 +13,12 @@ module Forefront
       ).call
 
       respond_to do |format|
+        @activity = result[:activity]
         if result[:success]
           @activities = @actable.activities.recent
           format.turbo_stream
           format.html { redirect_to actable_path, notice: 'Activity was successfully created.' }
         else
-          @activity = result[:activity]
           format.turbo_stream do
             render turbo_stream: turbo_stream.replace(
               "activity_form_#{@actable.id}",
