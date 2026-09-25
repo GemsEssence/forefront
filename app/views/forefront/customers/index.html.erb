@@ -12,7 +12,7 @@
       <%= render 'filter_form' %>
 
       <!-- Customers Table -->
-      <%= turbo_frame_tag "customers_list" do %>
+      <%= turbo_frame_tag "customers_list", target: "_top" do %>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <% if @customers.any? %>
             <ul class="divide-y divide-gray-200">

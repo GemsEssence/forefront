@@ -1,4 +1,4 @@
-<%= turbo_stream.replace "leads_list" do %>
+<%= turbo_stream.update "leads_list" do %>
   <div class="bg-white shadow overflow-hidden sm:rounded-md">
     <% if @leads.any? %>
       <ul class="divide-y divide-gray-200">

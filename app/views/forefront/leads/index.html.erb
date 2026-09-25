@@ -15,7 +15,7 @@
       <%= render 'filter_form' %>
 
       <!-- Leads Table -->
-      <%= turbo_frame_tag "leads_list" do %>
+      <%= turbo_frame_tag "leads_list", target: "_top" do %>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <% if @leads.any? %>
             <ul class="divide-y divide-gray-200">

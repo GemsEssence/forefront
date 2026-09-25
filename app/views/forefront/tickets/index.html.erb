@@ -12,7 +12,7 @@
       <%= render 'filter_form' %>
 
       <!-- Tickets Table -->
-      <%= turbo_frame_tag "tickets_list" do %>
+      <%= turbo_frame_tag "tickets_list", target: "_top" do %>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <% if @tickets.any? %>
             <ul class="divide-y divide-gray-200">

@@ -1,4 +1,4 @@
-<%= turbo_stream.replace "customers_list" do %>
+<%= turbo_stream.update "customers_list" do %>
   <div class="bg-white shadow overflow-hidden sm:rounded-md">
     <% if @customers.any? %>
       <ul class="divide-y divide-gray-200">
