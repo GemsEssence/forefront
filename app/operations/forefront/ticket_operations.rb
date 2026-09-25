@@ -12,7 +12,7 @@ module Forefront
       def call
         @ticket = Ticket.new(ticket_params)
         @ticket.created_by = current_admin
-        @ticket.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
+        @ticket.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank? && !current_admin.admin?
 
         if @ticket.save
           # Record initial assignment (from system / nil to assigned admin)

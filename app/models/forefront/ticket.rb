@@ -45,6 +45,7 @@ module Forefront
     validates :category, presence: true
     validates :priority, presence: true
     validates :status, presence: true
+    validate :assignee_is_not_an_admin, if: :will_save_change_to_assigned_to_id?
 
     # Scopes for filtering
     scope :by_category, ->(category) { where(category: category) }
@@ -83,6 +84,11 @@ module Forefront
 
       product.renewal_reward_percentage / 100.0 * payment.total_amount
     end
+
+    private
+
+    def assignee_is_not_an_admin
+      errors.add(:assigned_to, "can't be an admin") if assigned_to&.admin?
+    end
   end
 end
-

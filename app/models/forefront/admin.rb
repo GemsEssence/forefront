@@ -20,6 +20,9 @@ module Forefront
     has_many :assigned_leads, class_name: "Forefront::Lead", foreign_key: "assigned_to_id", dependent: :nullify
     has_many :activities, class_name: "Forefront::Activity", foreign_key: "created_by_id", dependent: :destroy
 
+    # Staff who can be given work; admins oversee rather than take tickets.
+    scope :assignable, -> { where.not(role: "admin").order(:name) }
+
     validates :name, presence: true
     validates :role, presence: true
     validate :manager_is_not_self

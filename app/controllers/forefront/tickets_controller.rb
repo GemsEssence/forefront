@@ -9,7 +9,7 @@ module Forefront
         filters: filter_params
       ).call.page(params[:page])
       @customers = Customer.all.order(:name)
-      @admins = Admin.all.order(:name)
+      @admins = Admin.assignable
 
       respond_to do |format|
         format.html
@@ -20,7 +20,7 @@ module Forefront
     def show
       @activities = @ticket.activities.recent
       @assignments = @ticket.assignments.order(created_at: :desc)
-      @admins = Admin.all.order(:name)
+      @admins = Admin.assignable
     end
 
     def new
@@ -28,7 +28,7 @@ module Forefront
       @ticket.customer_id = params[:customer_id] if params[:customer_id].present?
       authorize @ticket
       @customers = Customer.all.order(:name)
-      @admins = Admin.all.order(:name)
+      @admins = Admin.assignable
       @products = Product.all.order(:name)
     end
 
@@ -47,7 +47,7 @@ module Forefront
       else
         @ticket = result[:ticket]
         @customers = Customer.all.order(:name)
-        @admins = Admin.all.order(:name)
+        @admins = Admin.assignable
         @products = Product.all.order(:name)
         flash.now[:alert] = result[:errors].join(', ')
         render :new, status: :unprocessable_entity
@@ -56,7 +56,7 @@ module Forefront
 
     def edit
       @customers = Customer.all.order(:name)
-      @admins = Admin.all.order(:name)
+      @admins = Admin.assignable
       @products = Product.all.order(:name)
     end
 
@@ -72,7 +72,7 @@ module Forefront
       else
         @ticket = result[:ticket]
         @customers = Customer.all.order(:name)
-        @admins = Admin.all.order(:name)
+        @admins = Admin.assignable
         @products = Product.all.order(:name)
         flash.now[:alert] = result[:errors].join(', ')
         render :edit, status: :unprocessable_entity
