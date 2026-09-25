@@ -38,4 +38,18 @@ class Forefront::CustomerExternalReferenceManagementTest < ActionDispatch::Integ
     end
     assert_response :unprocessable_entity
   end
+
+  test "customers created without a host application link don't collide" do
+    2.times do |i|
+      post "/forefront/customers", params: { customer: {
+        name: "Walk-in #{i}", email: "walkin-#{i}-#{SecureRandom.hex(4)}@example.com", phone: "555-010#{i}",
+        external_type: "", external_id: ""
+      } }
+      assert_response :redirect, "customer #{i} was rejected"
+    end
+
+    walk_ins = Forefront::Customer.where("name LIKE 'Walk-in%'")
+    assert_equal 2, walk_ins.count
+    assert walk_ins.all? { |c| c.external_type.nil? && c.external_id.nil? }
+  end
 end

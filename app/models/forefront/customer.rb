@@ -9,6 +9,10 @@ module Forefront
     validates :phone, presence: true
     validates :external_id, uniqueness: { scope: :external_type }, allow_nil: true
 
+    # The form submits "" for an unlinked customer; store that as no link at all,
+    # or every unlinked customer after the first fails the uniqueness check above.
+    before_validation :normalize_external_reference
+
     def self.find_by_external(external_type:, external_id:)
       find_by(external_type: external_type, external_id: external_id)
     end
@@ -20,6 +24,13 @@ module Forefront
 
     def full_name
       business_name.present? ? "#{name} (#{business_name})" : name
+    end
+
+    private
+
+    def normalize_external_reference
+      self.external_type = external_type.to_s.strip.presence
+      self.external_id = external_id.to_s.strip.presence
     end
   end
 end
