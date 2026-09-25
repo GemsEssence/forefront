@@ -35,8 +35,8 @@ module Forefront
       authorize @activity
 
       respond_to do |format|
-        format.html
         format.turbo_stream
+        format.html { redirect_to actable_path }
       end
     end
 
