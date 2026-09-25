@@ -2,6 +2,7 @@ module Forefront
   class AdminsController < ApplicationController
     before_action :set_admin, only: [ :edit, :update ]
     before_action :authorize_admin, only: [ :edit, :update ]
+    before_action :set_products, only: [ :new, :create, :edit, :update ]
 
     def index
       authorize Admin, :index?
@@ -53,8 +54,12 @@ module Forefront
       authorize @admin
     end
 
+    def set_products
+      @products = Product.order(:name)
+    end
+
     def admin_params
-      params.require(:admin).permit(:name, :email, :password, :password_confirmation, :role, :manager_id)
+      params.require(:admin).permit(:name, :email, :password, :password_confirmation, :role, :manager_id, product_ids: [])
     end
 
     def authorization_attributes

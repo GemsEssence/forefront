@@ -1,6 +1,23 @@
 module Forefront
   module AdminOperations
+    # Products are only allocated to Sales persons (Admins and Managers can
+    # already sell every Product), and only when the form sent the field, so
+    # saving without it leaves existing allocations alone.
+    module ProductAllocation
+      private
+
+      def allocate_products?(admin)
+        params.key?(:product_ids) && admin.sales_person?
+      end
+
+      def product_ids
+        Array(params[:product_ids]).reject(&:blank?)
+      end
+    end
+
     class Create
+      include ProductAllocation
+
       attr_reader :params, :current_admin, :admin, :errors
 
       def initialize(params:, current_admin:)
@@ -11,6 +28,7 @@ module Forefront
 
       def call
         @admin = Forefront::Admin.new(base_attributes.merge(role_attributes))
+        @admin.product_ids = product_ids if allocate_products?(@admin)
 
         if @admin.save
           { success: true, admin: @admin }
@@ -36,6 +54,8 @@ module Forefront
     end
 
     class Update
+      include ProductAllocation
+
       attr_reader :admin, :params, :current_admin, :errors
 
       def initialize(admin:, params:, current_admin:)
@@ -46,7 +66,13 @@ module Forefront
       end
 
       def call
-        if admin.update(attributes)
+        saved = Forefront::Admin.transaction do
+          admin.update(attributes).tap do |ok|
+            admin.product_ids = product_ids if ok && allocate_products?(admin)
+          end
+        end
+
+        if saved
           { success: true, admin: admin }
         else
           @errors = admin.errors.full_messages
