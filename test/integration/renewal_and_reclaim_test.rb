@@ -15,7 +15,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   end
 
   test "winning a lead and setting its expiry creates a subscription, visible via the edit form" do
-    patch "/forefront/leads/#{@lead.id}", params: { lead: { status: "won" } }
+    patch "/forefront/leads/#{@lead.id}", params: { lead: { status: "won", actual_amount: 100 } }
     get "/forefront/leads/#{@lead.id}/edit"
     assert_match "Subscription Expires", response.body
 
@@ -24,7 +24,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   end
 
   test "a renewal ticket resolved as renewed shows a reward on the ticket page" do
-    @lead.update!(status: "won", expires_at: 1.week.from_now.to_date)
+    @lead.update!(status: "won", actual_amount: 100, expires_at: 1.week.from_now.to_date)
     Forefront::Payment.create!(lead: @lead, total_amount: 400, status: "paid", paid_at: Time.current)
 
     post "/forefront/tickets", params: { ticket: {
@@ -41,7 +41,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   end
 
   test "a new lead for a customer whose subscription lapsed 3+ months ago is flagged as a reclaim and rewarded once won and paid" do
-    @lead.update!(status: "won", expires_at: 4.months.ago.to_date)
+    @lead.update!(status: "won", actual_amount: 100, expires_at: 4.months.ago.to_date)
 
     post "/forefront/leads", params: { lead: { title: "Win them back", description: "D", customer_id: @customer.id, source: "website", product_id: @product.id } }
     new_lead = Forefront::Lead.order(:created_at).last
@@ -50,7 +50,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
     get "/forefront/leads/#{new_lead.id}"
     assert_match "Reclaim", response.body
 
-    patch "/forefront/leads/#{new_lead.id}", params: { lead: { status: "won" } }
+    patch "/forefront/leads/#{new_lead.id}", params: { lead: { status: "won", actual_amount: 100 } }
     post "/forefront/leads/#{new_lead.id}/payment", params: { payment: { total_amount: "500" } }
 
     get "/forefront/leads/#{new_lead.id}"

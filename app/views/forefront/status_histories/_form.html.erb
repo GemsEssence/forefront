@@ -11,8 +11,16 @@
         <% if trackable.class.respond_to?(:statuses) %>
           <% status_options = trackable.class.statuses.map { |k, v| [v, k] } %>
         <% end %>
-        <%= f.select :status, status_options, { selected: trackable.status }, class: 'mt-1 block w-full border rounded', required: true %>
+        <%= f.select :status, status_options, { selected: trackable.status }, class: 'mt-1 block w-full border rounded', required: true, onchange: 'toggleWonAmount(this)' %>
       </div>
+
+      <% if trackable.respond_to?(:actual_amount) %>
+        <div class="mb-3" data-won-amount style="<%= 'display:none;' unless trackable.won? %>">
+          <%= f.label :actual_amount, 'Actual Amount', class: 'block text-sm font-medium text-gray-700' %>
+          <%= f.number_field :actual_amount, value: trackable.actual_amount || trackable.estimated_amount, step: '0.01', min: 0, required: trackable.won?, class: 'mt-1 block w-full border rounded' %>
+          <p class="text-xs text-gray-500 mt-1">What the deal actually closed for. Pre-filled with the estimate.</p>
+        </div>
+      <% end %>
 
       <div class="mb-3">
         <%= f.label :note, 'Note (optional)', class: 'block text-sm font-medium text-gray-700' %>
@@ -34,6 +42,14 @@
     function openStatusHistoryModal(id) {
       var el = document.getElementById(id);
       if (el) el.style.display = 'flex';
+    }
+    // Winning a Lead asks for the amount it actually closed for.
+    function toggleWonAmount(select) {
+      var field = select.form.querySelector('[data-won-amount]');
+      if (!field) return;
+      var won = select.value === 'won';
+      field.style.display = won ? '' : 'none';
+      field.querySelector('input').required = won;
     }
     function closeStatusHistoryModal(id) {
       var el = document.getElementById(id);

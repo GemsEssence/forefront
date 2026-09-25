@@ -39,6 +39,10 @@ module Forefront
 
     validates :title, presence: true
     validates :description, presence: true
+    validates :estimated_amount, :actual_amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+    # The deal can close for a different figure than estimated, so winning a
+    # Lead asks for what it actually closed for (Targets count this).
+    validates :actual_amount, presence: true, if: -> { won? && will_save_change_to_status? }
     validates :source, presence: true
     validates :status, presence: true
     validate :product_allocated_to_sales_person

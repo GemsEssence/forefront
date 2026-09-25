@@ -5,7 +5,7 @@ class Forefront::LeadServicesFilterTest < ActiveSupport::TestCase
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @open_lead = Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open")
-    @won_lead = Forefront::Lead.create!(title: "Won", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won")
+    @won_lead = Forefront::Lead.create!(title: "Won", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won", actual_amount: 100)
   end
 
   test "filters by status when called with real controller params, whose keys are Strings, not Symbols" do

@@ -16,7 +16,7 @@ The umbrella term for anyone with a Forefront login: Admin, Manager, or Sales pe
 _Avoid_: User, Employee (for this identity)
 
 **Lead**:
-A prospect's entire journey with exactly one Product, from first contact through to a `won` or `lost` outcome (passing through proposal/negotiation stages along the way). Created either when a Customer first makes contact, or — for a Customer whose prior subscription has lapsed — as a fresh Lead once a cooldown period has passed (a Reclaim, see below). Reaching `won` is the sale itself: there is no separate Sale/Deal/Order record: Payments and Installments attach directly to the won Lead. A won Lead's `expires_at` is set manually by the Sales person (not derived from any Product-level term); it drives when a Renewal Ticket and, later, a Reclaim get created.
+A prospect's entire journey with exactly one Product, from first contact through to a `won` or `lost` outcome (passing through proposal/negotiation stages along the way). Created either when a Customer first makes contact, or — for a Customer whose prior subscription has lapsed — as a fresh Lead once a cooldown period has passed (a Reclaim, see below). Reaching `won` is the sale itself: there is no separate Sale/Deal/Order record: Payments and Installments attach directly to the won Lead. A won Lead's `expires_at` is set manually by the Sales person (not derived from any Product-level term); it drives when a Renewal Ticket and, later, a Reclaim get created. A Lead carries an **estimated amount** entered when it's created, and an **actual amount** that must be entered when it's marked `won` (the deal can close for a different figure); amount-based Targets count the actual amount.
 _Avoid_: Deal, Opportunity, Sale (colloquial use of "deal" to mean "a Lead" is fine in conversation, but there is no separate Deal model)
 
 **Shared Lead**:
@@ -29,7 +29,7 @@ Money owed by a Customer for the Product on a won Lead. Paid in full, or split i
 A single scheduled portion of a Payment — amount and due date entered manually by the Sales person, not system-generated from a count/split. Each Installment drives an automated reminder Followup ahead of its due date.
 
 **Product**:
-What's sold — created by an Admin or Manager, with a name and description but no fixed price: what a sale is worth is the won Lead's Payment total, which is also what amount-based Targets count. A Sales person may only be assigned a Lead for a Product that's been allocated to them; Admins and Managers are unrestricted.
+What's sold — created by an Admin or Manager, with a name and description but no fixed price: what a sale is worth is the won Lead's actual amount. A Sales person may only be assigned a Lead for a Product that's been allocated to them; Admins and Managers are unrestricted.
 _Avoid_: Assign/Assignment for the Product-to-Sales-person link — say "allocate"/"Allocation" instead, since Assignment already means something specific (who currently owns a Ticket or Lead).
 
 **Ticket**:

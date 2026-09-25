@@ -35,6 +35,14 @@
 
   <div class="grid grid-cols-2 gap-4">
     <div>
+      <%= f.label :estimated_amount, "Estimated Amount", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.number_field :estimated_amount, step: "0.01", min: 0, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <p class="text-xs text-gray-500 mt-1">Approximate deal value. The actual amount is asked for when the lead is won.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
       <%= f.label :due_at, "Due Date", class: "block text-sm font-medium text-gray-700" %>
       <%= f.date_field :due_at, value: @lead.due_at&.strftime("%Y-%m-%d"), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
     </div>
@@ -47,6 +55,11 @@
 
   <% if @lead.won? %>
     <div class="grid grid-cols-2 gap-4">
+      <div>
+        <%= f.label :actual_amount, "Actual Amount", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :actual_amount, step: "0.01", min: 0, required: true, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        <p class="text-xs text-gray-500 mt-1">What the deal closed for; counts toward amount-based targets.</p>
+      </div>
       <div>
         <%= f.label :expires_at, "Subscription Expires", class: "block text-sm font-medium text-gray-700" %>
         <%= f.date_field :expires_at, value: @lead.expires_at&.strftime("%Y-%m-%d"), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>

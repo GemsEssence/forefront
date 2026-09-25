@@ -17,7 +17,7 @@ class Forefront::PaymentManagementTest < ActionDispatch::IntegrationTest
 
   test "a sales person can record a payment and split it into installments, and see the reminder followup" do
     sign_in_as(@rep)
-    @lead.update!(status: "won")
+    @lead.update!(status: "won", actual_amount: 100)
 
     get "/forefront/leads/#{@lead.id}"
     assert_response :success
@@ -62,7 +62,7 @@ class Forefront::PaymentManagementTest < ActionDispatch::IntegrationTest
 
   test "an unrelated sales person cannot record a payment on someone else's lead" do
     other_rep = Forefront::Admin.create!(name: "Other Rep", email: "otherrep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @lead.update!(status: "won")
+    @lead.update!(status: "won", actual_amount: 100)
     sign_in_as(other_rep)
 
     get "/forefront/leads/#{@lead.id}/payment/new"

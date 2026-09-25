@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_25_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_25_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -124,12 +124,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_000002) do
   end
 
   create_table "forefront_leads", force: :cascade do |t|
+    t.decimal "actual_amount", precision: 12, scale: 2
     t.bigint "assigned_to_id"
     t.datetime "created_at", null: false
     t.bigint "created_by_id", null: false
     t.bigint "customer_id", null: false
     t.text "description"
     t.date "due_at"
+    t.decimal "estimated_amount", precision: 12, scale: 2
     t.date "expires_at"
     t.datetime "next_followup_at", precision: nil
     t.bigint "product_id"

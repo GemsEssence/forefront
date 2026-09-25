@@ -44,7 +44,7 @@ class Forefront::RequiredFieldIndicatorTest < ActionDispatch::IntegrationTest
 
   test "the payment form marks its required fields" do
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website")
-    lead.update!(status: "won")
+    lead.update!(status: "won", actual_amount: 100)
 
     assert_required_fields("/forefront/leads/#{lead.id}/payment/new", %w[payment_total_amount])
   end

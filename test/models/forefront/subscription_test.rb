@@ -12,7 +12,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
 
     assert_nil lead.subscription
 
-    lead.update!(status: "won", expires_at: Date.new(2027, 1, 1))
+    lead.update!(status: "won", actual_amount: 100, expires_at: Date.new(2027, 1, 1))
 
     subscription = lead.reload.subscription
     assert_not_nil subscription
@@ -24,7 +24,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   test "no subscription is created for a Lead won without a product" do
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open")
 
-    lead.update!(status: "won")
+    lead.update!(status: "won", actual_amount: 100)
 
     assert_nil lead.reload.subscription
   end
@@ -32,14 +32,14 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   test "winning a lead without an expires_at does not create a subscription yet" do
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
 
-    lead.update!(status: "won")
+    lead.update!(status: "won", actual_amount: 100)
 
     assert_nil lead.reload.subscription
   end
 
   test "later setting expires_at on an already-won lead creates the subscription" do
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
-    lead.update!(status: "won")
+    lead.update!(status: "won", actual_amount: 100)
     assert_nil lead.reload.subscription
 
     lead.update!(expires_at: Date.new(2027, 6, 1))

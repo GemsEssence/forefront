@@ -49,6 +49,18 @@
                 <%= link_to @lead.customer.name, customer_path(@lead.customer), class: "text-indigo-600 hover:text-indigo-500" %>
               </dd>
             </div>
+            <% if @lead.estimated_amount.present? %>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Estimated Amount</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= number_to_currency(@lead.estimated_amount) %></dd>
+              </div>
+            <% end %>
+            <% if @lead.actual_amount.present? %>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Actual Amount</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= number_to_currency(@lead.actual_amount) %></dd>
+              </div>
+            <% end %>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Created By</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @lead.created_by.name %></dd>

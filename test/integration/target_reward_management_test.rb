@@ -27,9 +27,8 @@ class Forefront::TargetRewardManagementTest < ActionDispatch::IntegrationTest
     assert target.bonus_type_percentage?
 
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: rep, assigned_to: rep, source: "website", status: "open", product: product)
-    lead.update!(status: "won")
+    lead.update!(status: "won", actual_amount: 100)
     lead.update_column(:won_at, Time.utc(2026, 3, 10))
-    Forefront::Payment.create!(lead: lead, total_amount: 100)
 
     get "/forefront/targets"
     assert_match "Payout", response.body

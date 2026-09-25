@@ -33,24 +33,26 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 12, 31), yearly.ends_on
   end
 
-  test "amount target: achieved_value sums the payment totals of leads won in the period" do
+  test "amount target: achieved_value sums the actual amount of leads won in the period" do
     target = Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", goal_value: 150, period: "monthly", starts_on: Date.new(2026, 3, 1))
 
-    Forefront::Payment.create!(lead: create_won_lead(won_at: Time.utc(2026, 3, 10)), total_amount: 100)
-    Forefront::Payment.create!(lead: create_won_lead(won_at: Time.utc(2026, 2, 28)), total_amount: 900)
-    Forefront::Payment.create!(lead: create_won_lead(won_at: Time.utc(2026, 4, 1)), total_amount: 900)
-    Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    create_won_lead(won_at: Time.utc(2026, 3, 10), amount: 100)
+    create_won_lead(won_at: Time.utc(2026, 2, 28), amount: 900)
+    create_won_lead(won_at: Time.utc(2026, 4, 1), amount: 900)
+    Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product, estimated_amount: 900)
 
     assert_equal 100, target.achieved_value
     assert_not target.achieved?
   end
 
-  test "amount target: a won lead with no payment recorded yet adds nothing" do
+  test "amount target: counts the actual amount, not the estimate or the payment" do
     target = Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", goal_value: 150, period: "monthly", starts_on: Date.new(2026, 3, 1))
 
-    create_won_lead(won_at: Time.utc(2026, 3, 10))
+    lead = create_won_lead(won_at: Time.utc(2026, 3, 10), amount: 200)
+    Forefront::Payment.create!(lead: lead, total_amount: 50)
 
-    assert_equal 0, target.achieved_value
+    assert_equal 5000, lead.estimated_amount
+    assert_equal 200, target.achieved_value
   end
 
   test "lead_count target: achieved_value counts leads won in the period" do
@@ -71,7 +73,7 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
     Forefront::AssignmentOperations::Create.new(assignable: lead, params: { to_user_id: @rep.id, from_user_id: nil }, current_admin: @rep).call
     Forefront::AssignmentOperations::Create.new(assignable: lead, params: { to_user_id: other_rep.id }, current_admin: @rep).call
-    lead.update!(status: "won")
+    lead.update!(status: "won", actual_amount: 100)
     lead.update_column(:won_at, Time.utc(2026, 3, 10))
 
     assert_equal 0, target.achieved_value, "rep was reassigned away and the lead isn't shared, so they get no credit yet"
@@ -80,16 +82,15 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     share.lead_share_participants.build(admin: @rep, percentage: 40)
     share.lead_share_participants.build(admin: other_rep, percentage: 60)
     share.save!
-    Forefront::Payment.create!(lead: lead, total_amount: 100)
 
     assert_equal 40, target.reload.achieved_value
   end
 
   private
 
-  def create_won_lead(won_at:)
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
-    lead.update!(status: "won")
+  def create_won_lead(won_at:, amount: 100)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product, estimated_amount: 5000)
+    lead.update!(status: "won", actual_amount: amount)
     lead.update_column(:won_at, won_at)
     lead
   end

@@ -3,7 +3,7 @@ require "csv"
 module Forefront
   class LeadCsvExport
     HEADERS = [
-      "Title", "Customer", "Product", "Status", "Source",
+      "Title", "Customer", "Product", "Estimated Amount", "Actual Amount", "Status", "Source",
       "Assigned To", "Created By", "Created At", "Won At", "Expires At"
     ].freeze
 
@@ -20,6 +20,8 @@ module Forefront
             lead.title,
             lead.customer.name,
             lead.product&.name,
+            lead.estimated_amount,
+            lead.actual_amount,
             lead.status,
             lead.source,
             lead.assigned_to&.name,
