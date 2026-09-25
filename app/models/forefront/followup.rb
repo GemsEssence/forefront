@@ -16,7 +16,7 @@ module Forefront
       pending: 'Pending',
       completed: 'Completed',
       cancelled: 'Cancelled'
-    }
+    }, default: :pending # the column's DB default ("pending") isn't one of these stored values
     
     validates :assigned_to, :followup_type, :scheduled_for, :status, presence: true
 

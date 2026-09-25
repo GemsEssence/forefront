@@ -1,48 +1,36 @@
-<div id="<%= "status_history_modal_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>" class="fixed inset-0 z-50 flex items-center justify-center" style="display:none;">
-  <div class="fixed inset-0 bg-black opacity-50" onclick="closeStatusHistoryModal('<%= "status_history_modal_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>')"></div>
-  <div class="relative z-10 bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-    <h3 class="text-lg font-medium mb-4">Change Status</h3>
+<%# locals: trackable; on a failed submit also errors:, open: true, values: (the submitted status_history params) %>
+<% values = local_assigns[:values] || {} %>
+<% id = modal_id(:status_history, trackable) %>
+<% selected_status = values[:status].presence || trackable.status %>
+<%= render layout: "forefront/shared/modal", locals: { id: id, title: "Change Status", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
+  <%= form_with url: polymorphic_path([trackable, :status_histories]), scope: :status_history, method: :post, data: { turbo_frame: '_top' }, html: { class: 'status-history-form' } do |f| %>
+    <div class="mb-3">
+      <%= f.label :status, 'New Status', class: 'block text-sm font-medium text-gray-700' %>
+      <% status_options = trackable.class.respond_to?(:statuses) ? trackable.class.statuses.map { |k, v| [v, k] } : [] %>
+      <%= f.select :status, status_options, { selected: selected_status }, class: 'mt-1 block w-full border rounded', required: true, onchange: 'toggleWonAmount(this)' %>
+    </div>
 
-    <%= form_with url: polymorphic_path([trackable, :status_histories]), scope: :status_history, method: :post, data: { turbo_frame: '_top' }, html: { class: 'status-history-form' } do |f| %>
-
-      <div class="mb-3">
-        <%= f.label :status, 'New Status', class: 'block text-sm font-medium text-gray-700' %>
-        <% status_options = {} %>
-        <% if trackable.class.respond_to?(:statuses) %>
-          <% status_options = trackable.class.statuses.map { |k, v| [v, k] } %>
-        <% end %>
-        <%= f.select :status, status_options, { selected: trackable.status }, class: 'mt-1 block w-full border rounded', required: true, onchange: 'toggleWonAmount(this)' %>
-      </div>
-
-      <% if trackable.respond_to?(:actual_amount) %>
-        <div class="mb-3" data-won-amount style="<%= 'display:none;' unless trackable.won? %>">
-          <%= f.label :actual_amount, 'Actual Amount', class: 'block text-sm font-medium text-gray-700' %>
-          <%= f.number_field :actual_amount, value: trackable.actual_amount || trackable.estimated_amount, step: '0.01', min: 0, required: trackable.won?, class: 'mt-1 block w-full border rounded' %>
-          <p class="text-xs text-gray-500 mt-1">What the deal actually closed for. Pre-filled with the estimate.</p>
-        </div>
-      <% end %>
-
-      <div class="mb-3">
-        <%= f.label :note, 'Note (optional)', class: 'block text-sm font-medium text-gray-700' %>
-        <%= f.text_area :note, rows: 3, class: 'mt-1 block w-full border rounded' %>
-      </div>
-
-      <% if defined?(errors) && errors.present? %>
-        <div class="text-sm text-red-600 mb-2"><%= errors.join(', ') %></div>
-      <% end %>
-
-      <div class="flex justify-end space-x-2">
-        <button type="button" onclick="closeStatusHistoryModal('<%= "status_history_modal_#{trackable.class.name.demodulize.underscore}_#{trackable.id}" %>')" class="px-3 py-1 border rounded">Cancel</button>
-        <%= f.submit 'Change Status', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+    <% if trackable.respond_to?(:actual_amount) %>
+      <% winning = selected_status.to_s == "won" %>
+      <div class="mb-3" data-won-amount style="<%= 'display:none;' unless winning %>">
+        <%= f.label :actual_amount, 'Actual Amount', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.number_field :actual_amount, value: values.key?(:actual_amount) ? values[:actual_amount] : (trackable.actual_amount || trackable.estimated_amount), step: '0.01', min: 0, required: winning, class: 'mt-1 block w-full border rounded' %>
+        <p class="text-xs text-gray-500 mt-1">What the deal actually closed for. Pre-filled with the estimate.</p>
       </div>
     <% end %>
-  </div>
+
+    <div class="mb-3">
+      <%= f.label :note, 'Note (optional)', class: 'block text-sm font-medium text-gray-700' %>
+      <%= f.text_area :note, value: values[:note], rows: 3, class: 'mt-1 block w-full border rounded' %>
+    </div>
+
+    <div class="flex justify-end space-x-2">
+      <button type="button" onclick="forefrontCloseModal('<%= id %>')" class="px-3 py-1 border rounded">Cancel</button>
+      <%= f.submit 'Change Status', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+    </div>
+  <% end %>
 
   <script>
-    function openStatusHistoryModal(id) {
-      var el = document.getElementById(id);
-      if (el) el.style.display = 'flex';
-    }
     // Winning a Lead asks for the amount it actually closed for.
     function toggleWonAmount(select) {
       var field = select.form.querySelector('[data-won-amount]');
@@ -51,9 +39,5 @@
       field.style.display = won ? '' : 'none';
       field.querySelector('input').required = won;
     }
-    function closeStatusHistoryModal(id) {
-      var el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    }
   </script>
-</div>
+<% end %>

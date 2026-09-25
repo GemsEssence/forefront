@@ -8,6 +8,22 @@
 
     <%= yield :head %>
 
+    <script>
+      // Modals (forefront/shared/_modal): open/close by id. Closing also clears
+      // any validation errors so the form is fresh the next time it's opened.
+      function forefrontOpenModal(id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = 'flex';
+      }
+      function forefrontCloseModal(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = 'none';
+        var errors = el.querySelector('[data-modal-errors]');
+        if (errors) errors.remove();
+      }
+    </script>
+
     <!-- Load TailwindCSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <%= stylesheet_link_tag    "forefront/application", media: "all" %>

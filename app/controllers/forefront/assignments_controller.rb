@@ -14,7 +14,10 @@ module Forefront
       if result[:success]
         redirect_back fallback_location: @assignable, notice: "Assignee updated.", status: :see_other
       else
-        redirect_back fallback_location: @assignable, alert: result[:errors].join(", "), status: :see_other
+        render_modal_errors helpers.modal_id(:assignment, @assignable),
+                            partial: "forefront/assignments/form",
+                            locals: { assignable: @assignable, admins: assignee_options, values: assignable_params },
+                            errors: result[:errors], fallback: @assignable
       end
     end
 
@@ -28,6 +31,11 @@ module Forefront
       else
         raise ActiveRecord::RecordNotFound
       end
+    end
+
+    # Same choices the Ticket/Lead page offers.
+    def assignee_options
+      @assignable.is_a?(Ticket) ? Admin.assignable : Admin.all.order(:name)
     end
 
     def assignable_params

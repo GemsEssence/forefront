@@ -14,7 +14,10 @@ module Forefront
       if result[:success]
         redirect_back fallback_location: @trackable, notice: "Status updated.", status: :see_other
       else
-        redirect_back fallback_location: @trackable, alert: result[:errors].join(", "), status: :see_other
+        render_modal_errors helpers.modal_id(:status_history, @trackable),
+                            partial: "forefront/status_histories/form",
+                            locals: { trackable: @trackable, values: status_history_params },
+                            errors: result[:errors], fallback: @trackable
       end
     end
 

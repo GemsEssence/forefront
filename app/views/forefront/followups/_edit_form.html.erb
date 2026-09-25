@@ -1,0 +1,35 @@
+<%# locals: followup, followupable; on a failed submit also errors:, open: true %>
+<% id = "followup_edit_modal_#{followup.id}" %>
+<%= render layout: "forefront/shared/modal", locals: { id: id, title: "Edit Followup", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
+  <%= form_with model: followup, url: polymorphic_path([followupable, followup]), method: :patch, data: { turbo_frame: '_top' } do |ff| %>
+    <div class="mb-3">
+      <%= ff.label :followup_type, 'Type', class: 'block text-sm font-medium text-gray-700' %>
+      <%= ff.select :followup_type, Forefront::Followup.followup_types.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded', required: true } %>
+    </div>
+
+    <div class="mb-3">
+      <%= ff.label :scheduled_for, "Scheduled For", class: 'block text-sm font-medium text-gray-700' %>
+      <%= ff.datetime_local_field :scheduled_for, value: followup.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: 'mt-1 block w-full border rounded', required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= ff.label :assigned_to_id, "Assign to", class: 'block text-sm font-medium text-gray-700' %>
+      <%= ff.collection_select :assigned_to_id, Forefront::Admin.all.order(:name), :id, :name, {}, { class: 'mt-1 block w-full border rounded', required: true } %>
+    </div>
+
+    <div class="mb-3">
+      <%= ff.label :status, 'Status', class: 'block text-sm font-medium text-gray-700' %>
+      <%= ff.select :status, Forefront::Followup.statuses.map { |k, v| [k.humanize, k] }, {}, { class: 'mt-1 block w-full border rounded', required: true } %>
+    </div>
+
+    <div class="mb-3">
+      <%= ff.label :outcome, 'Notes', class: 'block text-sm font-medium text-gray-700' %>
+      <%= ff.text_area :outcome, rows: 3, class: 'mt-1 block w-full border rounded' %>
+    </div>
+
+    <div class="flex justify-end space-x-2">
+      <button type="button" onclick="forefrontCloseModal('<%= id %>')" class="px-3 py-1 border rounded">Cancel</button>
+      <%= ff.submit 'Update Followup', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+    </div>
+  <% end %>
+<% end %>

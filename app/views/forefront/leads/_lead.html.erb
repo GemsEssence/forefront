@@ -44,11 +44,11 @@
   <% if policy(lead).change_assignee? || policy(lead).update? %>
     <div class="px-4 py-2 bg-gray-50 flex space-x-2 border-t">
       <% if policy(lead).change_assignee? %>
-        <button type="button" onclick="event.stopPropagation(); openAssignmentModal('<%= "assignment_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Assign</button>
+        <button type="button" onclick="event.stopPropagation(); forefrontOpenModal('<%= "assignment_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Assign</button>
         <%= render 'forefront/assignments/form', assignable: lead, admins: @admins %>
       <% end %>
       <% if policy(lead).update? %>
-        <button type="button" onclick="event.stopPropagation(); openFollowupModal('<%= "followup_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">+ Followup</button>
+        <button type="button" onclick="event.stopPropagation(); forefrontOpenModal('<%= "followup_modal_#{lead.class.name.demodulize.underscore}_#{lead.id}" %>')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">+ Followup</button>
         <%= render 'forefront/followups/form', followupable: lead %>
       <% end %>
     </div>

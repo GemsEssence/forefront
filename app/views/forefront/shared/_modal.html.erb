@@ -1,0 +1,21 @@
+<%# A modal dialog. Render with `render layout: "forefront/shared/modal", locals: { id:, title:, open:, errors: }`.
+    It starts closed unless `open`; `errors` are listed at the top, inside the dialog. %>
+<% errors = Array(local_assigns[:errors]) %>
+<div id="<%= id %>" class="fixed inset-0 z-50 flex items-center justify-center" style="<%= 'display:none;' unless local_assigns[:open] %>">
+  <div class="fixed inset-0 bg-black opacity-50" onclick="forefrontCloseModal('<%= id %>')"></div>
+  <div class="relative z-10 bg-white rounded-lg shadow-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <h3 class="text-lg font-medium mb-4"><%= title %></h3>
+
+    <% if errors.any? %>
+      <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded text-sm" role="alert" data-modal-errors>
+        <ul class="list-disc list-inside">
+          <% errors.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= yield %>
+  </div>
+</div>

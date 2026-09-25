@@ -15,7 +15,10 @@ module Forefront
       if result[:success]
         redirect_back fallback_location: @followupable, notice: "Followup created.", status: :see_other
       else
-        redirect_back fallback_location: @followupable, alert: result[:errors].join(", "), status: :see_other
+        render_modal_errors helpers.modal_id(:followup, @followupable),
+                            partial: "forefront/followups/form",
+                            locals: { followupable: @followupable, followup: result[:followup] },
+                            errors: result[:errors], fallback: @followupable
       end
     end
 
@@ -31,7 +34,10 @@ module Forefront
       if result[:success]
         redirect_back fallback_location: @followup.followupable, notice: "Followup updated.", status: :see_other
       else
-        redirect_back fallback_location: @followup.followupable, alert: result[:errors].join(", "), status: :see_other
+        render_modal_errors "followup_edit_modal_#{@followup.id}",
+                            partial: "forefront/followups/edit_form",
+                            locals: { followup: @followup, followupable: @followup.followupable },
+                            errors: result[:errors], fallback: @followup.followupable
       end
     end
 
