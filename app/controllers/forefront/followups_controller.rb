@@ -12,24 +12,10 @@ module Forefront
         current_admin: current_admin
       ).call
 
-      respond_to do |format|
-        if result[:success]
-          format.turbo_stream do
-            render turbo_stream: [
-              turbo_stream.replace(followups_dom_id(@followupable), partial: 'forefront/followups/list', locals: { followupable: @followupable }),
-              turbo_stream.update('flash_messages', partial: 'forefront/followups/flash', locals: { message: 'Followup created.' })
-            ]
-          end
-          format.html { redirect_to @followupable, notice: 'Followup created.' }
-        else
-          format.turbo_stream do
-            render turbo_stream: [
-              turbo_stream.replace(followups_modal_dom_id(@followupable), partial: 'forefront/followups/form', locals: { followupable: @followupable, admins: Admin.all.order(:name), errors: result[:errors] }),
-              turbo_stream.update('flash_messages', partial: 'forefront/followups/flash', locals: { message: result[:errors].join(', ') })
-            ]
-          end
-          format.html { redirect_to @followupable, alert: result[:errors].join(', ') }
-        end
+      if result[:success]
+        redirect_back fallback_location: @followupable, notice: "Followup created.", status: :see_other
+      else
+        redirect_back fallback_location: @followupable, alert: result[:errors].join(", "), status: :see_other
       end
     end
 
@@ -42,24 +28,10 @@ module Forefront
         current_admin: current_admin
       ).call
 
-      respond_to do |format|
-        if result[:success]
-          format.turbo_stream do
-            render turbo_stream: [
-              turbo_stream.replace(followups_dom_id(@followup.followupable), partial: 'forefront/followups/list', locals: { followupable: @followup.followupable }),
-              turbo_stream.update('flash_messages', partial: 'forefront/followups/flash', locals: { message: 'Followup updated.' })
-            ]
-          end
-          format.html { redirect_to @followup.followupable, notice: 'Followup updated.' }
-        else
-          format.turbo_stream do
-            render turbo_stream: [
-              turbo_stream.replace(followups_modal_dom_id(@followup.followupable), partial: 'forefront/followups/form', locals: { followupable: @followup.followupable, admins: Admin.all.order(:name), errors: result[:errors], followup: @followup }),
-              turbo_stream.update('flash_messages', partial: 'forefront/followups/flash', locals: { message: result[:errors].join(', ') })
-            ]
-          end
-          format.html { redirect_to @followup.followupable, alert: result[:errors].join(', ') }
-        end
+      if result[:success]
+        redirect_back fallback_location: @followup.followupable, notice: "Followup updated.", status: :see_other
+      else
+        redirect_back fallback_location: @followup.followupable, alert: result[:errors].join(", "), status: :see_other
       end
     end
 
@@ -77,14 +49,6 @@ module Forefront
 
     def set_followup
       @followup = Forefront::Followup.find(params[:id])
-    end
-
-    def followups_dom_id(followupable)
-      "followups_#{followupable.class.name.demodulize.underscore}_#{followupable.id}"
-    end
-
-    def followups_modal_dom_id(followupable)
-      "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}"
     end
 
     def followup_params

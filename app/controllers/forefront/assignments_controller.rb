@@ -11,26 +11,10 @@ module Forefront
         current_admin: current_admin
       ).call
 
-      respond_to do |format|
-        if result[:success]
-          format.turbo_stream do
-            render turbo_stream: [
-              turbo_stream.replace(assignments_dom_id(@assignable), partial: 'forefront/assignments/history', locals: { assignable: @assignable }),
-              turbo_stream.update('flash_messages', partial: 'forefront/assignments/flash', locals: { message: 'Assignee updated.' })
-            ]
-          end
-
-          format.html { redirect_to @assignable, notice: 'Assignee updated.' }
-        else
-          format.turbo_stream do
-            render turbo_stream: [
-              turbo_stream.replace(assignments_modal_dom_id(@assignable), partial: 'forefront/assignments/form', locals: { assignable: @assignable, admins: Admin.all.order(:name), errors: result[:errors] }),
-              turbo_stream.update('flash_messages', partial: 'forefront/assignments/flash', locals: { message: result[:errors].join(', ') })
-            ]
-          end
-
-          format.html { redirect_to @assignable, alert: result[:errors].join(', ') }
-        end
+      if result[:success]
+        redirect_back fallback_location: @assignable, notice: "Assignee updated.", status: :see_other
+      else
+        redirect_back fallback_location: @assignable, alert: result[:errors].join(", "), status: :see_other
       end
     end
 
@@ -44,14 +28,6 @@ module Forefront
       else
         raise ActiveRecord::RecordNotFound
       end
-    end
-
-    def assignments_dom_id(assignable)
-      "assignments_#{assignable.class.name.demodulize.underscore}_#{assignable.id}"
-    end
-
-    def assignments_modal_dom_id(assignable)
-      "assignment_modal_#{assignable.class.name.demodulize.underscore}_#{assignable.id}"
     end
 
     def assignable_params

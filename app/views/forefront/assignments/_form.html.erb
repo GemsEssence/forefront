@@ -1,9 +1,9 @@
 <div id="<%= "assignment_modal_#{assignable.class.name.demodulize.underscore}_#{assignable.id}" %>" class="fixed inset-0 z-50 flex items-center justify-center" style="display:none;">
   <div class="fixed inset-0 bg-black opacity-50" onclick="closeAssignmentModal('<%= "assignment_modal_#{assignable.class.name.demodulize.underscore}_#{assignable.id}" %>')"></div>
-  <div class="bg-white rounded-lg shadow-lg p-6 z-60 max-w-md w-full">
+  <div class="relative z-10 bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
     <h3 class="text-lg font-medium mb-4">Assign <%= assignable.class.name.demodulize %></h3>
 
-    <%= form_with url: polymorphic_path([assignable, :assignments]), method: :post, data: { turbo: true }, html: { class: 'assignment-form' } do |f| %>
+    <%= form_with url: polymorphic_path([assignable, :assignments]), scope: :assignment, method: :post, data: { turbo_frame: '_top' }, html: { class: 'assignment-form' } do |f| %>
 
       <div class="mb-3">
         <%= f.label :to_user_id, 'Assignee', class: 'block text-sm font-medium text-gray-700' %>

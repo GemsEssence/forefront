@@ -11,22 +11,26 @@ module Forefront
       end
 
       def call
-        new_status = params[:status]
+        old_status = trackable.status_before_type_cast
 
-        # update trackable's status
-        if trackable.update(status: new_status)
-          trackable.status_histories.create(status_history_params)
-
-          { success: true, trackable: trackable }
-        else
-          @errors = trackable.errors.full_messages
-          { success: false, errors: @errors, trackable: trackable }
+        ActiveRecord::Base.transaction do
+          trackable.update!(status: params[:status].presence)
+          trackable.status_histories.create!(
+            old_status: old_status,
+            new_status: trackable.status_before_type_cast,
+            note: params[:note].presence,
+            changed_by: current_admin
+          )
         end
-      end
 
-      private
-      def status_history_params
-        params.merge!( changed_by_id: current_admin&.id )
+        { success: true, trackable: trackable }
+      rescue ActiveRecord::RecordInvalid => e
+        @errors = e.record.errors.full_messages
+        trackable.restore_attributes
+        { success: false, errors: @errors, trackable: trackable }
+      rescue ArgumentError
+        @errors = [ "Status is not valid" ]
+        { success: false, errors: @errors, trackable: trackable }
       end
     end
   end
