@@ -86,6 +86,20 @@ The generator does this automatically, but if needed:
 mount Forefront::Engine, at: "/forefront"
 ```
 
+## Plugin mode
+
+When Forefront runs inside a host application whose own records Customers
+should link to, turn on plugin mode in an initializer:
+
+```ruby
+# config/initializers/forefront.rb
+Forefront.plugin_mode = true
+```
+
+This shows the "Host Application Link" (External Type / External ID) fields
+on the Customer form and page. Look a linked Customer up from the host app with
+`Forefront::Customer.find_by_external(external_type: "User", external_id: user.id.to_s)`.
+
 ## Usage
 
 Once installed, visit:

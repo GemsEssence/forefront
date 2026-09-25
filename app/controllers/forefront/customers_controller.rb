@@ -77,7 +77,9 @@ module Forefront
     end
 
     def customer_params
-      params.require(:customer).permit(:name, :email, :phone, :address, :business_name, :external_type, :external_id)
+      permitted = %i[name email phone address business_name]
+      permitted += %i[external_type external_id] if Forefront.plugin_mode
+      params.require(:customer).permit(*permitted)
     end
 
     def filter_params

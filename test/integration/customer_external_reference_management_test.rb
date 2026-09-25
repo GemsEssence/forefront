@@ -7,8 +7,13 @@ class Forefront::CustomerExternalReferenceManagementTest < ActionDispatch::Integ
   end
 
   setup do
+    Forefront.plugin_mode = true
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     sign_in_as(@admin)
+  end
+
+  teardown do
+    Forefront.plugin_mode = false
   end
 
   test "creating a customer with a host application link shows it on the show page, and it's findable afterward" do
@@ -51,5 +56,30 @@ class Forefront::CustomerExternalReferenceManagementTest < ActionDispatch::Integ
     walk_ins = Forefront::Customer.where("name LIKE 'Walk-in%'")
     assert_equal 2, walk_ins.count
     assert walk_ins.all? { |c| c.external_type.nil? && c.external_id.nil? }
+  end
+
+  test "the host application link fields appear on the customer form in plugin mode" do
+    get "/forefront/customers/new"
+
+    assert_match "Host Application Link", response.body
+    assert_select "input[name='customer[external_id]']"
+  end
+
+  test "outside plugin mode the host application link is hidden and ignored" do
+    Forefront.plugin_mode = false
+
+    get "/forefront/customers/new"
+    assert_no_match "Host Application Link", response.body
+    assert_select "input[name='customer[external_id]']", count: 0
+
+    post "/forefront/customers", params: { customer: {
+      name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", external_type: "User", external_id: "7"
+    } }
+    customer = Forefront::Customer.order(:created_at).last
+    assert_nil customer.external_id
+
+    customer.update_columns(external_type: "User", external_id: "7")
+    get "/forefront/customers/#{customer.id}"
+    assert_no_match "Host Application Link", response.body
   end
 end
