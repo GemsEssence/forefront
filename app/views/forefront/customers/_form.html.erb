@@ -4,14 +4,16 @@
     <%= f.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
   </div>
 
+  <p class="text-sm text-gray-500">Provide at least one of email or phone.</p>
+
   <div>
     <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
-    <%= f.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+    <%= f.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
   </div>
 
   <div>
     <%= f.label :phone, class: "block text-sm font-medium text-gray-700" %>
-    <%= f.text_field :phone, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
+    <%= f.telephone_field :phone, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
   </div>
 
   <div>
