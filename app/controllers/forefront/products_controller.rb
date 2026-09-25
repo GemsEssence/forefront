@@ -58,7 +58,7 @@ module Forefront
     end
 
     def product_params
-      params.require(:product).permit(:name, :description, :price, admin_ids: [])
+      params.require(:product).permit(:name, :description, admin_ids: [])
     end
   end
 end

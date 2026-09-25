@@ -10,7 +10,7 @@ class Forefront::DashboardTest < ActionDispatch::IntegrationTest
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    product = Forefront::Product.create!(name: "Widget", price: 500)
+    product = Forefront::Product.create!(name: "Widget")
     product.admins << @rep
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won", product: product)
     Forefront::Payment.create!(lead: lead, total_amount: 500, status: "paid", paid_at: Time.current)

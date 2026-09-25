@@ -4,7 +4,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   setup do
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
-    @product = Forefront::Product.create!(name: "Widget", price: 100)
+    @product = Forefront::Product.create!(name: "Widget")
   end
 
   test "a subscription is created automatically the moment a Lead with a product is won" do

@@ -9,7 +9,7 @@ class Forefront::TargetRewardManagementTest < ActionDispatch::IntegrationTest
   test "an admin can set reward and bonus terms on a target, and the index shows the payout once earned" do
     admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    product = Forefront::Product.create!(name: "Widget", price: 100)
+    product = Forefront::Product.create!(name: "Widget")
     product.admins << rep
     customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     sign_in_as(admin)
@@ -29,6 +29,7 @@ class Forefront::TargetRewardManagementTest < ActionDispatch::IntegrationTest
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: rep, assigned_to: rep, source: "website", status: "open", product: product)
     lead.update!(status: "won")
     lead.update_column(:won_at, Time.utc(2026, 3, 10))
+    Forefront::Payment.create!(lead: lead, total_amount: 100)
 
     get "/forefront/targets"
     assert_match "Payout", response.body
@@ -38,7 +39,7 @@ class Forefront::TargetRewardManagementTest < ActionDispatch::IntegrationTest
   test "leaving reward/bonus blank on the form does not raise" do
     admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    product = Forefront::Product.create!(name: "Widget", price: 100)
+    product = Forefront::Product.create!(name: "Widget")
     sign_in_as(admin)
 
     assert_difference "Forefront::Target.count", 1 do

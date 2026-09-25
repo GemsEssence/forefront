@@ -3,7 +3,7 @@ require "test_helper"
 class Forefront::TargetTest < ActiveSupport::TestCase
   setup do
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @product = Forefront::Product.create!(name: "Widget", price: 100)
+    @product = Forefront::Product.create!(name: "Widget")
     @product.admins << @rep
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
   end
@@ -33,16 +33,24 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 12, 31), yearly.ends_on
   end
 
-  test "amount target: achieved_value sums the product price of leads won in the period" do
+  test "amount target: achieved_value sums the payment totals of leads won in the period" do
     target = Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", goal_value: 150, period: "monthly", starts_on: Date.new(2026, 3, 1))
 
-    won_in_period = create_won_lead(won_at: Time.utc(2026, 3, 10))
-    won_before_period = create_won_lead(won_at: Time.utc(2026, 2, 28))
-    won_after_period = create_won_lead(won_at: Time.utc(2026, 4, 1))
-    still_open = Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    Forefront::Payment.create!(lead: create_won_lead(won_at: Time.utc(2026, 3, 10)), total_amount: 100)
+    Forefront::Payment.create!(lead: create_won_lead(won_at: Time.utc(2026, 2, 28)), total_amount: 900)
+    Forefront::Payment.create!(lead: create_won_lead(won_at: Time.utc(2026, 4, 1)), total_amount: 900)
+    Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
 
     assert_equal 100, target.achieved_value
     assert_not target.achieved?
+  end
+
+  test "amount target: a won lead with no payment recorded yet adds nothing" do
+    target = Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", goal_value: 150, period: "monthly", starts_on: Date.new(2026, 3, 1))
+
+    create_won_lead(won_at: Time.utc(2026, 3, 10))
+
+    assert_equal 0, target.achieved_value
   end
 
   test "lead_count target: achieved_value counts leads won in the period" do
@@ -72,6 +80,7 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     share.lead_share_participants.build(admin: @rep, percentage: 40)
     share.lead_share_participants.build(admin: other_rep, percentage: 60)
     share.save!
+    Forefront::Payment.create!(lead: lead, total_amount: 100)
 
     assert_equal 40, target.reload.achieved_value
   end

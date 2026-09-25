@@ -4,7 +4,7 @@ class Forefront::LeadReclaimRewardTest < ActiveSupport::TestCase
   setup do
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
-    @product = Forefront::Product.create!(name: "Widget", price: 100, reclaim_reward_percentage: 20)
+    @product = Forefront::Product.create!(name: "Widget", reclaim_reward_percentage: 20)
 
     @old_lead = Forefront::Lead.create!(title: "Old", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
     @old_lead.update!(status: "won", expires_at: 4.months.ago.to_date)

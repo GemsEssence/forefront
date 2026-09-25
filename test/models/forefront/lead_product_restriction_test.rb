@@ -5,8 +5,8 @@ class Forefront::LeadProductRestrictionTest < ActiveSupport::TestCase
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @allowed_product = Forefront::Product.create!(name: "Allowed", price: 100)
-    @other_product = Forefront::Product.create!(name: "Other", price: 200)
+    @allowed_product = Forefront::Product.create!(name: "Allowed")
+    @other_product = Forefront::Product.create!(name: "Other")
     @allowed_product.admins << @rep
   end
 

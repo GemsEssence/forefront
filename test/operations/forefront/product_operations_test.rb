@@ -5,7 +5,7 @@ class Forefront::ProductOperationsTest < ActiveSupport::TestCase
     rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
 
     result = Forefront::ProductOperations::Create.new(
-      params: { name: "Widget", description: "A thing", price: "49.99", admin_ids: [ rep.id.to_s ] }
+      params: { name: "Widget", description: "A thing", admin_ids: [ rep.id.to_s ] }
     ).call
 
     assert result[:success]
@@ -15,12 +15,12 @@ class Forefront::ProductOperationsTest < ActiveSupport::TestCase
   test "update replaces the set of allocated sales persons" do
     rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     other_rep = Forefront::Admin.create!(name: "Other Rep", email: "otherrep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    product = Forefront::Product.create!(name: "Widget", price: 100)
+    product = Forefront::Product.create!(name: "Widget")
     product.admins << rep
 
     result = Forefront::ProductOperations::Update.new(
       product: product,
-      params: { name: "Widget", price: "100", admin_ids: [ other_rep.id.to_s ] }
+      params: { name: "Widget", admin_ids: [ other_rep.id.to_s ] }
     ).call
 
     assert result[:success]
@@ -29,12 +29,12 @@ class Forefront::ProductOperationsTest < ActiveSupport::TestCase
 
   test "update with no admin_ids clears all allocations" do
     rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    product = Forefront::Product.create!(name: "Widget", price: 100)
+    product = Forefront::Product.create!(name: "Widget")
     product.admins << rep
 
     result = Forefront::ProductOperations::Update.new(
       product: product,
-      params: { name: "Widget", price: "100" }
+      params: { name: "Widget" }
     ).call
 
     assert result[:success]

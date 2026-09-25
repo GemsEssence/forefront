@@ -5,7 +5,7 @@ class Forefront::InstallmentTest < ActiveSupport::TestCase
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @product = Forefront::Product.create!(name: "Widget", price: 300)
+    @product = Forefront::Product.create!(name: "Widget")
     @product.admins << @rep
     @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: "website", status: "won", product: @product)
     @payment = Forefront::Payment.create!(lead: @lead, total_amount: 300)

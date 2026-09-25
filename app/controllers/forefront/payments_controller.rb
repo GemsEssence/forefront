@@ -7,7 +7,7 @@ module Forefront
       redirect_to lead_path(@lead), alert: "Lead must be won before recording a payment." and return unless @lead.won?
       redirect_to lead_path(@lead), notice: "Payment already recorded." and return if @lead.payment.present?
 
-      @payment = @lead.build_payment(total_amount: @lead.product&.price)
+      @payment = @lead.build_payment
     end
 
     def create

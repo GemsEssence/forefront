@@ -29,7 +29,7 @@ Money owed by a Customer for the Product on a won Lead. Paid in full, or split i
 A single scheduled portion of a Payment — amount and due date entered manually by the Sales person, not system-generated from a count/split. Each Installment drives an automated reminder Followup ahead of its due date.
 
 **Product**:
-What's sold — created by an Admin or Manager, with a name and a price. A Sales person may only be assigned a Lead for a Product that's been allocated to them; Admins and Managers are unrestricted.
+What's sold — created by an Admin or Manager, with a name and description but no fixed price: what a sale is worth is the won Lead's Payment total, which is also what amount-based Targets count. A Sales person may only be assigned a Lead for a Product that's been allocated to them; Admins and Managers are unrestricted.
 _Avoid_: Assign/Assignment for the Product-to-Sales-person link — say "allocate"/"Allocation" instead, since Assignment already means something specific (who currently owns a Ticket or Lead).
 
 **Ticket**:

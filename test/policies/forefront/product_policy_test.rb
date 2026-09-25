@@ -5,7 +5,7 @@ class Forefront::ProductPolicyTest < ActiveSupport::TestCase
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @manager = Forefront::Admin.create!(name: "Manager", email: "manager-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @product = Forefront::Product.create!(name: "Widget", price: 100)
+    @product = Forefront::Product.create!(name: "Widget")
   end
 
   test "anyone signed in can view products" do

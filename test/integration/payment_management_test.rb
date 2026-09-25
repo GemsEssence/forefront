@@ -10,7 +10,7 @@ class Forefront::PaymentManagementTest < ActionDispatch::IntegrationTest
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @product = Forefront::Product.create!(name: "Widget", price: 300)
+    @product = Forefront::Product.create!(name: "Widget")
     @product.admins << @rep
     @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
   end

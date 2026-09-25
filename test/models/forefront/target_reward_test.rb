@@ -3,7 +3,7 @@ require "test_helper"
 class Forefront::TargetRewardTest < ActiveSupport::TestCase
   setup do
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @product = Forefront::Product.create!(name: "Widget", price: 100)
+    @product = Forefront::Product.create!(name: "Widget")
     @product.admins << @rep
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
   end
@@ -88,10 +88,11 @@ class Forefront::TargetRewardTest < ActiveSupport::TestCase
     build_target(overrides).tap(&:save!)
   end
 
-  def win_lead(won_at:)
+  def win_lead(won_at:, amount: 100)
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
     lead.update!(status: "won")
     lead.update_column(:won_at, won_at)
+    Forefront::Payment.create!(lead: lead, total_amount: amount)
     lead
   end
 end

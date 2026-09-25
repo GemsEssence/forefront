@@ -25,11 +25,16 @@ module Forefront
       end
     end
 
+    # lead_count: this admin's share of each Lead won in the period.
+    # amount: the same shares applied to each won Lead's recorded Payment total
+    # (a won Lead with no Payment recorded yet adds nothing).
     def achieved_value
-      won_leads_in_period = product.leads.won.where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
-      shares = won_leads_in_period.map { |lead| lead.share_fraction_for(admin_id) }.select(&:positive?)
+      won_leads_in_period = product.leads.won.includes(:payment).where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
+      credited = won_leads_in_period.map { |lead| [ lead, lead.share_fraction_for(admin_id) ] }.select { |_, share| share.positive? }
 
-      lead_count? ? shares.sum : shares.sum * product.price
+      return credited.sum { |_, share| share } if lead_count?
+
+      credited.sum { |lead, share| lead.payment ? lead.payment.total_amount * share : 0 }
     end
 
     def achieved?

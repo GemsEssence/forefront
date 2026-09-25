@@ -4,7 +4,7 @@ class Forefront::TicketRenewalRewardTest < ActiveSupport::TestCase
   setup do
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
-    @product = Forefront::Product.create!(name: "Widget", price: 100, renewal_reward_percentage: 10)
+    @product = Forefront::Product.create!(name: "Widget", renewal_reward_percentage: 10)
     @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
     @lead.update!(status: "won", expires_at: 1.week.from_now.to_date)
     Forefront::Payment.create!(lead: @lead, total_amount: 400, status: "paid", paid_at: Time.current)
@@ -41,7 +41,7 @@ class Forefront::TicketRenewalRewardTest < ActiveSupport::TestCase
   end
 
   test "no reward when there is no matching subscription for this customer and product" do
-    other_product = Forefront::Product.create!(name: "Other", price: 50, renewal_reward_percentage: 10)
+    other_product = Forefront::Product.create!(name: "Other", renewal_reward_percentage: 10)
     ticket = Forefront::Ticket.create!(title: "Renew?", description: "D", customer: @customer, created_by: @admin, category: "plan_expired", priority: "medium", status: "open", product: other_product)
     ticket.update!(status: "resolved", renewal_outcome: "renewed")
 

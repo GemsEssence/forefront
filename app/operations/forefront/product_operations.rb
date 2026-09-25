@@ -23,7 +23,7 @@ module Forefront
       private
 
       def attributes
-        params.slice(:name, :description, :price)
+        params.slice(:name, :description)
       end
     end
 
@@ -50,7 +50,7 @@ module Forefront
       private
 
       def attributes
-        params.slice(:name, :description, :price)
+        params.slice(:name, :description)
       end
     end
   end

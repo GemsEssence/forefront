@@ -18,7 +18,7 @@ class Forefront::ProductManagementTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_difference "Forefront::Product.count", 1 do
-      post "/forefront/products", params: { product: { name: "Widget", description: "A thing", price: "49.99", admin_ids: [ rep.id.to_s ] } }
+      post "/forefront/products", params: { product: { name: "Widget", description: "A thing", admin_ids: [ rep.id.to_s ] } }
     end
     assert_redirected_to "/forefront/products"
 
@@ -40,8 +40,8 @@ class Forefront::ProductManagementTest < ActionDispatch::IntegrationTest
   test "a sales person can only pick from products allocated to them when creating a lead" do
     rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    allowed = Forefront::Product.create!(name: "Allowed", price: 100)
-    forbidden = Forefront::Product.create!(name: "Forbidden Gadget", price: 200)
+    allowed = Forefront::Product.create!(name: "Allowed")
+    forbidden = Forefront::Product.create!(name: "Forbidden Gadget")
     allowed.admins << rep
     sign_in_as(rep)
 
