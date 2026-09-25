@@ -9,7 +9,7 @@
         <div class="px-4 py-5 sm:p-6">
           <%= form_with model: @payment, url: lead_payment_path(@lead), local: true, class: "space-y-6" do |f| %>
             <div>
-              <%= f.label :total_amount, class: "block text-sm font-medium text-gray-700" %>
+              <%= f.label :total_amount, "Total Amount (#{currency_symbol})", class: "block text-sm font-medium text-gray-700" %>
               <%= f.text_field :total_amount, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true %>
             </div>
 

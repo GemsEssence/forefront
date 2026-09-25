@@ -32,7 +32,7 @@
                 Reclaim
               </span>
               <% if @lead.won? && @lead.reclaim_reward_amount > 0 %>
-                <span class="text-sm text-green-700">Reward: <%= number_to_currency(@lead.reclaim_reward_amount) %></span>
+                <span class="text-sm text-green-700">Reward: <%= format_money(@lead.reclaim_reward_amount) %></span>
               <% end %>
             <% end %>
           </div>
@@ -52,13 +52,13 @@
             <% if @lead.estimated_amount.present? %>
               <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Estimated Amount</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= number_to_currency(@lead.estimated_amount) %></dd>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= format_money(@lead.estimated_amount) %></dd>
               </div>
             <% end %>
             <% if @lead.actual_amount.present? %>
               <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Actual Amount</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= number_to_currency(@lead.actual_amount) %></dd>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= format_money(@lead.actual_amount) %></dd>
               </div>
             <% end %>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">

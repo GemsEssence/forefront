@@ -23,7 +23,7 @@ class Forefront::LeadAmountTest < ActionDispatch::IntegrationTest
 
     assert_equal BigDecimal("2500.50"), lead.estimated_amount
     follow_redirect!
-    assert_includes response.body, "$2,500.50"
+    assert_includes response.body, "₹2,500.50"
   end
 
   test "amounts can't be negative" do

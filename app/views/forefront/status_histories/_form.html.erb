@@ -13,7 +13,7 @@
     <% if trackable.respond_to?(:actual_amount) %>
       <% winning = selected_status.to_s == "won" %>
       <div class="mb-3" data-won-amount style="<%= 'display:none;' unless winning %>">
-        <%= f.label :actual_amount, 'Actual Amount', class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.label :actual_amount, "Actual Amount (#{currency_symbol})", class: 'block text-sm font-medium text-gray-700' %>
         <%= f.number_field :actual_amount, value: values.key?(:actual_amount) ? values[:actual_amount] : (trackable.actual_amount || trackable.estimated_amount), step: '0.01', min: 0, required: winning, class: 'mt-1 block w-full border rounded' %>
         <p class="text-xs text-gray-500 mt-1">What the deal actually closed for. Pre-filled with the estimate.</p>
       </div>

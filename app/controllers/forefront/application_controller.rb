@@ -2,6 +2,7 @@ module Forefront
   class ApplicationController < ActionController::Base
     include Pundit::Authorization
     helper Forefront::ModalsHelper
+    helper Forefront::CurrencyHelper
 
     before_action :authenticate_admin!
     after_action :verify_authorized, unless: -> { action_name == "index" }

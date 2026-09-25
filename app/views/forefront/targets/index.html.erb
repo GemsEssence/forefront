@@ -20,7 +20,7 @@
                     <p class="text-sm font-medium text-indigo-600"><%= target.admin.name %> &middot; <%= target.product.name %></p>
                     <p class="text-sm text-gray-500">
                       <%= target.period.humanize %> starting <%= target.starts_on.strftime("%b %d, %Y") %> &middot;
-                      goal: <%= target.lead_count? ? target.goal_value.to_i : number_to_currency(target.goal_value) %>
+                      goal: <%= target.lead_count? ? target.goal_value.to_i : format_money(target.goal_value) %>
                       (<%= target.metric.humanize %>)
                     </p>
                   </div>
@@ -38,13 +38,13 @@
                   <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= target.progress_percentage %>%"></div>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">
-                  <%= target.lead_count? ? target.achieved_value.to_i : number_to_currency(target.achieved_value) %> of
-                  <%= target.lead_count? ? target.goal_value.to_i : number_to_currency(target.goal_value) %>
+                  <%= target.lead_count? ? target.achieved_value.to_i : format_money(target.achieved_value) %> of
+                  <%= target.lead_count? ? target.goal_value.to_i : format_money(target.goal_value) %>
                   (<%= target.progress_percentage %>%)
                 </p>
                 <% if target.total_payout > 0 %>
                   <p class="text-xs text-green-700 mt-1">
-                    Payout: <%= number_to_currency(target.reward_amount) %> reward<% if target.bonus_amount > 0 %> + <%= number_to_currency(target.bonus_amount) %> bonus<% end %>
+                    Payout: <%= format_money(target.reward_amount) %> reward<% if target.bonus_amount > 0 %> + <%= format_money(target.bonus_amount) %> bonus<% end %>
                   </p>
                 <% end %>
               </li>

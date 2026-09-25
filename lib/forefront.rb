@@ -6,4 +6,8 @@ module Forefront
   # Set to true in a host app initializer when Forefront runs as a plugin inside
   # that app, to let Customers be linked to the host app's own records.
   mattr_accessor :plugin_mode, default: false
+
+  # ISO 4217 code for every amount Forefront shows, e.g. "USD". Set it in a
+  # host app initializer; see Forefront::CurrencyHelper for how it's formatted.
+  mattr_accessor :currency, default: "INR"
 end

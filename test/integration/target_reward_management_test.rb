@@ -32,7 +32,7 @@ class Forefront::TargetRewardManagementTest < ActionDispatch::IntegrationTest
 
     get "/forefront/targets"
     assert_match "Payout", response.body
-    assert_match "$25.00", response.body
+    assert_match "₹25.00", response.body
   end
 
   test "leaving reward/bonus blank on the form does not raise" do

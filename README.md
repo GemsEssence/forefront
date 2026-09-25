@@ -100,6 +100,20 @@ This shows the "Host Application Link" (External Type / External ID) fields
 on the Customer form and page. Look a linked Customer up from the host app with
 `Forefront::Customer.find_by_external(external_type: "User", external_id: user.id.to_s)`.
 
+## Currency
+
+Amounts are shown in Indian rupees by default (`₹1,50,000.00`, with lakh/crore
+grouping). To use another currency, set its ISO 4217 code in an initializer:
+
+```ruby
+# config/initializers/forefront.rb
+Forefront.currency = "USD"   # $150,000.00
+```
+
+INR, USD, GBP, EUR, AED, AUD, CAD and SGD are formatted the way they're usually
+written; any other code is shown in front of the amount (e.g. `JPY 1,234.50`).
+This only changes how amounts are displayed — no conversion is done.
+
 ## Usage
 
 Once installed, visit:

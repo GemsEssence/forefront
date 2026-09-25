@@ -59,7 +59,7 @@
                         <%= @ticket.renewal_outcome.humanize %>
                       </span>
                       <% if @ticket.renewal_reward_amount > 0 %>
-                        <span class="ml-2 text-green-700 text-xs">Reward: <%= number_to_currency(@ticket.renewal_reward_amount) %></span>
+                        <span class="ml-2 text-green-700 text-xs">Reward: <%= format_money(@ticket.renewal_reward_amount) %></span>
                       <% end %>
                     <% end %>
                   <% end %>

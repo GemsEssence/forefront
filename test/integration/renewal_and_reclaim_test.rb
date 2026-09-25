@@ -37,7 +37,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
 
     get "/forefront/tickets/#{ticket.id}"
     assert_response :success
-    assert_match "Reward: $40.00", response.body
+    assert_match "Reward: ₹40.00", response.body
   end
 
   test "a new lead for a customer whose subscription lapsed 3+ months ago is flagged as a reclaim and rewarded once won and paid" do
@@ -54,6 +54,6 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
     post "/forefront/leads/#{new_lead.id}/payment", params: { payment: { total_amount: "500" } }
 
     get "/forefront/leads/#{new_lead.id}"
-    assert_match "Reward: $100.00", response.body
+    assert_match "Reward: ₹100.00", response.body
   end
 end
