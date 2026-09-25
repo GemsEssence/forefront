@@ -6,12 +6,12 @@
     <%= form_with model: Forefront::Followup.new, url: polymorphic_path([followupable, :followups]), data: { turbo_frame: '_top' } do |f| %>
       <div class="mb-3">
         <%= f.label :followup_type, 'Type', class: 'block text-sm font-medium text-gray-700' %>
-        <%= f.select :followup_type, Forefront::Followup.followup_types.map { |k, v| [k.humanize, k] }, { prompt: 'Select type' }, { class: 'mt-1 block w-full border rounded' } %>
+        <%= f.select :followup_type, Forefront::Followup.followup_types.map { |k, v| [k.humanize, k] }, { prompt: 'Select type' }, { class: 'mt-1 block w-full border rounded', required: true } %>
       </div>
 
       <div class="mb-3">
         <%= f.label :scheduled_for, "Scheduled For", class: 'block text-sm font-medium text-gray-700' %>
-        <%= f.datetime_local_field :scheduled_for, class: 'mt-1 block w-full border rounded' %>
+        <%= f.datetime_local_field :scheduled_for, class: 'mt-1 block w-full border rounded', required: true %>
       </div>
 
       <div class="mb-3">

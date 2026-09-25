@@ -7,7 +7,7 @@
 
       <div class="mb-3">
         <%= f.label :to_user_id, 'Assignee', class: 'block text-sm font-medium text-gray-700' %>
-        <%= f.select :to_user_id, options_from_collection_for_select(admins, :id, :name, assignable.assigned_to_id), {}, class: 'mt-1 block w-full border rounded' %>
+        <%= f.select :to_user_id, options_from_collection_for_select(admins, :id, :name, assignable.assigned_to_id), {}, class: 'mt-1 block w-full border rounded', required: true %>
       </div>
 
       <div class="mb-3">

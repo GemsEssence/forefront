@@ -18,19 +18,19 @@
           <%= f.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.text_field :name, autofocus: true, 
               class: "appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", 
-              placeholder: "Full name" %>
+              placeholder: "Full name", required: true %>
         </div>
         <div>
           <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.email_field :email, autocomplete: "email", 
               class: "appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", 
-              placeholder: "Email address" %>
+              placeholder: "Email address", required: true %>
         </div>
         <div>
           <%= f.label :password, class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.password_field :password, autocomplete: "new-password", 
               class: "appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", 
-              placeholder: "Password" %>
+              placeholder: "Password", required: true %>
           <% if @minimum_password_length %>
             <p class="mt-1 text-xs text-gray-500">
               (<%= @minimum_password_length %> characters minimum)
@@ -41,7 +41,7 @@
           <%= f.label :password_confirmation, class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.password_field :password_confirmation, autocomplete: "new-password", 
               class: "appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", 
-              placeholder: "Confirm password" %>
+              placeholder: "Confirm password", required: true %>
         </div>
       </div>
 

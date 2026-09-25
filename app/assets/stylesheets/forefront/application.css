@@ -13,3 +13,11 @@
  *= require_tree .
  *= require_self
  */
+
+/* Mark required fields: any label directly followed by a required control,
+   or by a wrapper that contains one, gets a red asterisk. */
+label:has(+ [required])::after,
+label:has(+ * [required])::after {
+  content: " *";
+  color: #dc2626;
+}

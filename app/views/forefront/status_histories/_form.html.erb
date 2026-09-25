@@ -11,7 +11,7 @@
         <% if trackable.class.respond_to?(:statuses) %>
           <% status_options = trackable.class.statuses.map { |k, v| [v, k] } %>
         <% end %>
-        <%= f.select :status, status_options, { selected: trackable.status }, class: 'mt-1 block w-full border rounded' %>
+        <%= f.select :status, status_options, { selected: trackable.status }, class: 'mt-1 block w-full border rounded', required: true %>
       </div>
 
       <div class="mb-3">

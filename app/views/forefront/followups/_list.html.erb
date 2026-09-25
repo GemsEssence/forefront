@@ -41,7 +41,7 @@
 
               <div class="mb-3">
                 <%= ff.label :scheduled_for, "Scheduled For", class: 'block text-sm font-medium text-gray-700' %>
-                <%= ff.datetime_local_field :scheduled_for, value: f.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: 'mt-1 block w-full border rounded' %>
+                <%= ff.datetime_local_field :scheduled_for, value: f.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: 'mt-1 block w-full border rounded', required: true %>
               </div>
 
               <div class="mb-3">
