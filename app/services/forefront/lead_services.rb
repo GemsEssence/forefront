@@ -9,6 +9,7 @@ module Forefront
       end
 
       def call
+        like = Forefront::ApplicationRecord.case_insensitive_like
         conditions = []
         params = {}
 
@@ -40,7 +41,7 @@ module Forefront
             conditions << "due_at <= :due_to"
             params[:due_to] = value
           when :search
-            conditions << "(title ILIKE :search OR description ILIKE :search)"
+            conditions << "(title #{like} :search OR description #{like} :search)"
             params[:search] = "%#{value}%"
           when :active
             next if value != 'true'

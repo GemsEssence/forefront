@@ -9,32 +9,33 @@ module Forefront
       end
 
       def call
+        like = Forefront::ApplicationRecord.case_insensitive_like
         conditions = []
         params = {}
 
         # Build conditions - search takes precedence
         if filters[:search].present?
-          conditions << "(name ILIKE :search OR email ILIKE :search OR phone ILIKE :search OR business_name ILIKE :search)"
+          conditions << "(name #{like} :search OR email #{like} :search OR phone #{like} :search OR business_name #{like} :search)"
           params[:search] = "%#{filters[:search]}%"
         else
           # Individual field filters (only if no general search)
           if filters[:name].present?
-            conditions << "name ILIKE :name"
+            conditions << "name #{like} :name"
             params[:name] = "%#{filters[:name]}%"
           end
 
           if filters[:email].present?
-            conditions << "email ILIKE :email"
+            conditions << "email #{like} :email"
             params[:email] = "%#{filters[:email]}%"
           end
 
           if filters[:phone].present?
-            conditions << "phone ILIKE :phone"
+            conditions << "phone #{like} :phone"
             params[:phone] = "%#{filters[:phone]}%"
           end
 
           if filters[:business_name].present?
-            conditions << "business_name ILIKE :business_name"
+            conditions << "business_name #{like} :business_name"
             params[:business_name] = "%#{filters[:business_name]}%"
           end
         end

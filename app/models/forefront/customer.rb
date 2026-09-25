@@ -24,10 +24,10 @@ module Forefront
       find_by(external_type: external_type, external_id: external_id)
     end
 
-    scope :by_name, ->(name) { where("name ILIKE ?", "%#{name}%") }
-    scope :by_email, ->(email) { where("email ILIKE ?", "%#{email}%") }
-    scope :by_phone, ->(phone) { where("phone ILIKE ?", "%#{phone}%") }
-    scope :by_business_name, ->(business_name) { where("business_name ILIKE ?", "%#{business_name}%") }
+    scope :by_name, ->(name) { where("name #{case_insensitive_like} ?", "%#{name}%") }
+    scope :by_email, ->(email) { where("email #{case_insensitive_like} ?", "%#{email}%") }
+    scope :by_phone, ->(phone) { where("phone #{case_insensitive_like} ?", "%#{phone}%") }
+    scope :by_business_name, ->(business_name) { where("business_name #{case_insensitive_like} ?", "%#{business_name}%") }
 
     def full_name
       business_name.present? ? "#{name} (#{business_name})" : name
