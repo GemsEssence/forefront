@@ -5,7 +5,14 @@ module Forefront
     has_many :subscriptions, class_name: "Forefront::Subscription", dependent: :destroy
 
     validates :name, presence: true
-    validates :email, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_nil: true
+    # local@domain.tld — URI::MailTo::EMAIL_REGEXP alone accepts "abc@abc".
+    EMAIL_FORMAT = /\A[^@\s]+@[^@\s.]+(\.[^@\s.]+)*\.[a-z]{2,}\z/i
+    # Digits with optional leading +, and spaces, dots, dashes or parentheses between.
+    PHONE_FORMAT = /\A\+?[\d\s().-]+\z/
+
+    validates :email, uniqueness: true, format: { with: EMAIL_FORMAT }, allow_nil: true
+    validates :phone, format: { with: PHONE_FORMAT, message: "can only contain digits, spaces, +, -, . and parentheses" }, allow_nil: true
+    validate :phone_has_plausible_digit_count
     validate :email_or_phone_present
     validates :external_id, uniqueness: { scope: :external_type }, allow_nil: true
 
@@ -33,6 +40,13 @@ module Forefront
     def normalize_contact_details
       self.email = email.to_s.strip.presence
       self.phone = phone.to_s.strip.presence
+    end
+
+    def phone_has_plausible_digit_count
+      return if phone.nil? || errors[:phone].any?
+
+      digits = phone.count("0-9")
+      errors.add(:phone, "must have between 7 and 15 digits") unless digits.between?(7, 15)
     end
 
     def email_or_phone_present
