@@ -27,10 +27,13 @@ class Forefront::LeadShareManagementTest < ActionDispatch::IntegrationTest
     assert_match "Shared Credit", response.body
     assert_match "Record Share", response.body
 
-    get "/forefront/leads/#{@lead.id}/lead_share/new"
-    assert_response :success
-    assert_match "Alice", response.body
-    assert_match "Bob", response.body
+    page = Nokogiri::HTML(response.body)
+    modal = page.at_css("#lead_share_modal_lead_#{@lead.id}")
+    assert modal, "the share form should be a modal on the lead page"
+    assert_includes modal["style"].to_s, "display:none"
+    assert modal.at_css("input[name='lead_share[percentages][#{@alice.id}]'][value='50.0']")
+    assert modal.at_css("input[name='lead_share[percentages][#{@bob.id}]'][value='50.0']")
+    assert page.at_css("button[onclick=\"forefrontOpenModal('lead_share_modal_lead_#{@lead.id}')\"]"), "Record Share should open the modal"
 
     post "/forefront/leads/#{@lead.id}/lead_share", params: { lead_share: { percentages: { @alice.id => "35", @bob.id => "65" } } }
     assert_redirected_to "/forefront/leads/#{@lead.id}"
@@ -51,5 +54,27 @@ class Forefront::LeadShareManagementTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/forefront/leads/#{@lead.id}"
     follow_redirect!
     assert_match "percentages must add up to 100", response.body
+  end
+
+  test "with Turbo, a mismatched split keeps the share modal open with the error and the typed percentages" do
+    patch "/forefront/leads/#{@lead.id}", params: { lead: { assigned_to_id: @bob.id } }
+
+    post "/forefront/leads/#{@lead.id}/lead_share",
+         params: { lead_share: { percentages: { @alice.id => "10", @bob.id => "20" } } }, as: :turbo_stream
+
+    assert_response :unprocessable_entity
+    stream = Nokogiri::HTML(response.body).at_css("turbo-stream[action=replace][target=lead_share_modal_lead_#{@lead.id}]")
+    assert stream, "expected the share modal to be re-rendered"
+    modal = Nokogiri::HTML(stream.at_css("template").inner_html).at_css("#lead_share_modal_lead_#{@lead.id}")
+    assert modal["style"].to_s.exclude?("display:none"), "the modal should stay open"
+    assert_match "percentages must add up to 100", modal.at_css("[role=alert]").text
+    assert modal.at_css("input[name='lead_share[percentages][#{@alice.id}]'][value='10']")
+    assert modal.at_css("input[name='lead_share[percentages][#{@bob.id}]'][value='20']")
+    assert_nil @lead.reload.lead_share
+  end
+
+  test "the old standalone share page is gone" do
+    get "/forefront/leads/#{@lead.id}/lead_share/new"
+    assert_response :not_found
   end
 end

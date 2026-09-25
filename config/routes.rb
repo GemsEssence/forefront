@@ -27,7 +27,7 @@ Forefront::Engine.routes.draw do
     resource :payment, only: [ :new, :create, :update ] do
       resources :installments, only: [ :create, :update ]
     end
-    resource :lead_share, only: [ :new, :create ]
+    resource :lead_share, only: [ :create ]
   end
 
   resources :customers

@@ -3,10 +3,6 @@ module Forefront
     before_action :set_lead
     before_action :authorize_lead
 
-    def new
-      @lead_share = @lead.lead_share || @lead.build_lead_share
-    end
-
     def create
       result = LeadShareOperations::Save.new(
         lead: @lead,
@@ -15,9 +11,13 @@ module Forefront
       ).call
 
       if result[:success]
-        redirect_to lead_path(@lead), notice: "Lead share recorded."
+        redirect_to lead_path(@lead), notice: "Lead share recorded.", status: :see_other
       else
-        redirect_to lead_path(@lead), alert: result[:errors].join(", ")
+        @lead.reload # drop the rejected, unsaved share so the form shows the saved one
+        render_modal_errors helpers.modal_id(:lead_share, @lead),
+                            partial: "forefront/lead_shares/form",
+                            locals: { lead: @lead, values: lead_share_params[:percentages].to_h },
+                            errors: result[:errors], fallback: lead_path(@lead)
       end
     end
 
