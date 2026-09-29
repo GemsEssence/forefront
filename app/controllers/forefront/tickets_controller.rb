@@ -75,7 +75,7 @@ module Forefront
     end
 
     def destroy
-      result = TicketOperations::Destroy.new(ticket: @ticket).call
+      result = TicketOperations::Destroy.new(ticket: @ticket, current_admin: current_admin).call
 
       if result[:success]
         redirect_to tickets_path, notice: 'Ticket was successfully deleted.'

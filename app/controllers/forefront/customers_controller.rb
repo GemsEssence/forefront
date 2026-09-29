@@ -22,7 +22,7 @@ module Forefront
       @customer = Customer.new(customer_params)
       authorize @customer
 
-      result = CustomerOperations::Create.new(params: customer_params).call
+      result = CustomerOperations::Create.new(params: customer_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to customer_path(result[:customer]), notice: "Customer was successfully created."
@@ -39,7 +39,8 @@ module Forefront
     def update
       result = CustomerOperations::Update.new(
         customer: @customer,
-        params: customer_params
+        params: customer_params,
+        current_admin: current_admin
       ).call
 
       if result[:success]
@@ -52,7 +53,7 @@ module Forefront
     end
 
     def destroy
-      result = CustomerOperations::Destroy.new(customer: @customer).call
+      result = CustomerOperations::Destroy.new(customer: @customer, current_admin: current_admin).call
 
       if result[:success]
         redirect_to customers_path, notice: "Customer was successfully deleted."

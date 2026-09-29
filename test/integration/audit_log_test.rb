@@ -53,4 +53,32 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/forefront/"
     assert_match "not authorized", flash[:alert]
   end
+
+  test "creating, updating and deleting a ticket are all recorded" do
+    sign_in_as(@admin)
+    post "/forefront/tickets", params: { ticket: { title: "Call back", description: "D", customer_id: @customer.id, category: "demo", priority: "high", status: "open" } }
+    ticket = Forefront::Ticket.find_by!(title: "Call back")
+    patch "/forefront/tickets/#{ticket.id}", params: { ticket: { priority: "low" } }
+    delete "/forefront/tickets/#{ticket.id}"
+
+    get "/forefront/audit_log"
+
+    assert_select "tr", text: /created.*Ticket.*Call back/m
+    assert_select "tr", text: /updated.*Ticket.*Call back.*Priority: high → low/m
+    assert_select "tr", text: /deleted.*Ticket.*Call back/m
+  end
+
+  test "creating, updating and deleting a customer are all recorded" do
+    sign_in_as(@admin)
+    post "/forefront/customers", params: { customer: { name: "Globex", phone: "555-0199" } }
+    customer = Forefront::Customer.find_by!(name: "Globex")
+    patch "/forefront/customers/#{customer.id}", params: { customer: { business_name: "Globex Corp" } }
+    delete "/forefront/customers/#{customer.id}"
+
+    get "/forefront/audit_log"
+
+    assert_select "tr", text: /Asha Admin.*created.*Customer.*Globex/m
+    assert_select "tr", text: /updated.*Customer.*Globex.*Business name: — → Globex Corp/m
+    assert_select "tr", text: /deleted.*Customer.*Globex/m
+  end
 end
