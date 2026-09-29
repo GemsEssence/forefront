@@ -1,0 +1,3 @@
+# Campaign credit is recorded per Ticket, not per Customer
+
+A Campaign is credited through the Ticket that records a Customer's enquiry about a Product (and through any Lead converted from that Ticket), not stored once on the Customer. The obvious model, "this Customer came from Campaign X", was rejected. One Customer can enquire about different Products through different Campaigns, and crediting only the first Campaign would misattribute every later sale. A second enquiry about a Product the Customer already has an open Ticket for reuses that Ticket, and the original Campaign keeps the credit. The Customer's page lists every Campaign they came through, taken from their Tickets.
