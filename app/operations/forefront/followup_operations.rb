@@ -1,5 +1,8 @@
 module Forefront
   module FollowupOperations
+    # Followups are audited against the record they're scheduled on.
+    UNAUDITED_FIELDS = (AuditEvent::UNAUDITED_ATTRIBUTES + %w[followupable_type followupable_id created_by_id]).freeze
+
     class Create
       attr_reader :followupable, :params, :current_admin, :errors
 
@@ -24,6 +27,8 @@ module Forefront
         )
 
         if followup.save
+          AuditEvent.record!(actor: current_admin, action: "scheduled_followup", auditable: followupable,
+                             audited_changes: followup.saved_changes.except(*UNAUDITED_FIELDS))
           { success: true, followup: followup }
         else
           { success: false, errors: followup.errors.full_messages, followup: followup }
@@ -43,6 +48,11 @@ module Forefront
 
       def call
         if @followup.update(update_params)
+          if @followup.saved_changes?
+            AuditEvent.record!(actor: current_admin, action: "updated_followup", auditable: @followup.followupable,
+                               audited_changes: @followup.saved_changes.except(*UNAUDITED_FIELDS))
+          end
+
           # set completed_at when status becomes completed
           if @followup.status == 'completed' && @followup.completed_at.nil?
             @followup.update_column(:completed_at, Time.current)

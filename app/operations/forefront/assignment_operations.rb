@@ -23,6 +23,9 @@ module Forefront
             changed_by_id: current_admin&.id
           )
 
+          AuditEvent.record!(actor: current_admin, action: "assigned", auditable: assignable,
+                             audited_changes: { "assigned_to" => [ staff_name(from_id), staff_name(to_id) ] })
+
           # cascade reassign upcoming followups if assignee changed
           if from_id != to_id
             cascade_reassign_followups(from_id, to_id)
@@ -36,6 +39,10 @@ module Forefront
       end
 
       private
+
+      def staff_name(id)
+        Admin.find_by(id: id)&.name if id.present?
+      end
 
       def cascade_reassign_followups(from_id, to_id)
         # find upcoming followups assigned to the old assignee

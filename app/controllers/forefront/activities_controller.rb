@@ -43,7 +43,7 @@ module Forefront
     def update
       authorize @activity
 
-      result = ActivityOperations::Update.new(activity: @activity, params: activity_params).call
+      result = ActivityOperations::Update.new(activity: @activity, params: activity_params, current_admin: current_admin).call
 
       respond_to do |format|
         if result[:success]
@@ -66,7 +66,7 @@ module Forefront
     def destroy
       authorize @activity
 
-      result = ActivityOperations::Destroy.new(activity: @activity).call
+      result = ActivityOperations::Destroy.new(activity: @activity, current_admin: current_admin).call
 
       respond_to do |format|
         if result[:success]

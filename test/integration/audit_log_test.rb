@@ -1,17 +1,25 @@
 require "test_helper"
 
-class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
+module AuditLogTestSetup
+  extend ActiveSupport::Concern
+
+  included do
+    setup do
+      @admin = Forefront::Admin.create!(name: "Asha Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+      @rep = Forefront::Admin.create!(name: "Ravi Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+      @customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
+    end
+  end
+
   def sign_in_as(admin, password: "password123")
     delete "/forefront/admins/sign_out"
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: admin.email, password: password } }
   end
+end
 
-  setup do
-    @admin = Forefront::Admin.create!(name: "Asha Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
-    @rep = Forefront::Admin.create!(name: "Ravi Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
-  end
+class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
 
   test "creating a lead shows up in the audit log for an admin" do
     sign_in_as(@rep)
@@ -80,5 +88,57 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
     assert_select "tr", text: /Asha Admin.*created.*Customer.*Globex/m
     assert_select "tr", text: /updated.*Customer.*Globex.*Business name: — → Globex Corp/m
     assert_select "tr", text: /deleted.*Customer.*Globex/m
+  end
+end
+
+class Forefront::AuditLogWorkOnALeadTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  setup do
+    @other_rep = Forefront::Admin.create!(name: "Meera Rep", email: "meera-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open")
+    sign_in_as(@rep)
+  end
+
+  def log_row(pattern)
+    sign_in_as(@admin)
+    get "/forefront/audit_log"
+    assert_select "tr", text: pattern
+  end
+
+  test "adding, editing and deleting an activity are recorded against the lead" do
+    post "/forefront/leads/#{@lead.id}/activities", params: { activity: { activity_type: "comment", body: "Spoke to them" } }
+    activity = @lead.activities.last
+    patch "/forefront/leads/#{@lead.id}/activities/#{activity.id}", params: { activity: { body: "Spoke to the CTO" } }
+    delete "/forefront/leads/#{@lead.id}/activities/#{activity.id}"
+
+    sign_in_as(@admin)
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Ravi Rep.*added activity.*Lead.*Big Deal.*Body: — → Spoke to them/m
+    assert_select "tr", text: /Ravi Rep.*edited activity.*Lead.*Big Deal.*Body: Spoke to them → Spoke to the CTO/m
+    assert_select "tr", text: /Ravi Rep.*deleted activity.*Lead.*Big Deal.*Body: Spoke to the CTO → —/m
+  end
+
+  test "scheduling and completing a followup are recorded against the lead" do
+    post "/forefront/leads/#{@lead.id}/followups", params: { followup: { followup_type: "call", scheduled_for: 2.days.from_now } }
+    followup = @lead.followups.last
+    patch "/forefront/leads/#{@lead.id}/followups/#{followup.id}", params: { followup: { status: "completed" } }
+
+    sign_in_as(@admin)
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Ravi Rep.*scheduled followup.*Lead.*Big Deal/m
+    assert_select "tr", text: /Ravi Rep.*updated followup.*Lead.*Big Deal.*Status: pending → completed/m
+  end
+
+  test "reassigning a lead records who it moved from and to" do
+    post "/forefront/leads/#{@lead.id}/assignments", params: { assignment: { to_user_id: @other_rep.id } }
+
+    log_row(/Ravi Rep.*assigned.*Lead.*Big Deal.*Assigned to: Ravi Rep → Meera Rep/m)
+  end
+
+  test "changing a lead's status records the old and new status" do
+    post "/forefront/leads/#{@lead.id}/status_histories", params: { status_history: { status: "proposal" } }
+
+    log_row(/Ravi Rep.*changed status.*Lead.*Big Deal.*Status: open → proposal/m)
   end
 end

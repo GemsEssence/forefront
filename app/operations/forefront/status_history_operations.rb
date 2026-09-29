@@ -21,6 +21,7 @@ module Forefront
             note: params[:note].presence,
             changed_by: current_admin
           )
+          AuditEvent.record!(actor: current_admin, action: "changed_status", auditable: trackable)
         end
 
         { success: true, trackable: trackable }
