@@ -15,6 +15,8 @@ module Forefront
         @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
 
         if @lead.save
+          AuditEvent.record!(actor: current_admin, action: "created", auditable: @lead)
+
           # Record initial assignment
           if @lead.assigned_to_id.present?
             Forefront::AssignmentOperations::Create.new(
@@ -55,6 +57,8 @@ module Forefront
         previous_assignee = @lead.assigned_to_id
 
         if @lead.update(lead_params)
+          AuditEvent.record!(actor: current_admin, action: "updated", auditable: @lead) if @lead.saved_changes?
+
           # Record assignment change
           if previous_assignee != @lead.assigned_to_id
             Forefront::AssignmentOperations::Create.new(
@@ -82,15 +86,17 @@ module Forefront
     end
 
     class Destroy
-      attr_reader :lead, :errors
+      attr_reader :lead, :current_admin, :errors
 
-      def initialize(lead:)
+      def initialize(lead:, current_admin:)
         @lead = lead
+        @current_admin = current_admin
         @errors = []
       end
 
       def call
         if @lead.destroy
+          AuditEvent.record!(actor: current_admin, action: "deleted", auditable: @lead, audited_changes: {})
           { success: true }
         else
           @errors = @lead.errors.full_messages

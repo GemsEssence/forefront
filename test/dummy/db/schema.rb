@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_25_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_29_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,6 +58,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_000003) do
     t.index ["changed_by_id"], name: "index_forefront_assignments_on_changed_by_id"
     t.index ["from_user_id"], name: "index_forefront_assignments_on_from_user_id"
     t.index ["to_user_id"], name: "index_forefront_assignments_on_to_user_id"
+  end
+
+  create_table "forefront_audit_events", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "actor_id", null: false
+    t.bigint "auditable_id"
+    t.string "auditable_label"
+    t.string "auditable_type"
+    t.json "audited_changes", default: {}, null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.index ["actor_id"], name: "index_forefront_audit_events_on_actor_id"
+    t.index ["auditable_type", "auditable_id"], name: "index_forefront_audit_events_on_auditable"
+    t.index ["created_at"], name: "index_forefront_audit_events_on_created_at"
   end
 
   create_table "forefront_customers", force: :cascade do |t|
@@ -253,6 +266,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_000003) do
   add_foreign_key "forefront_assignments", "forefront_admins", column: "changed_by_id"
   add_foreign_key "forefront_assignments", "forefront_admins", column: "from_user_id"
   add_foreign_key "forefront_assignments", "forefront_admins", column: "to_user_id"
+  add_foreign_key "forefront_audit_events", "forefront_admins", column: "actor_id"
   add_foreign_key "forefront_followups", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_followups", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_installments", "forefront_payments", column: "payment_id"

@@ -80,7 +80,7 @@ module Forefront
     end
 
     def destroy
-      result = LeadOperations::Destroy.new(lead: @lead).call
+      result = LeadOperations::Destroy.new(lead: @lead, current_admin: current_admin).call
 
       if result[:success]
         redirect_to leads_path, notice: 'Lead was successfully deleted.'

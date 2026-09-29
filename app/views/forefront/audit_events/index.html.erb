@@ -1,0 +1,45 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <h1 class="text-3xl font-bold text-gray-900 mb-6">Audit log</h1>
+
+      <%= render "forefront/shared/messages" %>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <% if @audit_events.any? %>
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">When</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Who</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Record</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Changes</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <% @audit_events.each do |event| %>
+                <tr>
+                  <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap"><%= l(event.created_at, format: :short) %></td>
+                  <td class="px-4 py-3 text-sm text-gray-900"><%= event.actor.name %></td>
+                  <td class="px-4 py-3 text-sm text-gray-900"><%= event.action.humanize(capitalize: false) %></td>
+                  <td class="px-4 py-3 text-sm text-gray-900"><%= event.auditable_kind %> <%= event.auditable_label %></td>
+                  <td class="px-4 py-3 text-sm text-gray-500">
+                    <% event.audited_changes.each do |field, (before, after)| %>
+                      <div><%= field.humanize %>: <%= before.presence || "—" %> → <%= after.presence || "—" %></div>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <div class="px-4 py-3"><%= paginate @audit_events %></div>
+        <% else %>
+          <div class="text-center py-12">
+            <p class="text-gray-500">Nothing has been recorded yet.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

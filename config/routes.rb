@@ -11,6 +11,7 @@ Forefront::Engine.routes.draw do
   resources :admins, path: "staff", only: [ :index, :new, :create, :edit, :update ]
   resources :products, only: [ :index, :new, :create, :edit, :update ]
   resources :targets, only: [ :index, :new, :create, :edit, :update ]
+  resources :audit_events, path: "audit_log", only: [ :index ]
 
   resources :tickets do
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
