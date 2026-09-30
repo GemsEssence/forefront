@@ -7,8 +7,8 @@ class Forefront::LeadPolicyTest < ActiveSupport::TestCase
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person", manager: @manager)
     @other_rep = Forefront::Admin.create!(name: "Other Rep", email: "other-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @reps_lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open")
-    @other_reps_lead = Forefront::Lead.create!(title: "L2", description: "D", customer: @customer, created_by: @other_rep, assigned_to: @other_rep, source: "website", status: "open")
+    @reps_lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open")
+    @other_reps_lead = Forefront::Lead.create!(title: "L2", description: "D", customer: @customer, created_by: @other_rep, assigned_to: @other_rep, source: forefront_source, status: "open")
   end
 
   test "admin's scope includes every lead" do

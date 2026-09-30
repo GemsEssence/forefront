@@ -4,8 +4,8 @@ class Forefront::LeadServicesFilterTest < ActiveSupport::TestCase
   setup do
     @rep = Forefront::Admin.create!(name: "Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @open_lead = Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open")
-    @won_lead = Forefront::Lead.create!(title: "Won", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won", actual_amount: 100)
+    @open_lead = Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open")
+    @won_lead = Forefront::Lead.create!(title: "Won", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "won", actual_amount: 100)
   end
 
   test "filters by status when called with real controller params, whose keys are Strings, not Symbols" do
@@ -41,7 +41,7 @@ class Forefront::LeadServicesFilterTest < ActiveSupport::TestCase
   end
 
   test "the lost filter matches leads whose status is the enum's capitalized stored value" do
-    lost_lead = Forefront::Lead.create!(title: "Lost", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "lost")
+    lost_lead = Forefront::Lead.create!(title: "Lost", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "lost")
     filters = ActionController::Parameters.new(lost: "true").permit(:lost)
 
     result = Forefront::LeadServices::Filter.new(scope: Forefront::Lead.all, filters: filters).call

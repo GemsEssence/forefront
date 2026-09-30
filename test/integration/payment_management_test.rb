@@ -12,7 +12,7 @@ class Forefront::PaymentManagementTest < ActionDispatch::IntegrationTest
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @product = Forefront::Product.create!(name: "Widget")
     @product.admins << @rep
-    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
   end
 
   test "a sales person can record a payment and split it into installments, and see the reminder followup" do

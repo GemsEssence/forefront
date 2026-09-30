@@ -89,7 +89,7 @@ class Forefront::TargetRewardTest < ActiveSupport::TestCase
   end
 
   def win_lead(won_at:, amount: 100)
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
     lead.update!(status: "won", actual_amount: amount)
     lead.update_column(:won_at, won_at)
     lead

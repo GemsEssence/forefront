@@ -11,23 +11,23 @@ class Forefront::LeadProductRestrictionTest < ActiveSupport::TestCase
   end
 
   test "a sales person can be assigned a lead for a product allocated to them" do
-    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: "website", status: "open", product: @allowed_product)
+    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: forefront_source, status: "open", product: @allowed_product)
     assert lead.valid?
   end
 
   test "a sales person cannot be assigned a lead for a product not allocated to them" do
-    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: "website", status: "open", product: @other_product)
+    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: forefront_source, status: "open", product: @other_product)
     assert_not lead.valid?
     assert_includes lead.errors[:product], "is not assigned to this sales person"
   end
 
   test "an admin can be assigned a lead for any product" do
-    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @admin, source: "website", status: "open", product: @other_product)
+    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @admin, source: forefront_source, status: "open", product: @other_product)
     assert lead.valid?
   end
 
   test "a lead with no product is still valid" do
-    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: "website", status: "open")
+    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: forefront_source, status: "open")
     assert lead.valid?
   end
 end

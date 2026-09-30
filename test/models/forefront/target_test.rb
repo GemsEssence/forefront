@@ -39,7 +39,7 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     create_won_lead(won_at: Time.utc(2026, 3, 10), amount: 100)
     create_won_lead(won_at: Time.utc(2026, 2, 28), amount: 900)
     create_won_lead(won_at: Time.utc(2026, 4, 1), amount: 900)
-    Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product, estimated_amount: 900)
+    Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product, estimated_amount: 900)
 
     assert_equal 100, target.achieved_value
     assert_not target.achieved?
@@ -70,7 +70,7 @@ class Forefront::TargetTest < ActiveSupport::TestCase
     @product.admins << other_rep
     target = Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", goal_value: 1000, period: "monthly", starts_on: Date.new(2026, 3, 1))
 
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
     Forefront::AssignmentOperations::Create.new(assignable: lead, params: { to_user_id: @rep.id, from_user_id: nil }, current_admin: @rep).call
     Forefront::AssignmentOperations::Create.new(assignable: lead, params: { to_user_id: other_rep.id }, current_admin: @rep).call
     lead.update!(status: "won", actual_amount: 100)
@@ -89,7 +89,7 @@ class Forefront::TargetTest < ActiveSupport::TestCase
   private
 
   def create_won_lead(won_at:, amount: 100)
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product, estimated_amount: 5000)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product, estimated_amount: 5000)
     lead.update!(status: "won", actual_amount: amount)
     lead.update_column(:won_at, won_at)
     lead

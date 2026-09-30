@@ -9,7 +9,7 @@ class Forefront::ListRowNavigationTest < ActionDispatch::IntegrationTest
     @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "admin")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     Forefront::Ticket.create!(title: "Demo", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium")
-    Forefront::Lead.create!(title: "Prospect", description: "D", customer: @customer, created_by: @admin, source: "website")
+    Forefront::Lead.create!(title: "Prospect", description: "D", customer: @customer, created_by: @admin, source: forefront_source)
 
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: @email, password: "password123" } }

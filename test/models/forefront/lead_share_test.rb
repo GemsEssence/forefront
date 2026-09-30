@@ -8,7 +8,7 @@ class Forefront::LeadShareTest < ActiveSupport::TestCase
     @bob = Forefront::Admin.create!(name: "Bob", email: "bob-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @carol = Forefront::Admin.create!(name: "Carol", email: "carol-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
 
-    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @alice, source: "website", status: "open")
+    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @alice, source: forefront_source, status: "open")
     Forefront::AssignmentOperations::Create.new(assignable: @lead, params: { to_user_id: @alice.id, from_user_id: nil }, current_admin: @admin).call
     Forefront::AssignmentOperations::Create.new(assignable: @lead, params: { to_user_id: @bob.id }, current_admin: @admin).call
     @lead.reload

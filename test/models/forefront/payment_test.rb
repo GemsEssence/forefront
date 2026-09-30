@@ -5,8 +5,8 @@ class Forefront::PaymentTest < ActiveSupport::TestCase
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @product = Forefront::Product.create!(name: "Widget")
-    @won_lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "won", actual_amount: 100, product: @product)
-    @open_lead = Forefront::Lead.create!(title: "L2", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open")
+    @won_lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "won", actual_amount: 100, product: @product)
+    @open_lead = Forefront::Lead.create!(title: "L2", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open")
   end
 
   test "can only be created for a won lead" do

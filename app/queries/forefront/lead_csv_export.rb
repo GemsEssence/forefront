@@ -15,7 +15,7 @@ module Forefront
       CSV.generate(headers: true) do |csv|
         csv << HEADERS
 
-        @leads.includes(:customer, :product, :assigned_to, :created_by).each do |lead|
+        @leads.includes(:customer, :product, :source, :assigned_to, :created_by).each do |lead|
           csv << [
             lead.title,
             lead.customer.name,
@@ -23,7 +23,7 @@ module Forefront
             lead.estimated_amount,
             lead.actual_amount,
             lead.status,
-            lead.source,
+            lead.source.name,
             lead.assigned_to&.name,
             lead.created_by.name,
             lead.created_at,

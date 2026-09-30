@@ -10,7 +10,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @product = Forefront::Product.create!(name: "Widget", renewal_reward_percentage: 10, reclaim_reward_percentage: 20)
-    @lead = Forefront::Lead.create!(title: "Original", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
+    @lead = Forefront::Lead.create!(title: "Original", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", product: @product)
     sign_in_as(@admin)
   end
 
@@ -43,7 +43,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   test "a new lead for a customer whose subscription lapsed 3+ months ago is flagged as a reclaim and rewarded once won and paid" do
     @lead.update!(status: "won", actual_amount: 100, expires_at: 4.months.ago.to_date)
 
-    post "/forefront/leads", params: { lead: { title: "Win them back", description: "D", customer_id: @customer.id, source: "website", product_id: @product.id } }
+    post "/forefront/leads", params: { lead: { title: "Win them back", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: @product.id } }
     new_lead = Forefront::Lead.order(:created_at).last
     assert_redirected_to "/forefront/leads/#{new_lead.id}"
 

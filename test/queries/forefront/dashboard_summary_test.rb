@@ -99,7 +99,7 @@ class Forefront::DashboardSummaryTest < ActiveSupport::TestCase
   private
 
   def win_lead(rep, won_at: Time.current)
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: rep, assigned_to: rep, source: "website", status: "open", product: @product)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: rep, assigned_to: rep, source: forefront_source, status: "open", product: @product)
     lead.update!(status: "won", actual_amount: 100)
     lead.update_column(:won_at, won_at)
     lead

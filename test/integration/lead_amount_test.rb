@@ -18,7 +18,7 @@ class Forefront::LeadAmountTest < ActionDispatch::IntegrationTest
     assert_select "input[name='lead[estimated_amount]']"
     assert_select "input[name='lead[actual_amount]']", count: 0
 
-    post "/forefront/leads", params: { lead: { title: "Deal", description: "D", customer_id: @customer.id, source: "website", estimated_amount: "2500.50" } }
+    post "/forefront/leads", params: { lead: { title: "Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, estimated_amount: "2500.50" } }
     lead = Forefront::Lead.order(:created_at).last
 
     assert_equal BigDecimal("2500.50"), lead.estimated_amount
@@ -120,6 +120,6 @@ class Forefront::LeadAmountTest < ActionDispatch::IntegrationTest
   private
 
   def build_lead(**attrs)
-    Forefront::Lead.new(title: "Deal", description: "D", customer: @customer, created_by: @admin, source: "website", **attrs)
+    Forefront::Lead.new(title: "Deal", description: "D", customer: @customer, created_by: @admin, source: forefront_source, **attrs)
   end
 end

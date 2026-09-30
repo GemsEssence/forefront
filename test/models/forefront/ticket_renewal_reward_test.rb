@@ -5,7 +5,7 @@ class Forefront::TicketRenewalRewardTest < ActiveSupport::TestCase
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     @product = Forefront::Product.create!(name: "Widget", renewal_reward_percentage: 10)
-    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
+    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", product: @product)
     @lead.update!(status: "won", actual_amount: 100, expires_at: 1.week.from_now.to_date)
     Forefront::Payment.create!(lead: @lead, total_amount: 400, status: "paid", paid_at: Time.current)
   end

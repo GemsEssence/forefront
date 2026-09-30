@@ -25,7 +25,7 @@ class Forefront::ProductTest < ActiveSupport::TestCase
     customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     product = Forefront::Product.create!(name: "Widget")
-    Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: admin, source: "website", status: "open", product: product)
+    Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: admin, source: forefront_source, status: "open", product: product)
 
     assert_not product.destroy
     assert_includes product.errors[:base], "Cannot delete record because dependent leads exist"

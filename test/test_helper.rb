@@ -13,3 +13,10 @@ if ActiveSupport::TestCase.respond_to?(:fixture_paths=)
   ActiveSupport::TestCase.file_fixture_path = File.expand_path("fixtures", __dir__) + "/files"
   ActiveSupport::TestCase.fixtures :all
 end
+
+class ActiveSupport::TestCase
+  # Leads need a Source; most tests don't care which.
+  def forefront_source(name = "Website")
+    Forefront::Source.find_or_create_by!(name: name)
+  end
+end

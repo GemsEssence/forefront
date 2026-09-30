@@ -5,7 +5,7 @@ class Forefront::CurrencyDisplayTest < ActionDispatch::IntegrationTest
     @email = "alice-#{SecureRandom.hex(4)}@example.com"
     @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "admin")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @lead = Forefront::Lead.create!(title: "Deal", description: "D", customer: @customer, created_by: @admin, source: "website", estimated_amount: 150_000)
+    @lead = Forefront::Lead.create!(title: "Deal", description: "D", customer: @customer, created_by: @admin, source: forefront_source, estimated_amount: 150_000)
 
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: @email, password: "password123" } }

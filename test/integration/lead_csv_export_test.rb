@@ -12,8 +12,8 @@ class Forefront::LeadCsvExportRequestTest < ActionDispatch::IntegrationTest
     @product = Forefront::Product.create!(name: "Widget")
     @product.admins << @rep
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @open_lead = Forefront::Lead.create!(title: "Open Lead", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
-    @won_lead = Forefront::Lead.create!(title: "Won Lead", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won", actual_amount: 100, product: @product)
+    @open_lead = Forefront::Lead.create!(title: "Open Lead", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
+    @won_lead = Forefront::Lead.create!(title: "Won Lead", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "won", actual_amount: 100, product: @product)
     sign_in_as(@admin)
   end
 

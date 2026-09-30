@@ -24,7 +24,7 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
 
   test "creating a lead shows up in the audit log for an admin" do
     sign_in_as(@rep)
-    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source: "website", status: "open" } }
+    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, status: "open" } }
 
     sign_in_as(@admin)
     get "/forefront/audit_log"
@@ -34,7 +34,7 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
   end
 
   test "updating a lead records what changed, before and after" do
-    lead = Forefront::Lead.create!(title: "Old title", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open")
+    lead = Forefront::Lead.create!(title: "Old title", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open")
 
     sign_in_as(@rep)
     patch "/forefront/leads/#{lead.id}", params: { lead: { title: "New title" } }
@@ -46,7 +46,7 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
   end
 
   test "deleting a lead is still readable in the log after the lead is gone" do
-    lead = Forefront::Lead.create!(title: "Doomed", description: "D", customer: @customer, created_by: @rep, source: "website", status: "open")
+    lead = Forefront::Lead.create!(title: "Doomed", description: "D", customer: @customer, created_by: @rep, source: forefront_source, status: "open")
 
     sign_in_as(@admin)
     delete "/forefront/leads/#{lead.id}"
@@ -97,7 +97,7 @@ class Forefront::AuditLogWorkOnALeadTest < ActionDispatch::IntegrationTest
 
   setup do
     @other_rep = Forefront::Admin.create!(name: "Meera Rep", email: "meera-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open")
+    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open")
     sign_in_as(@rep)
   end
 
@@ -148,7 +148,7 @@ class Forefront::AuditLogMoneyTest < ActionDispatch::IntegrationTest
   include AuditLogTestSetup
 
   setup do
-    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won", actual_amount: 300)
+    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "won", actual_amount: 300)
     sign_in_as(@rep)
   end
 
@@ -230,7 +230,7 @@ class Forefront::AuditLogManagerTest < ActionDispatch::IntegrationTest
   test "a manager sees what they and their team did, and nobody else" do
     { @rep => "Team Lead", @manager => "Manager Lead", @outsider => "Outsider Lead", @admin => "Admin Lead" }.each do |staff, title|
       Forefront::AuditEvent.record!(actor: staff, action: "created",
-        auditable: Forefront::Lead.create!(title: title, description: "D", customer: @customer, created_by: staff, source: "website", status: "open"))
+        auditable: Forefront::Lead.create!(title: title, description: "D", customer: @customer, created_by: staff, source: forefront_source, status: "open"))
     end
 
     sign_in_as(@manager)
@@ -263,7 +263,7 @@ class Forefront::AuditLogFilterTest < ActionDispatch::IntegrationTest
   include AuditLogTestSetup
 
   setup do
-    lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, source: "website", status: "open")
+    lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, source: forefront_source, status: "open")
     travel_to Time.zone.local(2026, 9, 10, 12) do
       Forefront::AuditEvent.record!(actor: @rep, action: "created", auditable: lead)
     end

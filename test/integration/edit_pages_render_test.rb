@@ -13,7 +13,7 @@ class Forefront::EditPagesRenderTest < ActionDispatch::IntegrationTest
   end
 
   test "the lead edit page renders" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open")
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open")
     get "/forefront/leads/#{lead.id}/edit"
     assert_response :success
   end

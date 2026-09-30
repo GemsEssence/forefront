@@ -38,7 +38,7 @@ module Forefront
       def lead_params
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
-          :source, :status, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount
+          :source_id, :status, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount
         )
       end
     end
@@ -80,7 +80,7 @@ module Forefront
       def lead_params
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
-          :source, :status, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount
+          :source_id, :status, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount
         )
       end
     end

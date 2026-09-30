@@ -12,7 +12,7 @@ module Forefront
       @admins = Admin.all.order(:name)
 
       respond_to do |format|
-        format.html { @leads = filtered_leads.page(params[:page]) }
+        format.html { @leads = filtered_leads.includes(:source).page(params[:page]) }
         format.csv { send_data LeadCsvExport.new(filtered_leads).call, filename: "leads-#{Date.current.iso8601}.csv" }
       end
     end
@@ -102,7 +102,7 @@ module Forefront
     def lead_params
       params.require(:lead).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :source, :status, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount
+        :source_id, :status, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount
       )
     end
 
@@ -112,7 +112,7 @@ module Forefront
 
     def filter_params
       params.permit(
-        :search, :source, :status, :customer_id,
+        :search, :source_id, :status, :customer_id,
         :created_by_id, :assigned_to_id, :overdue, :due_soon,
         :needs_followup, :active, :won, :lost, :due_from, :due_to, :sort_by
       )

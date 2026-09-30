@@ -8,7 +8,7 @@ class Forefront::DeleteConfirmationTest < ActionDispatch::IntegrationTest
     @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "admin")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium")
-    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website")
+    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source)
     @ticket.activities.create!(activity_type: "comment", body: "Hi", created_by: @admin)
 
     get "/forefront/admins/sign_in"

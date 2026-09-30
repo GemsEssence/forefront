@@ -23,7 +23,7 @@ class Forefront::RequiredFieldIndicatorTest < ActionDispatch::IntegrationTest
 
   {
     "/forefront/tickets/new" => %w[ticket_title ticket_description ticket_customer_id ticket_category ticket_priority],
-    "/forefront/leads/new" => %w[lead_title lead_description lead_customer_id lead_source],
+    "/forefront/leads/new" => %w[lead_title lead_description lead_customer_id lead_source_id],
     "/forefront/customers/new" => %w[customer_name],
     "/forefront/products/new" => %w[product_name],
     "/forefront/targets/new" => %w[target_admin_id target_product_id target_metric target_goal_value target_period target_starts_on],
@@ -43,7 +43,7 @@ class Forefront::RequiredFieldIndicatorTest < ActionDispatch::IntegrationTest
   end
 
   test "the payment form marks its required fields" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website")
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source)
     lead.update!(status: "won", actual_amount: 100)
 
     assert_required_fields("/forefront/leads/#{lead.id}/payment/new", %w[payment_total_amount])

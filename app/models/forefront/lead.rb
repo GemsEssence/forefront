@@ -4,6 +4,7 @@ module Forefront
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
     belongs_to :product, class_name: "Forefront::Product", optional: true
+    belongs_to :source, class_name: "Forefront::Source"
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
@@ -11,20 +12,6 @@ module Forefront
     has_one :payment, class_name: "Forefront::Payment", dependent: :destroy
     has_one :subscription, class_name: "Forefront::Subscription", dependent: :destroy
     has_one :lead_share, class_name: "Forefront::LeadShare", dependent: :destroy
-
-    enum :source, {
-      website: 'Website',
-      phone: 'Phone',
-      email: 'Email',
-      referral: 'Referral',
-      linkedin: 'Linkedin',
-      upwork: 'Upwork',
-      freelancer: 'Freelancer',
-      gitex: 'Gitex',
-      india_soft: 'India Soft',
-      event: 'Event',
-      other: 'Other'
-    }
 
     enum :status, {
       open: 'Open',
@@ -43,7 +30,7 @@ module Forefront
     # The deal can close for a different figure than estimated, so winning a
     # Lead asks for what it actually closed for (Targets count this).
     validates :actual_amount, presence: true, if: -> { won? && will_save_change_to_status? }
-    validates :source, presence: true
+    validate :source_is_active, if: :will_save_change_to_source_id?
     validates :status, presence: true
     validate :product_allocated_to_sales_person
 
@@ -51,7 +38,7 @@ module Forefront
     after_save :ensure_subscription
 
     # Scopes for filtering
-    scope :by_source, ->(source) { where(source: source) }
+    scope :by_source, ->(source_id) { where(source_id: source_id) }
     scope :by_status, ->(status) { where(status: status) }
     scope :by_customer, ->(customer_id) { where(customer_id: customer_id) }
     scope :by_created_by, ->(admin_id) { where(created_by_id: admin_id) }
@@ -134,6 +121,12 @@ module Forefront
       else
         create_subscription!(customer: customer, product: product, expires_at: expires_at)
       end
+    end
+
+    # A deactivated Source stays on the Leads that already have it, but can't
+    # be picked for a new Lead or switched to.
+    def source_is_active
+      errors.add(:source, "is no longer in use") if source && !source.active?
     end
 
     def product_allocated_to_sales_person

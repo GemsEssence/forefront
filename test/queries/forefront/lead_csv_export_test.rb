@@ -11,7 +11,7 @@ class Forefront::LeadCsvExportTest < ActiveSupport::TestCase
   test "generates a CSV with a header row and one row per lead" do
     lead = Forefront::Lead.create!(
       title: "Website revamp", description: "D", customer: @customer,
-      created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product
+      created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product
     )
 
     csv = Forefront::LeadCsvExport.new(Forefront::Lead.where(id: lead.id)).call
@@ -25,8 +25,8 @@ class Forefront::LeadCsvExportTest < ActiveSupport::TestCase
   end
 
   test "only includes leads from the given scope" do
-    included = Forefront::Lead.create!(title: "In", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
-    Forefront::Lead.create!(title: "Out", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "open", product: @product)
+    included = Forefront::Lead.create!(title: "In", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
+    Forefront::Lead.create!(title: "Out", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
 
     csv = Forefront::LeadCsvExport.new(Forefront::Lead.where(id: included.id)).call
     rows = CSV.parse(csv, headers: true)

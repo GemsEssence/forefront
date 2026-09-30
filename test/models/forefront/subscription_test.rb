@@ -8,7 +8,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   end
 
   test "a subscription is created automatically the moment a Lead with a product is won" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", product: @product)
 
     assert_nil lead.subscription
 
@@ -22,7 +22,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   end
 
   test "no subscription is created for a Lead won without a product" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open")
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open")
 
     lead.update!(status: "won", actual_amount: 100)
 
@@ -30,7 +30,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   end
 
   test "winning a lead without an expires_at does not create a subscription yet" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", product: @product)
 
     lead.update!(status: "won", actual_amount: 100)
 
@@ -38,7 +38,7 @@ class Forefront::SubscriptionTest < ActiveSupport::TestCase
   end
 
   test "later setting expires_at on an already-won lead creates the subscription" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: "website", status: "open", product: @product)
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", product: @product)
     lead.update!(status: "won", actual_amount: 100)
     assert_nil lead.reload.subscription
 
