@@ -1,4 +1,5 @@
 require "test_helper"
+require "csv"
 
 module AuditLogTestSetup
   extend ActiveSupport::Concern
@@ -310,5 +311,46 @@ class Forefront::AuditLogFilterTest < ActionDispatch::IntegrationTest
     assert_select "form select[name=auditable_type] option", text: "Customer"
     assert_select "form select[name=event_action] option", text: "updated"
     assert_select "form input[type=date][name=from]"
+  end
+end
+
+class Forefront::AuditLogCsvTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  setup do
+    @manager = Forefront::Admin.create!(name: "Mona Manager", email: "mona-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
+    @rep.update!(manager: @manager)
+    Forefront::AuditEvent.record!(actor: @rep, action: "updated", auditable: @customer, audited_changes: { "phone" => [ "555-0100", "555-0111" ] })
+    Forefront::AuditEvent.record!(actor: @admin, action: "updated", auditable: @customer, audited_changes: { "name" => [ "Acme", "Acme Ltd" ] })
+  end
+
+  test "an admin downloads the filtered log as CSV" do
+    sign_in_as(@admin)
+    get "/forefront/audit_log.csv", params: { actor_id: @rep.id }
+
+    assert_response :success
+    assert_equal "text/csv", response.media_type
+    csv = CSV.parse(response.body, headers: true)
+    assert_equal [ "When", "Who", "Action", "Record type", "Record", "Changes" ], csv.headers
+    assert_equal 1, csv.size
+    assert_equal "Ravi Rep", csv[0]["Who"]
+    assert_equal "Phone: 555-0100 → 555-0111", csv[0]["Changes"]
+  end
+
+  test "a manager's CSV holds only their team's events, with contact details hidden" do
+    sign_in_as(@manager)
+    get "/forefront/audit_log.csv"
+
+    csv = CSV.parse(response.body, headers: true)
+    assert_equal [ "Ravi Rep" ], csv.map { |row| row["Who"] }
+    assert_equal "Phone: hidden → hidden", csv[0]["Changes"]
+    assert_no_match "555-01", response.body
+  end
+
+  test "the log page links to the CSV of what it's showing" do
+    sign_in_as(@admin)
+    get "/forefront/audit_log", params: { actor_id: @rep.id }
+
+    assert_select "a[href=?]", "/forefront/audit_log.csv?actor_id=#{@rep.id}", text: "Export CSV"
   end
 end
