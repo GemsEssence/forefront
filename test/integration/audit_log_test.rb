@@ -257,3 +257,58 @@ class Forefront::AuditLogManagerTest < ActionDispatch::IntegrationTest
     assert_match "boss@globex.example", response.body
   end
 end
+
+class Forefront::AuditLogFilterTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  setup do
+    lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, source: "website", status: "open")
+    travel_to Time.zone.local(2026, 9, 10, 12) do
+      Forefront::AuditEvent.record!(actor: @rep, action: "created", auditable: lead)
+    end
+    travel_to Time.zone.local(2026, 9, 20, 12) do
+      Forefront::AuditEvent.record!(actor: @admin, action: "updated", auditable: @customer, audited_changes: { "name" => [ "Acme", "Acme Ltd" ] })
+    end
+    sign_in_as(@admin)
+  end
+
+  def rows
+    css_select("tbody tr").map { |row| row.text.squish }
+  end
+
+  test "filters by who did it" do
+    get "/forefront/audit_log", params: { actor_id: @rep.id }
+
+    assert_equal 1, rows.size
+    assert_match "Big Deal", rows.first
+  end
+
+  test "filters by record type and by action" do
+    get "/forefront/audit_log", params: { auditable_type: "Forefront::Customer" }
+    assert_equal 1, rows.size
+    assert_match "Acme", rows.first
+
+    get "/forefront/audit_log", params: { event_action: "created" }
+    assert_equal 1, rows.size
+    assert_match "Big Deal", rows.first
+  end
+
+  test "filters by date range, including the whole of the last day" do
+    get "/forefront/audit_log", params: { from: "2026-09-15", to: "2026-09-20" }
+    assert_equal 1, rows.size
+    assert_match "Acme", rows.first
+
+    get "/forefront/audit_log", params: { from: "2026-09-01", to: "2026-09-10" }
+    assert_equal 1, rows.size
+    assert_match "Big Deal", rows.first
+  end
+
+  test "the page offers a filter form with the staff, record types and actions in the log" do
+    get "/forefront/audit_log"
+
+    assert_select "form select[name=actor_id] option", text: "Ravi Rep"
+    assert_select "form select[name=auditable_type] option", text: "Customer"
+    assert_select "form select[name=event_action] option", text: "updated"
+    assert_select "form input[type=date][name=from]"
+  end
+end
