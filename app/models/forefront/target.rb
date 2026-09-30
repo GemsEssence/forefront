@@ -16,6 +16,10 @@ module Forefront
     validates :bonus_value, presence: true, numericality: { greater_than: 0 }, if: :bonus_type?
     validates :bonus_value, numericality: { less_than_or_equal_to: 100 }, if: :bonus_type_percentage?
 
+    def audit_label
+      "#{admin.name} · #{product.name}"
+    end
+
     def ends_on
       case period
       when "monthly" then starts_on.end_of_month

@@ -4,7 +4,13 @@ module Forefront
     # already sell every Product), and only when the form sent the field, so
     # saving without it leaves existing allocations alone.
     module ProductAllocation
+      AUDITED_FIELDS = %w[name email role manager_id].freeze
+
       private
+
+      def product_names(admin)
+        admin.products.order(:name).pluck(:name).join(", ").presence
+      end
 
       def allocate_products?(admin)
         params.key?(:product_ids) && admin.sales_person?
@@ -31,6 +37,9 @@ module Forefront
         @admin.product_ids = product_ids if allocate_products?(@admin)
 
         if @admin.save
+          changes = AuditEvent.creation_changes(@admin, only: AUDITED_FIELDS)
+          changes["products"] = [ nil, product_names(@admin) ] if product_names(@admin)
+          AuditEvent.record!(actor: current_admin, action: "created", auditable: @admin, audited_changes: changes)
           { success: true, admin: @admin }
         else
           @errors = @admin.errors.full_messages
@@ -66,13 +75,17 @@ module Forefront
       end
 
       def call
+        products_before = product_names(admin)
+        changes = {}
         saved = Forefront::Admin.transaction do
           admin.update(attributes).tap do |ok|
+            changes = admin.saved_changes.slice(*AUDITED_FIELDS) if ok
             admin.product_ids = product_ids if ok && allocate_products?(admin)
           end
         end
 
         if saved
+          record_update(changes, products_before)
           { success: true, admin: admin }
         else
           @errors = admin.errors.full_messages
@@ -81,6 +94,15 @@ module Forefront
       end
 
       private
+
+      def record_update(changes, products_before)
+        changes["password"] = [ nil, "changed" ] if params[:password].present?
+        products_after = product_names(admin)
+        changes["products"] = [ products_before, products_after ] if products_before != products_after
+        return if changes.empty?
+
+        AuditEvent.record!(actor: current_admin, action: "updated", auditable: admin, audited_changes: changes)
+      end
 
       def attributes
         attrs = params.slice(:name, :email)

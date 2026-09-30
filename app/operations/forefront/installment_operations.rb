@@ -15,7 +15,7 @@ module Forefront
 
         if @installment.save
           AuditEvent.record!(actor: current_admin, action: "added_installment", auditable: payment.lead,
-                             audited_changes: @installment.saved_changes.slice("amount", "due_on"))
+                             audited_changes: AuditEvent.creation_changes(@installment, only: %w[amount due_on]))
           { success: true, installment: @installment }
         else
           @errors = @installment.errors.full_messages

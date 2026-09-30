@@ -18,7 +18,7 @@ module Forefront
       @product = Product.new
       authorize @product
 
-      result = ProductOperations::Create.new(params: product_params).call
+      result = ProductOperations::Create.new(params: product_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to products_path, notice: "Product created."
@@ -35,7 +35,7 @@ module Forefront
     end
 
     def update
-      result = ProductOperations::Update.new(product: @product, params: product_params).call
+      result = ProductOperations::Update.new(product: @product, params: product_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to products_path, notice: "Product updated."

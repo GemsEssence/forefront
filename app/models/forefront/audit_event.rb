@@ -11,19 +11,47 @@ module Forefront
 
     UNAUDITED_ATTRIBUTES = %w[id created_at updated_at].freeze
 
-    # audited_changes defaults to what the operation just saved on the record.
+    # audited_changes defaults to what the operation just saved on the record
+    # (every attribute it has, for a new one).
+    # Foreign keys are stored as the names of the records they point to, so
+    # the log still reads "Customer: Acme" after that Customer is renamed or
+    # deleted.
     def self.record!(actor:, action:, auditable:, audited_changes: nil)
+      changes = audited_changes
+      changes ||= action == "created" ? creation_changes(auditable) : auditable.saved_changes.except(*UNAUDITED_ATTRIBUTES)
+
       create!(
         actor: actor,
         action: action,
         auditable: auditable,
         auditable_label: label_for(auditable),
-        audited_changes: audited_changes || auditable.saved_changes.except(*UNAUDITED_ATTRIBUTES)
+        audited_changes: name_foreign_keys(auditable.class, changes)
       )
     end
 
+    # saved_changes leaves out attributes that were saved with their column
+    # default (a new Lead's "open" status), so a new record lists them all.
+    def self.creation_changes(record, only: nil)
+      attributes = record.attributes.except(*UNAUDITED_ATTRIBUTES)
+      attributes = attributes.slice(*only) if only
+      attributes.compact.transform_values { |value| [ nil, value ] }
+    end
+
     def self.label_for(record)
-      record.try(:title) || record.try(:name) || "##{record.id}"
+      return if record.nil?
+
+      record.try(:audit_label) || record.try(:title) || record.try(:name) || "##{record.id}"
+    end
+
+    def self.name_foreign_keys(model, changes)
+      changes.to_h.each_with_object({}) do |(field, values), named|
+        reflection = model.reflect_on_all_associations(:belongs_to).find { |r| !r.polymorphic? && r.foreign_key.to_s == field.to_s }
+        if reflection
+          named[reflection.name.to_s] = values.map { |id| label_for(reflection.klass.find_by(id: id)) if id.present? }
+        else
+          named[field.to_s] = values
+        end
+      end
     end
 
     def readonly?
@@ -31,7 +59,7 @@ module Forefront
     end
 
     def auditable_kind
-      auditable_type.to_s.demodulize.underscore.humanize
+      auditable_type == "Forefront::Admin" ? "Staff" : auditable_type.to_s.demodulize.underscore.humanize
     end
   end
 end

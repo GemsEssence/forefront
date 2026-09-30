@@ -28,7 +28,7 @@ module Forefront
 
         if followup.save
           AuditEvent.record!(actor: current_admin, action: "scheduled_followup", auditable: followupable,
-                             audited_changes: followup.saved_changes.except(*UNAUDITED_FIELDS))
+                             audited_changes: AuditEvent.creation_changes(followup).except(*UNAUDITED_FIELDS))
           { success: true, followup: followup }
         else
           { success: false, errors: followup.errors.full_messages, followup: followup }

@@ -18,7 +18,7 @@ module Forefront
       @target = Target.new(target_params)
       authorize @target
 
-      result = TargetOperations::Create.new(params: target_params).call
+      result = TargetOperations::Create.new(params: target_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to targets_path, notice: "Target created."
@@ -35,7 +35,7 @@ module Forefront
     end
 
     def update
-      result = TargetOperations::Update.new(target: @target, params: target_params).call
+      result = TargetOperations::Update.new(target: @target, params: target_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to targets_path, notice: "Target updated."

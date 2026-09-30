@@ -19,7 +19,7 @@ module Forefront
 
         if @activity.save
           AuditEvent.record!(actor: current_admin, action: "added_activity", auditable: @actable,
-                             audited_changes: @activity.saved_changes.slice(*AUDITED_FIELDS))
+                             audited_changes: AuditEvent.creation_changes(@activity, only: AUDITED_FIELDS))
           { success: true, activity: @activity }
         else
           @errors = @activity.errors.full_messages

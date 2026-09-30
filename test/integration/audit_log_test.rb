@@ -29,7 +29,7 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
     get "/forefront/audit_log"
 
     assert_response :success
-    assert_select "tr", text: /Ravi Rep.*created.*Lead.*Big Deal/m
+    assert_select "tr", text: /Ravi Rep.*created.*Lead.*Big Deal.*Customer: — → Acme/m
   end
 
   test "updating a lead records what changed, before and after" do
@@ -174,5 +174,45 @@ class Forefront::AuditLogMoneyTest < ActionDispatch::IntegrationTest
     sign_in_as(@admin)
     get "/forefront/audit_log"
     assert_select "tr", text: /Ravi Rep.*recorded lead share.*Lead.*Big Deal.*Shares: — → (Ravi Rep 40%, Meera Rep 60%|Meera Rep 60%, Ravi Rep 40%)/m
+  end
+end
+
+class Forefront::AuditLogSetupRecordsTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  setup do
+    @product = Forefront::Product.create!(name: "Widget")
+    sign_in_as(@admin)
+  end
+
+  test "creating and editing staff is recorded without their password" do
+    post "/forefront/staff", params: { admin: { name: "Meera Rep", email: "meera-#{SecureRandom.hex(4)}@example.com", password: "password123", password_confirmation: "password123", role: "sales_person", product_ids: [ @product.id ] } }
+    meera = Forefront::Admin.find_by!(name: "Meera Rep")
+    patch "/forefront/staff/#{meera.id}", params: { admin: { role: "manager", password: "newpassword1", password_confirmation: "newpassword1" } }
+
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Asha Admin.*created.*Staff.*Meera Rep.*Role: — → sales_person.*Products: — → Widget/m
+    assert_select "tr", text: /Asha Admin.*updated.*Staff.*Meera Rep.*Role: sales_person → manager.*Password: — → changed/m
+    assert_no_match meera.reload.encrypted_password, response.body
+  end
+
+  test "creating a product and changing who it's allocated to are recorded" do
+    post "/forefront/products", params: { product: { name: "Gadget", description: "A thing", admin_ids: [ @rep.id.to_s ] } }
+    gadget = Forefront::Product.find_by!(name: "Gadget")
+    patch "/forefront/products/#{gadget.id}", params: { product: { name: "Gadget Pro", admin_ids: [ "" ] } }
+
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Asha Admin.*created.*Product.*Gadget.*Allocated to: — → Ravi Rep/m
+    assert_select "tr", text: /Asha Admin.*updated.*Product.*Gadget Pro.*Name: Gadget → Gadget Pro.*Allocated to: Ravi Rep → —/m
+  end
+
+  test "setting and changing a target are recorded" do
+    post "/forefront/targets", params: { target: { admin_id: @rep.id, product_id: @product.id, metric: "amount", goal_value: "1000", period: "monthly", starts_on: "2026-10-01" } }
+    target = Forefront::Target.last
+    patch "/forefront/targets/#{target.id}", params: { target: { goal_value: "1500" } }
+
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Asha Admin.*created.*Target.*Ravi Rep · Widget.*Goal value: — → 1000/m
+    assert_select "tr", text: /Asha Admin.*updated.*Target.*Ravi Rep · Widget.*Goal value: 1000.0 → 1500/m
   end
 end

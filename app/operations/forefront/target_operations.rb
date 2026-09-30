@@ -1,10 +1,11 @@
 module Forefront
   module TargetOperations
     class Create
-      attr_reader :params, :target, :errors
+      attr_reader :params, :current_admin, :target, :errors
 
-      def initialize(params:)
+      def initialize(params:, current_admin:)
         @params = params
+        @current_admin = current_admin
         @errors = []
       end
 
@@ -12,6 +13,7 @@ module Forefront
         @target = Forefront::Target.new(attributes)
 
         if @target.save
+          AuditEvent.record!(actor: current_admin, action: "created", auditable: @target)
           { success: true, target: @target }
         else
           @errors = @target.errors.full_messages
@@ -27,16 +29,18 @@ module Forefront
     end
 
     class Update
-      attr_reader :target, :params, :errors
+      attr_reader :target, :params, :current_admin, :errors
 
-      def initialize(target:, params:)
+      def initialize(target:, params:, current_admin:)
         @target = target
         @params = params
+        @current_admin = current_admin
         @errors = []
       end
 
       def call
         if target.update(attributes)
+          AuditEvent.record!(actor: current_admin, action: "updated", auditable: target) if target.saved_changes?
           { success: true, target: target }
         else
           @errors = target.errors.full_messages
