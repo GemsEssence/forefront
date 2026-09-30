@@ -142,3 +142,37 @@ class Forefront::AuditLogWorkOnALeadTest < ActionDispatch::IntegrationTest
     log_row(/Ravi Rep.*changed status.*Lead.*Big Deal.*Status: open → proposal/m)
   end
 end
+
+class Forefront::AuditLogMoneyTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  setup do
+    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: "website", status: "won", actual_amount: 300)
+    sign_in_as(@rep)
+  end
+
+  test "recording a payment, its installments and marking them paid are recorded against the lead" do
+    post "/forefront/leads/#{@lead.id}/payment", params: { payment: { total_amount: "300" } }
+    post "/forefront/leads/#{@lead.id}/payment/installments", params: { installment: { amount: "150", due_on: "2026-11-20" } }
+    installment = @lead.reload.payment.installments.last
+    patch "/forefront/leads/#{@lead.id}/payment/installments/#{installment.id}"
+    patch "/forefront/leads/#{@lead.id}/payment"
+
+    sign_in_as(@admin)
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Ravi Rep.*recorded payment.*Lead.*Big Deal.*Total amount: — → 300/m
+    assert_select "tr", text: /Ravi Rep.*added installment.*Lead.*Big Deal.*Amount: — → 150.*Due on: — → 2026-11-20/m
+    assert_select "tr", text: /Ravi Rep.*marked installment paid.*Lead.*Big Deal.*Status: pending → paid/m
+    assert_select "tr", text: /Ravi Rep.*marked payment paid.*Lead.*Big Deal.*Status: pending → paid/m
+  end
+
+  test "recording a lead share lists each person's percentage" do
+    meera = Forefront::Admin.create!(name: "Meera Rep", email: "meera-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    @lead.assignments.create!(to_user: meera, changed_by: @admin)
+    post "/forefront/leads/#{@lead.id}/lead_share", params: { lead_share: { percentages: { @rep.id => "40", meera.id => "60" } } }
+
+    sign_in_as(@admin)
+    get "/forefront/audit_log"
+    assert_select "tr", text: /Ravi Rep.*recorded lead share.*Lead.*Big Deal.*Shares: — → (Ravi Rep 40%, Meera Rep 60%|Meera Rep 60%, Ravi Rep 40%)/m
+  end
+end

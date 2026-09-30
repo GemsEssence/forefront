@@ -23,6 +23,8 @@ module Forefront
           end
 
           if @lead_share.save
+            AuditEvent.record!(actor: current_admin, action: "recorded_lead_share", auditable: lead,
+                               audited_changes: { "shares" => [ nil, shares_summary ] })
             result = { success: true, lead_share: @lead_share }
           else
             @errors = @lead_share.errors.full_messages
@@ -35,6 +37,10 @@ module Forefront
       end
 
       private
+
+      def shares_summary
+        @lead_share.lead_share_participants.map { |participant| "#{participant.admin.name} #{format("%g", participant.percentage)}%" }.join(", ")
+      end
 
       def percentages
         params[:percentages] || {}

@@ -11,7 +11,7 @@ module Forefront
     end
 
     def create
-      result = PaymentOperations::Create.new(lead: @lead, params: payment_params).call
+      result = PaymentOperations::Create.new(lead: @lead, params: payment_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to lead_path(@lead), notice: "Payment recorded."
@@ -21,7 +21,7 @@ module Forefront
     end
 
     def update
-      result = PaymentOperations::MarkPaid.new(payment: @lead.payment).call
+      result = PaymentOperations::MarkPaid.new(payment: @lead.payment, current_admin: current_admin).call
 
       if result[:success]
         redirect_to lead_path(@lead), notice: "Payment marked as paid."

@@ -1,11 +1,12 @@
 module Forefront
   module InstallmentOperations
     class Create
-      attr_reader :payment, :params, :installment, :errors
+      attr_reader :payment, :params, :current_admin, :installment, :errors
 
-      def initialize(payment:, params:)
+      def initialize(payment:, params:, current_admin:)
         @payment = payment
         @params = params
+        @current_admin = current_admin
         @errors = []
       end
 
@@ -13,6 +14,8 @@ module Forefront
         @installment = payment.installments.build(params.slice(:amount, :due_on))
 
         if @installment.save
+          AuditEvent.record!(actor: current_admin, action: "added_installment", auditable: payment.lead,
+                             audited_changes: @installment.saved_changes.slice("amount", "due_on"))
           { success: true, installment: @installment }
         else
           @errors = @installment.errors.full_messages
@@ -22,15 +25,18 @@ module Forefront
     end
 
     class MarkPaid
-      attr_reader :installment, :errors
+      attr_reader :installment, :current_admin, :errors
 
-      def initialize(installment:)
+      def initialize(installment:, current_admin:)
         @installment = installment
+        @current_admin = current_admin
         @errors = []
       end
 
       def call
         if installment.update(status: "paid", paid_at: Time.current)
+          AuditEvent.record!(actor: current_admin, action: "marked_installment_paid", auditable: installment.payment.lead,
+                             audited_changes: installment.saved_changes.slice("status"))
           { success: true, installment: installment }
         else
           @errors = installment.errors.full_messages

@@ -5,7 +5,7 @@ module Forefront
     before_action :set_installment, only: [ :update ]
 
     def create
-      result = InstallmentOperations::Create.new(payment: @lead.payment, params: installment_params).call
+      result = InstallmentOperations::Create.new(payment: @lead.payment, params: installment_params, current_admin: current_admin).call
 
       if result[:success]
         redirect_to lead_path(@lead), notice: "Installment added."
@@ -15,7 +15,7 @@ module Forefront
     end
 
     def update
-      result = InstallmentOperations::MarkPaid.new(installment: @installment).call
+      result = InstallmentOperations::MarkPaid.new(installment: @installment, current_admin: current_admin).call
 
       if result[:success]
         redirect_to lead_path(@lead), notice: "Installment marked as paid."
