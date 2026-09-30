@@ -58,6 +58,17 @@ module Forefront
       persisted?
     end
 
+    CONTACT_FIELDS = %w[email phone].freeze
+
+    # Only Admins see Customers' contact details, in the log as anywhere else.
+    def changes_visible_to(viewer)
+      return audited_changes if viewer.admin? || auditable_type != "Forefront::Customer"
+
+      audited_changes.to_h do |field, values|
+        CONTACT_FIELDS.include?(field) ? [ field, values.map { |value| "hidden" if value.present? } ] : [ field, values ]
+      end
+    end
+
     def auditable_kind
       auditable_type == "Forefront::Admin" ? "Staff" : auditable_type.to_s.demodulize.underscore.humanize
     end

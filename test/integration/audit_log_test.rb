@@ -216,3 +216,44 @@ class Forefront::AuditLogSetupRecordsTest < ActionDispatch::IntegrationTest
     assert_select "tr", text: /Asha Admin.*updated.*Target.*Ravi Rep · Widget.*Goal value: 1000.0 → 1500/m
   end
 end
+
+class Forefront::AuditLogManagerTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  setup do
+    @manager = Forefront::Admin.create!(name: "Mona Manager", email: "mona-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
+    @rep.update!(manager: @manager)
+    @outsider = Forefront::Admin.create!(name: "Otto Outsider", email: "otto-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+  end
+
+  test "a manager sees what they and their team did, and nobody else" do
+    { @rep => "Team Lead", @manager => "Manager Lead", @outsider => "Outsider Lead", @admin => "Admin Lead" }.each do |staff, title|
+      Forefront::AuditEvent.record!(actor: staff, action: "created",
+        auditable: Forefront::Lead.create!(title: title, description: "D", customer: @customer, created_by: staff, source: "website", status: "open"))
+    end
+
+    sign_in_as(@manager)
+    get "/forefront/audit_log"
+
+    assert_response :success
+    assert_match "Team Lead", response.body
+    assert_match "Manager Lead", response.body
+    assert_no_match "Outsider Lead", response.body
+    assert_no_match "Admin Lead", response.body
+  end
+
+  test "a manager doesn't see customer contact details through the log, but an admin does" do
+    sign_in_as(@rep)
+    post "/forefront/customers", params: { customer: { name: "Globex", email: "boss@globex.example", phone: "555-0199" } }
+
+    sign_in_as(@manager)
+    get "/forefront/audit_log"
+    assert_select "tr", text: /created.*Customer.*Globex.*Email: — → hidden.*Phone: — → hidden/m
+    assert_no_match "boss@globex.example", response.body
+    assert_no_match "555-0199", response.body
+
+    sign_in_as(@admin)
+    get "/forefront/audit_log"
+    assert_match "boss@globex.example", response.body
+  end
+end
