@@ -72,12 +72,19 @@ module Forefront
     # "Title: Old → New" lines, as the log page and its CSV show them.
     def change_lines_for(viewer)
       changes_visible_to(viewer).map do |field, (before, after)|
-        "#{field.humanize}: #{before.presence || "—"} → #{after.presence || "—"}"
+        "#{field.humanize}: #{shown(before)} → #{shown(after)}"
       end
     end
 
     def auditable_kind
       auditable_type == "Forefront::Admin" ? "Staff" : auditable_type.to_s.demodulize.underscore.humanize
+    end
+
+    private
+
+    # false is a real value ("Active: true → false"); only nothing is "—".
+    def shown(value)
+      value.nil? || value == "" ? "—" : value
     end
   end
 end

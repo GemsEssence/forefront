@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_29_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -190,6 +190,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_000001) do
     t.decimal "reclaim_reward_percentage", precision: 5, scale: 2
     t.decimal "renewal_reward_percentage", precision: 5, scale: 2
     t.datetime "updated_at", null: false
+  end
+
+  create_table "forefront_sources", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_forefront_sources_on_name", unique: true
   end
 
   create_table "forefront_status_histories", force: :cascade do |t|
