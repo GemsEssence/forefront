@@ -21,6 +21,11 @@
     <% end %>
 
     <% if trackable.is_a?(Forefront::Lead) %>
+      <div class="mb-3">
+        <%= f.label :ticket_due_at, "Ticket due (Demo and Proposal open a ticket for the work)", class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.date_field :ticket_due_at, value: values[:ticket_due_at].presence || 2.days.from_now.to_date, class: 'mt-1 block w-full border rounded' %>
+      </div>
+
       <% losing = selected_status.to_s == "lost" %>
       <div class="mb-3" data-lost-reason style="<%= 'display:none;' unless losing %>">
         <%= f.label :lost_reason_id, "Lost reason", class: 'block text-sm font-medium text-gray-700' %>
