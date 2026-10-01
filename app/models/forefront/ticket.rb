@@ -72,6 +72,17 @@ module Forefront
       lead.present? && (demo? || proposal?)
     end
 
+    # Work that can become a Lead: not already one's, not a renewal (that's
+    # about a Subscription), and not finished.
+    def convertible?
+      lead_id.nil? && !plan_expired? && !resolved? && !closed?
+    end
+
+    # The Source a Lead converted from this Ticket starts with.
+    def conversion_source
+      campaign&.source || (Source.signup if signup?)
+    end
+
     def resolved_at
       status_histories.where(new_status: "Resolved").maximum(:created_at) || updated_at
     end

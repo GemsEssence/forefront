@@ -132,6 +132,55 @@ module Forefront
       end
     end
 
+    # Converting a Ticket into a Lead once the Customer is ready to be asked to
+    # buy (CONTEXT.md): the Lead takes the Ticket's Customer, Product,
+    # assignee and Campaign and starts at Contacted; the Ticket becomes its
+    # first Ticket and is resolved.
+    class ConvertToLead
+      attr_reader :ticket, :params, :current_admin, :errors, :lead
+
+      def initialize(ticket:, params:, current_admin:)
+        @ticket = ticket
+        @params = params
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def call
+        Ticket.transaction do
+          created = LeadOperations::Create.new(params: ActionController::Parameters.new(lead_attributes), current_admin: current_admin,
+                                               initial_status: "contacted").call
+          @lead = created[:lead]
+          @errors = created[:errors] unless created[:success]
+          resolve_ticket if errors.empty?
+          raise ActiveRecord::Rollback if errors.any?
+        end
+
+        errors.any? ? { success: false, errors: errors } : { success: true, lead: lead }
+      end
+
+      private
+
+      def lead_attributes
+        {
+          title: params[:title], description: ticket.description, estimated_amount: params[:estimated_amount],
+          source_id: params[:source_id], customer_id: ticket.customer_id, product_id: ticket.product_id,
+          assigned_to_id: ticket.assigned_to_id || current_admin.id, campaign_id: ticket.campaign_id
+        }
+      end
+
+      def resolve_ticket
+        ticket.update!(lead: lead)
+        resolved = StatusHistoryOperations::Create.new(trackable: ticket, params: { status: "resolved", note: "Converted to lead #{lead.title}" },
+                                                      current_admin: current_admin).call
+        return @errors = resolved[:errors] unless resolved[:success]
+
+        AuditEvent.record!(actor: current_admin, action: "converted", auditable: ticket, audited_changes: { "lead" => [ nil, lead.title ] })
+      rescue ActiveRecord::RecordInvalid => e
+        @errors = e.record.errors.full_messages
+      end
+    end
+
     class Destroy
       attr_reader :ticket, :current_admin, :errors
 

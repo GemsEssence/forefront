@@ -37,6 +37,10 @@ module Forefront
       super_admin?
     end
 
+    def convert?
+      update? && ticket.convertible?
+    end
+
     def change_assignee?
       super_admin? || assignee? || manages_owner_or_assignee? || manages_pool?
     end

@@ -6,6 +6,7 @@ module Forefront
     belongs_to :product, class_name: "Forefront::Product", optional: true
     belongs_to :source, class_name: "Forefront::Source"
     belongs_to :lost_reason, class_name: "Forefront::LostReason", optional: true
+    belongs_to :campaign, class_name: "Forefront::Campaign", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy

@@ -3,14 +3,17 @@ module Forefront
     class Create
       attr_reader :params, :current_admin, :lead, :errors
 
-      def initialize(params:, current_admin:)
+      # initial_status: a Lead converted from a Ticket starts at Contacted.
+      def initialize(params:, current_admin:, initial_status: "open")
         @params = params
         @current_admin = current_admin
+        @initial_status = initial_status
         @errors = []
       end
 
       def call
         @lead = Lead.new(lead_params)
+        @lead.status = @initial_status
         @lead.created_by = current_admin
         @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
 
@@ -39,7 +42,7 @@ module Forefront
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
           :source_id, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount,
-          :white_label, :agreement_signed_on
+          :white_label, :agreement_signed_on, :campaign_id
         )
       end
     end

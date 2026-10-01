@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000010) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -156,6 +156,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000010) do
     t.date "agreement_signed_on"
     t.bigint "assigned_to_id"
     t.datetime "awaiting_customer_since", precision: nil
+    t.bigint "campaign_id"
     t.datetime "created_at", null: false
     t.bigint "created_by_id", null: false
     t.bigint "customer_id", null: false
@@ -174,6 +175,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000010) do
     t.boolean "white_label", default: false, null: false
     t.datetime "won_at", precision: nil
     t.index ["assigned_to_id"], name: "index_forefront_leads_on_assigned_to_id"
+    t.index ["campaign_id"], name: "index_forefront_leads_on_campaign_id"
     t.index ["created_by_id"], name: "index_forefront_leads_on_created_by_id"
     t.index ["customer_id"], name: "index_forefront_leads_on_customer_id"
     t.index ["due_at"], name: "index_forefront_leads_on_due_at"
@@ -323,6 +325,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000010) do
   add_foreign_key "forefront_lead_shares", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_leads", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_leads", "forefront_admins", column: "created_by_id"
+  add_foreign_key "forefront_leads", "forefront_campaigns", column: "campaign_id"
   add_foreign_key "forefront_leads", "forefront_customers", column: "customer_id"
   add_foreign_key "forefront_leads", "forefront_lost_reasons", column: "lost_reason_id"
   add_foreign_key "forefront_leads", "forefront_products", column: "product_id"
