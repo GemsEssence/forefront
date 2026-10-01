@@ -53,8 +53,9 @@ class Forefront::CustomerContactTest < ActiveSupport::TestCase
   end
 
   test "accepts common phone number formats" do
-    [ "5550100", "555-0100", "+91 98765 43210", "(555) 010-0199", "+1.555.010.0199" ].each do |phone|
+    [ "5550100", "555-0100", "+91 98765 43210", "(555) 010-0199" ].each do |phone|
       assert Forefront::Customer.new(name: "Acme", phone: phone).valid?, "#{phone.inspect} should be accepted"
     end
+    assert Forefront::Customer.new(name: "Acme", country_code: "+1", phone: "+1.555.010.0199").valid?
   end
 end

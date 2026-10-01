@@ -10,4 +10,8 @@ module Forefront
   # ISO 4217 code for every amount Forefront shows, e.g. "USD". Set it in a
   # host app initializer; see Forefront::CurrencyHelper for how it's formatted.
   mattr_accessor :currency, default: "INR"
+
+  # The country code a Customer's phone number gets when none is given, e.g.
+  # "+44". Customers are matched by country code and phone together.
+  mattr_accessor :default_country_code, default: "+91"
 end

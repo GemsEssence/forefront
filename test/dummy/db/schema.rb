@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000005) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -76,6 +76,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000005) do
   create_table "forefront_customers", force: :cascade do |t|
     t.text "address"
     t.string "business_name"
+    t.string "country_code"
     t.datetime "created_at", null: false
     t.string "email"
     t.string "external_id"
@@ -83,6 +84,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000005) do
     t.string "name", null: false
     t.string "phone"
     t.datetime "updated_at", null: false
+    t.index ["country_code", "phone"], name: "index_forefront_customers_on_country_code_and_phone", unique: true
     t.index ["email"], name: "index_forefront_customers_on_email", unique: true
     t.index ["external_type", "external_id"], name: "index_forefront_customers_on_external_reference", unique: true
     t.index ["phone"], name: "index_forefront_customers_on_phone"

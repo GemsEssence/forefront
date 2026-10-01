@@ -31,7 +31,7 @@ module Forefront
 
           if filters[:phone].present?
             conditions << "phone #{like} :phone"
-            params[:phone] = "%#{filters[:phone]}%"
+            params[:phone] = "%#{Customer.national_number(filters[:phone], country_code: Forefront.default_country_code)}%"
           end
 
           if filters[:business_name].present?
