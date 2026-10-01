@@ -32,55 +32,24 @@
   <body>
     <div class="min-h-screen bg-gray-50">
       <% if admin_signed_in? %>
-        <nav class="bg-white shadow">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-              <div class="flex">
-                <div class="flex-shrink-0 flex items-center">
-                  <%= link_to root_path, class: "text-xl font-bold text-gray-900 hover:text-indigo-600" do %>
-                    Forefront
-                  <% end %>
-                </div>
-                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  <%= link_to "Dashboard", root_path, class: "border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Tickets", tickets_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "My work", my_work_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Unassigned", unassigned_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Leads", leads_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Campaigns", campaigns_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Customers", customers_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Products", products_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Targets", targets_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <% if current_admin.admin? || current_admin.manager? %>
-                    <%= link_to "Staff", admins_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                    <%= link_to "Audit log", audit_events_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <% end %>
-                  <% if current_admin.admin? %>
-                    <%= link_to "Sources", sources_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                    <%= link_to "Lost reasons", lost_reasons_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                    <%= link_to "Settings", settings_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <% end %>
-                </div>
-              </div>
-              <div class="flex items-center">
-                <% unread = Forefront::Notification.unread.where(recipient: current_admin).count %>
-                <%= link_to notifications_path, class: "text-gray-700 hover:text-gray-900 mr-4", data: { notification_bell: true } do %>
-                  Notifications<% if unread.positive? %> <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white"><%= unread %></span><% end %>
-                <% end %>
-                <span class="text-gray-700 mr-4">Welcome, <%= current_admin.name %></span>
-                <%= link_to "Edit Profile", edit_admin_registration_path, class: "text-gray-700 hover:text-gray-900 mr-4" %>
-                <%= button_to "Sign out", destroy_admin_session_path, method: :delete, class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
-              </div>
-            </div>
-          </div>
-        </nav>
-      <% end %>
-
-      <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="px-4 py-6 sm:px-0">
-          <%= yield %>
+        <header class="bg-white shadow h-16 flex items-center px-4 sm:px-6">
+          <button type="button" class="lg:hidden mr-3 rounded-md p-2 text-gray-600 hover:bg-gray-100" aria-controls="forefront-sidebar" aria-label="Menu"
+                  onclick="document.getElementById('forefront-sidebar').classList.toggle('hidden')">&#9776;</button>
+          <%= link_to "Forefront", root_path, class: "text-xl font-bold text-gray-900 hover:text-indigo-600" %>
+        </header>
+        <div class="lg:flex">
+          <%= render "forefront/shared/sidebar" %>
+          <main class="flex-1 min-w-0 py-6 px-4 sm:px-6 lg:px-8">
+            <%= yield %>
+          </main>
         </div>
-      </main> 
+      <% else %>
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div class="px-4 py-6 sm:px-0">
+            <%= yield %>
+          </div>
+        </main>
+      <% end %>
     </div>
   </body>
 </html>

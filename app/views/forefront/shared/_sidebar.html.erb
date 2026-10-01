@@ -1,0 +1,31 @@
+<aside id="forefront-sidebar" data-sidebar class="hidden lg:flex lg:flex-col w-full lg:w-60 shrink-0 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:min-h-[calc(100vh-4rem)]">
+  <nav class="flex-1 px-3 py-4 space-y-6">
+    <div data-nav-group="main" class="space-y-1">
+      <%= sidebar_link "Dashboard", root_path %>
+      <%= sidebar_link "My work", my_work_path %>
+      <% unread = Forefront::Notification.unread.where(recipient: current_admin).count %>
+      <div data-notification-bell><%= sidebar_link "Notifications", notifications_path do %><% if unread.positive? %> <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white"><%= unread %></span><% end %><% end %></div>
+    </div>
+
+    <% groups = { "Sales" => [ [ "Leads", leads_path ], [ "Tickets", tickets_path ], [ "Unassigned", unassigned_path ], [ "Customers", customers_path ] ],
+                  "Marketing" => [ [ "Campaigns", campaigns_path ], [ "Products", products_path ], [ "Targets", targets_path ] ] } %>
+    <% groups["Team"] = [ [ "Staff", admins_path ], [ "Audit log", audit_events_path ] ] if current_admin.admin? || current_admin.manager? %>
+    <% groups["Admin"] = [ [ "Sources", sources_path ], [ "Lost reasons", lost_reasons_path ], [ "Settings", settings_path ] ] if current_admin.admin? %>
+    <% groups.each do |name, links| %>
+      <div data-nav-group="<%= name %>">
+        <p class="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400"><%= name %></p>
+        <div class="space-y-1">
+          <% links.each do |label, path| %>
+            <%= sidebar_link label, path %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </nav>
+
+  <div data-sidebar-account class="border-t border-gray-200 px-3 py-4 space-y-2">
+    <p class="px-3 text-sm font-medium text-gray-900 truncate"><%= current_admin.name %></p>
+    <%= link_to "Edit profile", edit_admin_registration_path, class: "block rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+    <%= button_to "Sign out", destroy_admin_session_path, method: :delete, form_class: "px-3", class: "w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+  </div>
+</aside>

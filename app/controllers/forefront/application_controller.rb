@@ -4,6 +4,7 @@ module Forefront
     helper Forefront::ModalsHelper
     helper Forefront::CurrencyHelper
     helper Forefront::ContactDetailsHelper
+    helper Forefront::SidebarHelper
 
     before_action :authenticate_admin!
     after_action :verify_authorized, unless: -> { action_name == "index" }

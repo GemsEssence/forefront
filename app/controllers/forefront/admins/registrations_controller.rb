@@ -2,6 +2,7 @@ module Forefront
   module Admins
     class RegistrationsController < Devise::RegistrationsController
       layout "forefront/application"
+      helper Forefront::SidebarHelper
 
       before_action :configure_permitted_parameters
       before_action :block_signup, only: [:new, :create]
