@@ -11,6 +11,8 @@ module Forefront
     end
 
     def show
+      latest_reveal = ContactReveal.where(admin: current_admin, customer: @customer).order(:created_at).last
+      @unanswered_reveal = latest_reveal unless latest_reveal.nil? || latest_reveal.answered?
     end
 
     def new
