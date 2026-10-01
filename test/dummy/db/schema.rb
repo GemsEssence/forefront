@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000006) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -38,6 +38,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000006) do
     t.datetime "reset_password_sent_at", precision: nil
     t.string "reset_password_token"
     t.string "role", default: "sales_person", null: false
+    t.boolean "system", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_forefront_admins_on_email", unique: true
     t.index ["manager_id"], name: "index_forefront_admins_on_manager_id"

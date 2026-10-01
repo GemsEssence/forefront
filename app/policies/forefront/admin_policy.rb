@@ -29,9 +29,9 @@ module Forefront
     class Scope < Scope
       def resolve
         if pundit_user.admin?
-          scope.all
+          scope.people
         elsif pundit_user.manager?
-          scope.where(manager_id: pundit_user.id)
+          scope.people.where(manager_id: pundit_user.id)
         else
           scope.none
         end

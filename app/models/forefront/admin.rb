@@ -22,11 +22,31 @@ module Forefront
 
     # Staff who can be given work; admins oversee rather than take tickets.
     scope :assignable, -> { where.not(role: "admin").order(:name) }
+    # Real people, leaving out System.
+    scope :people, -> { where(system: false) }
 
     validates :name, presence: true
     validates :role, presence: true
     validate :manager_is_not_self
     # validates :email, presence: true, uniqueness: true
+
+    # System (CONTEXT.md): acts for automated inputs such as a Signup. It's
+    # an Admin so its Tickets start unassigned, but it never signs in.
+    def self.system_actor
+      find_by(system: true) || create!(
+        system: true, name: "System", role: "admin",
+        email: "system-#{SecureRandom.hex(8)}@forefront.invalid", password: SecureRandom.base58(32)
+      )
+    end
+
+    def active_for_authentication?
+      super && !system?
+    end
+
+    # Refused like a wrong password, so nothing hints System could sign in.
+    def inactive_message
+      system? ? :invalid : super
+    end
 
     # Kept so the many existing super_admin? call sites (policies, views) don't need renaming.
     def super_admin?

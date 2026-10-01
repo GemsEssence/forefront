@@ -35,7 +35,7 @@ module Forefront
 
     # Same choices the Ticket/Lead page offers.
     def assignee_options
-      @assignable.is_a?(Ticket) ? Admin.assignable : Admin.all.order(:name)
+      @assignable.is_a?(Ticket) ? Admin.assignable : Admin.people.order(:name)
     end
 
     def assignable_params
