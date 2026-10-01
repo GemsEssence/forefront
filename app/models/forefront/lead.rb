@@ -31,6 +31,7 @@ module Forefront
     # Lead asks for what it actually closed for (Targets count this).
     validates :actual_amount, presence: true, if: -> { won? && will_save_change_to_status? }
     validate :source_is_active, if: :will_save_change_to_source_id?
+    validate :agreement_only_for_white_label
     validates :status, presence: true
     validate :product_allocated_to_sales_person
 
@@ -121,6 +122,12 @@ module Forefront
       else
         create_subscription!(customer: customer, product: product, expires_at: expires_at)
       end
+    end
+
+    def agreement_only_for_white_label
+      return if white_label? || agreement_signed_on.blank?
+
+      errors.add(:agreement_signed_on, "can only be set for a white-label lead")
     end
 
     # A deactivated Source stays on the Leads that already have it, but can't

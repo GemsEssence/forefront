@@ -27,6 +27,12 @@
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
               <%= @lead.source.name %>
             </span>
+            <% if @lead.white_label? %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">White-label</span>
+              <span class="text-sm text-gray-600">
+                <%= @lead.agreement_signed_on ? "Agreement signed #{@lead.agreement_signed_on.strftime("%-d %b %Y")}" : "Agreement not signed yet" %>
+              </span>
+            <% end %>
             <% if @lead.reclaim? %>
               <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
                 Reclaim

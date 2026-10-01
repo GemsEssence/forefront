@@ -53,6 +53,18 @@
     </div>
   </div>
 
+  <div class="grid grid-cols-2 gap-4">
+    <div class="flex items-center mt-6">
+      <%= f.check_box :white_label, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+      <%= f.label :white_label, "White-label sale", class: "ml-2 text-sm font-medium text-gray-700" %>
+    </div>
+    <div>
+      <%= f.label :agreement_signed_on, "Agreement signed on", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :agreement_signed_on, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <p class="text-xs text-gray-500 mt-1">White-label sales only. Doesn't hold up winning the lead.</p>
+    </div>
+  </div>
+
   <% if @lead.won? %>
     <div class="grid grid-cols-2 gap-4">
       <div>

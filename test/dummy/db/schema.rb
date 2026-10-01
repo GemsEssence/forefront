@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -138,6 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_000003) do
 
   create_table "forefront_leads", force: :cascade do |t|
     t.decimal "actual_amount", precision: 12, scale: 2
+    t.date "agreement_signed_on"
     t.bigint "assigned_to_id"
     t.datetime "created_at", null: false
     t.bigint "created_by_id", null: false
@@ -152,6 +153,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_000003) do
     t.string "status", default: "Open", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.boolean "white_label", default: false, null: false
     t.datetime "won_at", precision: nil
     t.index ["assigned_to_id"], name: "index_forefront_leads_on_assigned_to_id"
     t.index ["created_by_id"], name: "index_forefront_leads_on_created_by_id"
