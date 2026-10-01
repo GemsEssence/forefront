@@ -2,7 +2,7 @@
   <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-4">
     <div data-nav-group="main" class="space-y-0.5">
       <%= sidebar_link "Dashboard", root_path %>
-      <%= sidebar_link "My work", my_work_path %>
+      <%= sidebar_link "My work", my_work_path if Forefront::MyWorkPolicy.new(current_admin).index? %>
       <% unread = Forefront::Notification.unread.where(recipient: current_admin).count %>
       <div data-notification-bell><%= sidebar_link "Notifications", notifications_path do %><% if unread.positive? %> <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white"><%= unread %></span><% end %><% end %></div>
     </div>

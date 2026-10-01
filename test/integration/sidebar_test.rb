@@ -33,15 +33,17 @@ class Forefront::SidebarTest < ActionDispatch::IntegrationTest
 
     get "/forefront/"
 
+    assert_equal [ "Dashboard", "My work", "Notifications" ], sidebar_groups["main"]
     assert_equal [ "Staff", "Audit log" ], sidebar_groups["Team"]
     assert_nil sidebar_groups["Admin"]
   end
 
-  test "an admin also sees the Admin menu" do
+  test "an admin sees the Admin menu, but no My work" do
     sign_in_as(staff("admin"))
 
     get "/forefront/"
 
+    assert_equal [ "Dashboard", "Notifications" ], sidebar_groups["main"]
     assert_equal [ "Staff", "Audit log" ], sidebar_groups["Team"]
     assert_equal [ "Sources", "Lost reasons", "Settings" ], sidebar_groups["Admin"]
   end

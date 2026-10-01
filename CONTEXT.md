@@ -10,9 +10,9 @@ _Avoid_: Client, Account, User
 
 **Staff**:
 The umbrella term for anyone with a Forefront login: Admin, Manager, or Sales person.
-- **Admin**: unscoped, full access — creates Managers and Sales persons, creates Products, sets targets, sees all data.
-- **Manager**: scoped to their own team.
-- **Sales person**: scoped to their own assigned Leads/Tickets.
+- **Admin**: unscoped, full access — creates Managers and Sales persons, creates Products, sets targets, sees all data. An Admin oversees rather than works: they don't call Customers or carry their own Leads/Tickets (so they have no "My work"), and step in only where an approval or intervention is needed. They filter the data and run reports.
+- **Manager**: scoped to their own team. Both oversees their direct reports and does sales work of their own.
+- **Sales person**: scoped to their own assigned Leads/Tickets; sees their own data and does the work.
 - **System**: a single non-human Staff record named "System" that acts on behalf of automated inputs (such as a Signup). It never logs in, is never given work, and never appears in leaderboards or Targets.
 _Avoid_: User, Employee (for this identity)
 

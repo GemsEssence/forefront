@@ -102,4 +102,16 @@ class Forefront::MyWorkTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/forefront/my_work']", text: /My work/
     assert_select "[data-my-work-summary]", text: /1 overdue/
   end
+
+  test "an admin oversees rather than works, so has no My work page or summary" do
+    admin = Forefront::Admin.create!(name: "Asha Admin", email: "asha-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+    sign_in_as(admin)
+
+    get "/forefront/my_work"
+    assert_redirected_to "/forefront/"
+
+    get "/forefront/"
+    assert_select "[data-my-work-summary]", count: 0
+    assert_select "a[href='/forefront/my_work']", count: 0
+  end
 end

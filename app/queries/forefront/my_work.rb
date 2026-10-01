@@ -1,7 +1,8 @@
 module Forefront
   # What a Staff member needs to work on, sorted by when (the "My work"
   # page): their unfinished Tickets and Leads, pending Followups and unpaid
-  # Installments. A Manager sees their team's; an Admin, everyone's.
+  # Installments. A Manager sees their own and their team's. Admins don't
+  # have one (MyWorkPolicy).
   class MyWork
     # at: a Followup's time, which makes it overdue once it has passed.
     Item = Struct.new(:label, :date, :at, :path_target, :owner, keyword_init: true)
