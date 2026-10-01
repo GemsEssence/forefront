@@ -7,7 +7,15 @@ module Forefront
 
     validates :action, presence: true
 
+    # The events that count as an Action (CONTEXT.md): creating a Ticket or
+    # Lead, an Activity, a Followup, or a stage/status change.
+    ACTIONS = %w[
+      created added_activity scheduled_followup updated_followup changed_status
+      marked_awaiting_customer customer_responded converted
+    ].freeze
+
     scope :recent, -> { order(created_at: :desc, id: :desc) }
+    scope :actions, -> { where(action: ACTIONS) }
 
     UNAUDITED_ATTRIBUTES = %w[id created_at updated_at].freeze
 
