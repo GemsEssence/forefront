@@ -63,6 +63,15 @@ module Forefront
     scope :recent, -> { order(created_at: :desc) }
     scope :by_due_date, -> { order(due_at: :asc) }
 
+    # A demo or Proposal under a Lead: resolving it asks what's next for the Lead.
+    def lead_work?
+      lead.present? && (demo? || proposal?)
+    end
+
+    def resolved_at
+      status_histories.where(new_status: "Resolved").maximum(:created_at) || updated_at
+    end
+
     def overdue?
       due_at.present? && due_at < Date.current && !resolved? && !closed?
     end

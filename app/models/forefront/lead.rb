@@ -79,6 +79,17 @@ module Forefront
       !won? && !lost?
     end
 
+    STAGE_WORK_DONE = { "demo" => "Demo done", "proposal" => "Proposal sent" }.freeze
+
+    # [["Demo done", time], ...] for the stage work under this Lead that's
+    # been finished, so the page shows how far the sale really got.
+    def stage_work_done
+      STAGE_WORK_DONE.filter_map do |category, label|
+        ticket = tickets.where(category: category, status: "resolved").order(:updated_at).last
+        [ label, ticket.resolved_at ] if ticket
+      end
+    end
+
     def awaiting_customer?
       awaiting_customer_since.present?
     end

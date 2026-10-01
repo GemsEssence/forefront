@@ -84,6 +84,54 @@ module Forefront
       end
     end
 
+    # Resolving a demo or Proposal Ticket under a Lead, and saying what's next
+    # for the Lead: move it to another working stage, wait on the Customer
+    # (with a Followup), or nothing yet. All of it happens, or none of it.
+    class ResolveLeadWork
+      NEXT_STAGES = %w[contacted demo proposal negotiation].freeze
+
+      attr_reader :ticket, :params, :current_admin, :errors
+
+      def initialize(ticket:, params:, current_admin:)
+        @ticket = ticket
+        @params = params
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def call
+        Ticket.transaction do
+          resolved = StatusHistoryOperations::Create.new(trackable: ticket, params: params.slice(:status, :note), current_admin: current_admin).call
+          @errors = resolved[:errors] unless resolved[:success]
+          @errors = next_step_errors if errors.empty?
+          raise ActiveRecord::Rollback if errors.any?
+        end
+
+        if errors.any?
+          ticket.reload
+          ticket.lead.reload
+          { success: false, errors: errors, trackable: ticket }
+        else
+          { success: true, trackable: ticket }
+        end
+      end
+
+      private
+
+      def next_step_errors
+        result =
+          case params[:next_step]
+          when "stage"
+            return [ "Pick the stage the lead moves to" ] unless NEXT_STAGES.include?(params[:next_stage])
+
+            StatusHistoryOperations::Create.new(trackable: ticket.lead, params: { status: params[:next_stage] }, current_admin: current_admin).call
+          when "awaiting_customer"
+            LeadOperations::AwaitCustomer.new(lead: ticket.lead, params: { followup_type: "call", scheduled_for: params[:followup_on] }, current_admin: current_admin).call
+          end
+        result && !result[:success] ? result[:errors] : []
+      end
+    end
+
     class Destroy
       attr_reader :ticket, :current_admin, :errors
 

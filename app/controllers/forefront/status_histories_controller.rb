@@ -6,11 +6,12 @@ module Forefront
       authorize @trackable, :update?
       authorize @trackable, :reopen? if reopening_lead?
 
-      result = Forefront::StatusHistoryOperations::Create.new(
-        trackable: @trackable,
-        params: status_history_params,
-        current_admin: current_admin
-      ).call
+      result = if resolving_lead_work?
+        authorize @trackable.lead, :update?
+        TicketOperations::ResolveLeadWork.new(ticket: @trackable, params: status_history_params, current_admin: current_admin).call
+      else
+        Forefront::StatusHistoryOperations::Create.new(trackable: @trackable, params: status_history_params, current_admin: current_admin).call
+      end
 
       if result[:success]
         redirect_back fallback_location: @trackable, notice: "Status updated.", status: :see_other
@@ -34,13 +35,19 @@ module Forefront
       end
     end
 
+    def resolving_lead_work?
+      @trackable.is_a?(Ticket) && @trackable.lead_work? &&
+        status_history_params[:status] == "resolved" && status_history_params[:next_step].present?
+    end
+
     def reopening_lead?
       @trackable.is_a?(Lead) && (@trackable.won? || @trackable.lost?) &&
         status_history_params[:status].present? && status_history_params[:status] != @trackable.status
     end
 
     def status_history_params
-      params.require(:status_history).permit(:status, :note, :actual_amount, :lost_reason_id, :ticket_due_at)
+      params.require(:status_history).permit(:status, :note, :actual_amount, :lost_reason_id, :ticket_due_at,
+                                             :next_step, :next_stage, :followup_on)
     end
   end
 end

@@ -34,6 +34,23 @@
       </div>
     <% end %>
 
+    <% if trackable.is_a?(Forefront::Ticket) && trackable.lead_work? %>
+      <fieldset class="mb-3 border rounded p-3">
+        <legend class="text-sm font-medium text-gray-700 px-1">When resolved, what's next for <%= trackable.lead.title %>?</legend>
+        <label class="flex items-center gap-2 text-sm">
+          <%= f.radio_button :next_step, "stage" %> Move the lead to
+          <%= f.select :next_stage, Forefront::TicketOperations::ResolveLeadWork::NEXT_STAGES.map { |stage| [ stage.humanize, stage ] }, {}, { class: "border rounded" } %>
+        </label>
+        <label class="flex items-center gap-2 text-sm mt-2">
+          <%= f.radio_button :next_step, "awaiting_customer" %> Waiting on the customer; follow up on
+          <%= f.datetime_local_field :followup_on, class: "border rounded" %>
+        </label>
+        <label class="flex items-center gap-2 text-sm mt-2">
+          <%= f.radio_button :next_step, "none", checked: true %> Nothing yet
+        </label>
+      </fieldset>
+    <% end %>
+
     <div class="mb-3">
       <%= f.label :note, 'Note (required if lost, otherwise optional)', class: 'block text-sm font-medium text-gray-700' %>
       <%= f.text_area :note, value: values[:note], rows: 3, class: 'mt-1 block w-full border rounded' %>
