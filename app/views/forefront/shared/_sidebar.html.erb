@@ -1,6 +1,6 @@
-<aside id="forefront-sidebar" data-sidebar class="hidden lg:flex lg:flex-col w-full lg:w-60 shrink-0 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:min-h-[calc(100vh-4rem)]">
-  <nav class="flex-1 px-3 py-4 space-y-6">
-    <div data-nav-group="main" class="space-y-1">
+<aside id="forefront-sidebar" data-sidebar class="hidden lg:flex lg:flex-col w-full lg:w-60 shrink-0 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)]">
+  <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+    <div data-nav-group="main" class="space-y-0.5">
       <%= sidebar_link "Dashboard", root_path %>
       <%= sidebar_link "My work", my_work_path %>
       <% unread = Forefront::Notification.unread.where(recipient: current_admin).count %>
@@ -14,7 +14,7 @@
     <% groups.each do |name, links| %>
       <div data-nav-group="<%= name %>">
         <p class="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400"><%= name %></p>
-        <div class="space-y-1">
+        <div class="space-y-0.5">
           <% links.each do |label, path| %>
             <%= sidebar_link label, path %>
           <% end %>
@@ -23,9 +23,11 @@
     <% end %>
   </nav>
 
-  <div data-sidebar-account class="border-t border-gray-200 px-3 py-4 space-y-2">
+  <div data-sidebar-account class="shrink-0 border-t border-gray-200 px-3 py-3">
     <p class="px-3 text-sm font-medium text-gray-900 truncate"><%= current_admin.name %></p>
-    <%= link_to "Edit profile", edit_admin_registration_path, class: "block rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-    <%= button_to "Sign out", destroy_admin_session_path, method: :delete, form_class: "px-3", class: "w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+    <div class="mt-1 flex items-center justify-between px-3">
+      <%= link_to "Edit profile", edit_admin_registration_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
+      <%= button_to "Sign out", destroy_admin_session_path, method: :delete, class: "text-sm font-medium text-red-600 hover:text-red-800" %>
+    </div>
   </div>
 </aside>

@@ -82,4 +82,15 @@ class Forefront::SidebarTest < ActionDispatch::IntegrationTest
     assert_select "aside[data-sidebar] a[aria-current='page']", text: "Edit profile", count: 0
     assert_select "aside[data-sidebar] [data-nav-group='Sales']"
   end
+
+  test "the header and the sidebar stay put while the page scrolls; only the menu list scrolls" do
+    sign_in_as(staff("admin"))
+
+    get "/forefront/"
+
+    assert_select "header.sticky.top-0"
+    assert_select "aside[data-sidebar].lg\\:sticky"
+    assert_select "aside[data-sidebar] > nav.overflow-y-auto"
+    assert_select "aside[data-sidebar] > nav [data-sidebar-account]", count: 0
+  end
 end

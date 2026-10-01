@@ -32,7 +32,7 @@
   <body>
     <div class="min-h-screen bg-gray-50">
       <% if admin_signed_in? %>
-        <header class="bg-white shadow h-16 flex items-center px-4 sm:px-6">
+        <header class="sticky top-0 z-30 bg-white shadow h-16 flex items-center px-4 sm:px-6">
           <button type="button" class="lg:hidden mr-3 rounded-md p-2 text-gray-600 hover:bg-gray-100" aria-controls="forefront-sidebar" aria-label="Menu"
                   onclick="document.getElementById('forefront-sidebar').classList.toggle('hidden')">&#9776;</button>
           <%= link_to "Forefront", root_path, class: "text-xl font-bold text-gray-900 hover:text-indigo-600" %>
