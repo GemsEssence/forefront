@@ -4,5 +4,6 @@ module Forefront
     include AdminList
 
     has_many :leads, class_name: "Forefront::Lead", dependent: :restrict_with_error
+    has_many :campaigns, class_name: "Forefront::Campaign", dependent: :restrict_with_error
   end
 end

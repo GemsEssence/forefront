@@ -1,0 +1,23 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900"><%= @campaign.name %></h1>
+          <p class="text-sm text-gray-500 mt-1">
+            On <%= @campaign.source.name %>, <%= @campaign.starts_on.strftime("%-d %b %Y") %> to <%= @campaign.ends_on.strftime("%-d %b %Y") %>
+            · created by <%= @campaign.created_by.name %>
+          </p>
+        </div>
+        <div class="flex space-x-2">
+          <% if policy(@campaign).edit? %>
+            <%= link_to "Edit", edit_campaign_path(@campaign), class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+          <% end %>
+          <%= link_to "Back", campaigns_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
+        </div>
+      </div>
+
+      <%= render "forefront/shared/messages" %>
+    </div>
+  </div>
+</div>

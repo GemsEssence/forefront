@@ -41,6 +41,7 @@ Forefront::Engine.routes.draw do
   end
 
   resources :customers
+  resources :campaigns, only: [ :index, :show, :new, :create, :edit, :update ]
 
   namespace :api do
     namespace :v1 do

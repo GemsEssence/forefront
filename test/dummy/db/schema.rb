@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000008) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -72,6 +72,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000008) do
     t.index ["actor_id"], name: "index_forefront_audit_events_on_actor_id"
     t.index ["auditable_type", "auditable_id"], name: "index_forefront_audit_events_on_auditable"
     t.index ["created_at"], name: "index_forefront_audit_events_on_created_at"
+  end
+
+  create_table "forefront_campaigns", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.date "ends_on", null: false
+    t.string "name", null: false
+    t.bigint "source_id", null: false
+    t.date "starts_on", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_forefront_campaigns_on_created_by_id"
+    t.index ["source_id"], name: "index_forefront_campaigns_on_source_id"
   end
 
   create_table "forefront_customers", force: :cascade do |t|
@@ -298,6 +310,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000008) do
   add_foreign_key "forefront_assignments", "forefront_admins", column: "from_user_id"
   add_foreign_key "forefront_assignments", "forefront_admins", column: "to_user_id"
   add_foreign_key "forefront_audit_events", "forefront_admins", column: "actor_id"
+  add_foreign_key "forefront_campaigns", "forefront_admins", column: "created_by_id"
+  add_foreign_key "forefront_campaigns", "forefront_sources", column: "source_id"
   add_foreign_key "forefront_followups", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_followups", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_installments", "forefront_payments", column: "payment_id"
