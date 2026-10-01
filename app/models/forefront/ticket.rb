@@ -5,6 +5,7 @@ module Forefront
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
     belongs_to :product, class_name: "Forefront::Product", optional: true
     belongs_to :lead, class_name: "Forefront::Lead", optional: true
+    belongs_to :campaign, class_name: "Forefront::Campaign", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
@@ -18,6 +19,7 @@ module Forefront
       demo: "Demo",
       proposal: "Proposal",
       signup: "Signup",
+      enquiry: "Enquiry",
       plan_expired: "Plan Expired",
       regular_call: "Regular Call",
       new_requirement: "New Requirement",
@@ -63,6 +65,7 @@ module Forefront
     scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['Resolved', 'Closed']) }
     scope :recent, -> { order(created_at: :desc) }
     scope :by_due_date, -> { order(due_at: :asc) }
+    scope :unfinished, -> { where.not(status: %w[resolved closed]) }
 
     # A demo or Proposal under a Lead: resolving it asks what's next for the Lead.
     def lead_work?

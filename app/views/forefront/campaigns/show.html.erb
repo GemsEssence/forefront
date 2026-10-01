@@ -18,6 +18,55 @@
       </div>
 
       <%= render "forefront/shared/messages" %>
+
+      <div class="bg-white shadow sm:rounded-lg p-4 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-3">Record an enquiry from this campaign</h2>
+        <%= form_with url: campaign_enquiries_path(@campaign), scope: :enquiry, method: :post, class: "grid grid-cols-1 md:grid-cols-6 gap-3 items-end" do |f| %>
+          <div class="md:col-span-2">
+            <%= f.label :name, "Customer name", class: "block text-xs font-medium text-gray-500" %>
+            <%= f.text_field :name, required: true, class: "mt-1 block w-full border rounded" %>
+          </div>
+          <div>
+            <%= f.label :country_code, "Code", class: "block text-xs font-medium text-gray-500" %>
+            <%= f.text_field :country_code, value: Forefront.default_country_code, class: "mt-1 block w-full border rounded" %>
+          </div>
+          <div class="md:col-span-2">
+            <%= f.label :phone, class: "block text-xs font-medium text-gray-500" %>
+            <%= f.telephone_field :phone, required: true, class: "mt-1 block w-full border rounded" %>
+          </div>
+          <div>
+            <%= f.label :product_id, "Product", class: "block text-xs font-medium text-gray-500" %>
+            <%= f.collection_select :product_id, Forefront::Product.order(:name), :id, :name, { prompt: "Select" }, { required: true, class: "mt-1 block w-full border rounded" } %>
+          </div>
+          <div class="md:col-span-2">
+            <%= f.label :email, "Email (optional)", class: "block text-xs font-medium text-gray-500" %>
+            <%= f.email_field :email, class: "mt-1 block w-full border rounded" %>
+          </div>
+          <div class="md:col-span-3">
+            <%= f.label :note, "What they asked about", class: "block text-xs font-medium text-gray-500" %>
+            <%= f.text_field :note, class: "mt-1 block w-full border rounded" %>
+          </div>
+          <%= f.submit "Record enquiry", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded text-sm" %>
+        <% end %>
+      </div>
+
+      <div id="campaign_enquiries">
+        <h2 class="text-lg font-medium text-gray-900 mb-2">Enquiries (<%= @enquiries.size %>)</h2>
+        <div class="bg-white shadow sm:rounded-lg">
+          <% if @enquiries.any? %>
+            <ul class="divide-y divide-gray-200">
+              <% @enquiries.each do |ticket| %>
+                <li class="px-4 py-3 flex items-center justify-between text-sm">
+                  <%= link_to ticket.title, ticket_path(ticket), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                  <span class="text-gray-500"><%= ticket.status.humanize %><%= " · #{ticket.assigned_to.name}" if ticket.assigned_to %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="px-4 py-3 text-sm text-gray-500">No enquiries yet.</p>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </div>

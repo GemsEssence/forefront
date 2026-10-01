@@ -9,6 +9,7 @@ module Forefront
     end
 
     def show
+      @enquiries = policy_scope(Ticket).where(campaign: @campaign).includes(:assigned_to).order(created_at: :desc)
     end
 
     def new

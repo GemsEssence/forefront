@@ -28,6 +28,44 @@ module Forefront
       end
     end
 
+    # Finds a Customer by country code and phone, however the number is
+    # typed, or creates them. An email that's already another Customer's is
+    # left off rather than failing, and a note says so for the caller to pass on.
+    class FindOrCreateByPhone
+      attr_reader :params, :current_admin, :errors, :notes
+
+      def initialize(params:, current_admin:)
+        @params = params
+        @current_admin = current_admin
+        @errors = []
+        @notes = []
+      end
+
+      def call
+        customer = Customer.find_by(country_code: country_code, phone: Customer.national_number(params[:phone], country_code: country_code)) || create
+        { success: errors.empty?, customer: customer, errors: errors, notes: notes }
+      end
+
+      private
+
+      def country_code
+        params[:country_code].presence || Forefront.default_country_code
+      end
+
+      def create
+        email = params[:email].presence
+        if email && Customer.exists?(email: email)
+          @notes << "#{email} is already on another customer, so it wasn't saved on this one."
+          email = nil
+        end
+
+        attributes = { name: params[:name], country_code: country_code, phone: params[:phone], email: email }
+        result = Create.new(params: ActionController::Parameters.new(attributes), current_admin: current_admin).call
+        @errors = result[:errors] unless result[:success]
+        result[:customer] if result[:success]
+      end
+    end
+
     class Update
       attr_reader :customer, :params, :current_admin, :errors
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000009) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -278,6 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000009) do
 
   create_table "forefront_tickets", force: :cascade do |t|
     t.bigint "assigned_to_id"
+    t.bigint "campaign_id"
     t.string "category", default: "issue", null: false
     t.datetime "created_at", null: false
     t.bigint "created_by_id", null: false
@@ -293,6 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000009) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["assigned_to_id"], name: "index_forefront_tickets_on_assigned_to_id"
+    t.index ["campaign_id"], name: "index_forefront_tickets_on_campaign_id"
     t.index ["category"], name: "index_forefront_tickets_on_category"
     t.index ["created_by_id"], name: "index_forefront_tickets_on_created_by_id"
     t.index ["customer_id"], name: "index_forefront_tickets_on_customer_id"
@@ -336,6 +338,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000009) do
   add_foreign_key "forefront_targets", "forefront_products", column: "product_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "created_by_id"
+  add_foreign_key "forefront_tickets", "forefront_campaigns", column: "campaign_id"
   add_foreign_key "forefront_tickets", "forefront_customers", column: "customer_id"
   add_foreign_key "forefront_tickets", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_tickets", "forefront_products", column: "product_id"

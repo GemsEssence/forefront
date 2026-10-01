@@ -4,8 +4,6 @@ module Forefront
   # phone, or creates them, and opens an unassigned Ticket asking for a call.
   module SignupOperations
     class Receive
-      OPEN_STATUSES = Ticket.statuses.keys - %w[resolved closed]
-
       attr_reader :product, :params, :errors
 
       def initialize(product:, params:)
@@ -39,32 +37,15 @@ module Forefront
         %i[name phone].filter_map { |field| "#{field.to_s.humanize} can't be blank" if params[field].blank? }
       end
 
-      def country_code
-        params[:country_code].presence || Forefront.default_country_code
-      end
-
       def find_or_create_customer
-        phone = Customer.national_number(params[:phone], country_code: country_code)
-        Customer.find_by(country_code: country_code, phone: phone) || create_customer
-      end
-
-      # An email that's already another Customer's is left off rather than
-      # losing the signup; the Ticket says so for whoever calls them.
-      def create_customer
-        email = params[:email].presence
-        if email && Customer.exists?(email: email)
-          @notes << "#{email} is already on another customer, so it wasn't saved on this one."
-          email = nil
-        end
-
-        attributes = { name: params[:name], country_code: country_code, phone: params[:phone], email: email }
-        result = CustomerOperations::Create.new(params: ActionController::Parameters.new(attributes), current_admin: system).call
-        @errors = result[:errors] unless result[:success]
-        result[:customer] if result[:success]
+        result = CustomerOperations::FindOrCreateByPhone.new(params: params, current_admin: system).call
+        @errors = result[:errors]
+        @notes = result[:notes]
+        result[:customer]
       end
 
       def repeat_signup(customer)
-        ticket = customer.tickets.signup.where(product: product, status: OPEN_STATUSES).first
+        ticket = customer.tickets.signup.unfinished.find_by(product: product)
         return unless ticket
 
         body = "Signed up again for #{product.name} on #{Date.current.strftime("%-d %b %Y")}."

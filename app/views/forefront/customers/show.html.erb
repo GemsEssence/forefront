@@ -53,6 +53,15 @@
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @customer.external_type %>#<%= @customer.external_id %></dd>
               </div>
             <% end %>
+            <% campaigns = Forefront::Campaign.where(id: @customer.tickets.select(:campaign_id)).order(:starts_on) %>
+            <% if campaigns.any? %>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Came from</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  <%= safe_join(campaigns.map { |campaign| link_to(campaign.name, campaign_path(campaign), class: "text-indigo-600 hover:text-indigo-500") }, ", ") %>
+                </dd>
+              </div>
+            <% end %>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Tickets</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">

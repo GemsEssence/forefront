@@ -4,6 +4,7 @@ module Forefront
   class Campaign < ApplicationRecord
     belongs_to :source, class_name: "Forefront::Source"
     belongs_to :created_by, class_name: "Forefront::Admin"
+    has_many :tickets, class_name: "Forefront::Ticket", dependent: :restrict_with_error
 
     validates :name, :starts_on, :ends_on, presence: true
     validate :ends_after_it_starts
