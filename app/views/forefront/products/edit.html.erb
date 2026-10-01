@@ -10,6 +10,21 @@
           <%= render 'form', path: product_path(@product) %>
         </div>
       </div>
+
+      <% if policy(@product).generate_api_key? %>
+        <div class="bg-white shadow sm:rounded-lg mt-6 px-4 py-5 sm:p-6">
+          <h2 class="text-lg font-medium text-gray-900">Signup API key</h2>
+          <p class="text-sm text-gray-500 mt-1">The product's own application sends this key when a customer signs up there.</p>
+          <% if @product.api_key? %>
+            <p class="text-sm text-gray-700 mt-3">Key ending <span class="font-mono">…<%= @product.api_key_last4 %></span>, generated <%= @product.api_key_generated_at.strftime("%-d %b %Y") %>.</p>
+          <% else %>
+            <p class="text-sm text-gray-700 mt-3">No key yet.</p>
+          <% end %>
+          <%= button_to @product.api_key? ? "Regenerate key" : "Generate key", product_api_key_path(@product), method: :post,
+                form: { data: { turbo_confirm: (@product.api_key? ? "The current key stops working immediately. Continue?" : nil) } },
+                class: "mt-3 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

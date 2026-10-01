@@ -24,6 +24,10 @@ module Forefront
       manages_products?
     end
 
+    def generate_api_key?
+      pundit_user.admin?
+    end
+
     class Scope < Scope
       def resolve
         scope.all

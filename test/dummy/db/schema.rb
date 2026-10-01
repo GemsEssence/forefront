@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000007) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -201,12 +201,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000007) do
   end
 
   create_table "forefront_products", force: :cascade do |t|
+    t.string "api_key_digest"
+    t.datetime "api_key_generated_at", precision: nil
+    t.string "api_key_last4"
     t.datetime "created_at", null: false
     t.text "description"
     t.string "name", null: false
     t.decimal "reclaim_reward_percentage", precision: 5, scale: 2
     t.decimal "renewal_reward_percentage", precision: 5, scale: 2
     t.datetime "updated_at", null: false
+    t.index ["api_key_digest"], name: "index_forefront_products_on_api_key_digest", unique: true
   end
 
   create_table "forefront_sources", force: :cascade do |t|

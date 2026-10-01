@@ -41,6 +41,21 @@ module Forefront
       end
     end
 
+    class GenerateApiKey
+      attr_reader :product, :current_admin
+
+      def initialize(product:, current_admin:)
+        @product = product
+        @current_admin = current_admin
+      end
+
+      def call
+        key = product.generate_api_key!
+        AuditEvent.record!(actor: current_admin, action: "generated_api_key", auditable: product, audited_changes: {})
+        { success: true, product: product, api_key: key }
+      end
+    end
+
     class Update
       include AllocationNames
 

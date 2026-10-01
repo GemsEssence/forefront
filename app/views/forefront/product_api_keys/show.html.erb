@@ -1,0 +1,14 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <h1 class="text-3xl font-bold text-gray-900 mb-6">Signup API key for <%= @product.name %></h1>
+
+      <div class="bg-white shadow sm:rounded-lg px-4 py-5 sm:p-6 space-y-4">
+        <p class="text-sm text-gray-700">Copy this key into <%= @product.name %>'s application now. It won't be shown again; if it's lost, generate a new one.</p>
+        <p class="font-mono text-sm bg-gray-100 rounded p-3 break-all" data-api-key><%= @api_key %></p>
+        <p class="text-sm text-gray-500">Send it as <code>Authorization: Bearer &lt;key&gt;</code>. Any earlier key for this product no longer works.</p>
+        <%= link_to "Back to #{@product.name}", edit_product_path(@product), class: "text-indigo-600 hover:text-indigo-500 text-sm font-medium" %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,7 +9,9 @@ Forefront::Engine.routes.draw do
   root to: "dashboard#index"
 
   resources :admins, path: "staff", only: [ :index, :new, :create, :edit, :update ]
-  resources :products, only: [ :index, :new, :create, :edit, :update ]
+  resources :products, only: [ :index, :new, :create, :edit, :update ] do
+    resource :api_key, only: [ :create ], controller: "product_api_keys"
+  end
   resources :targets, only: [ :index, :new, :create, :edit, :update ]
   resources :audit_events, path: "audit_log", only: [ :index ]
   resources :sources, only: [ :index, :create, :edit, :update, :destroy ]
