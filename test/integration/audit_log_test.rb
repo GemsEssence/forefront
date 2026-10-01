@@ -152,19 +152,14 @@ class Forefront::AuditLogMoneyTest < ActionDispatch::IntegrationTest
     sign_in_as(@rep)
   end
 
-  test "recording a payment, its installments and marking them paid are recorded against the lead" do
+  test "recording a payment and its installments are recorded against the lead" do
     post "/forefront/leads/#{@lead.id}/payment", params: { payment: { total_amount: "300" } }
     post "/forefront/leads/#{@lead.id}/payment/installments", params: { installment: { amount: "150", due_on: "2026-11-20" } }
-    installment = @lead.reload.payment.installments.last
-    patch "/forefront/leads/#{@lead.id}/payment/installments/#{installment.id}"
-    patch "/forefront/leads/#{@lead.id}/payment"
 
     sign_in_as(@admin)
     get "/forefront/audit_log"
     assert_select "tr", text: /Ravi Rep.*recorded payment.*Lead.*Big Deal.*Total amount: — → 300/m
     assert_select "tr", text: /Ravi Rep.*added installment.*Lead.*Big Deal.*Amount: — → 150.*Due on: — → 2026-11-20/m
-    assert_select "tr", text: /Ravi Rep.*marked installment paid.*Lead.*Big Deal.*Status: pending → paid/m
-    assert_select "tr", text: /Ravi Rep.*marked payment paid.*Lead.*Big Deal.*Status: pending → paid/m
   end
 
   test "recording a lead share lists each person's percentage" do

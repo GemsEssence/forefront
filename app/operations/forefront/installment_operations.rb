@@ -23,26 +23,5 @@ module Forefront
         end
       end
     end
-
-    class MarkPaid
-      attr_reader :installment, :current_admin, :errors
-
-      def initialize(installment:, current_admin:)
-        @installment = installment
-        @current_admin = current_admin
-        @errors = []
-      end
-
-      def call
-        if installment.update(status: "paid", paid_at: Time.current)
-          AuditEvent.record!(actor: current_admin, action: "marked_installment_paid", auditable: installment.payment.lead,
-                             audited_changes: installment.saved_changes.slice("status"))
-          { success: true, installment: installment }
-        else
-          @errors = installment.errors.full_messages
-          { success: false, installment: installment, errors: @errors }
-        end
-      end
-    end
   end
 end

@@ -43,7 +43,8 @@ class Forefront::PaymentManagementTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "150", response.body
 
-    patch "/forefront/leads/#{@lead.id}/payment/installments/#{installment.id}", params: {}
+    post "/forefront/leads/#{@lead.id}/payment/receipts",
+         params: { receipt: { installment_id: installment.id, amount: "150", received_on: "2026-06-18", payment_method: "upi" } }
     assert_redirected_to "/forefront/leads/#{@lead.id}"
     assert installment.reload.paid?
     assert_equal "completed", installment.followups.first.reload.status

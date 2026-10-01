@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000011) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -227,6 +227,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000011) do
     t.index ["api_key_digest"], name: "index_forefront_products_on_api_key_digest", unique: true
   end
 
+  create_table "forefront_receipts", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.bigint "installment_id"
+    t.bigint "payment_id", null: false
+    t.string "payment_method", null: false
+    t.date "received_on", null: false
+    t.bigint "recorded_by_id", null: false
+    t.string "reference"
+    t.datetime "updated_at", null: false
+    t.index ["installment_id"], name: "index_forefront_receipts_on_installment_id"
+    t.index ["payment_id"], name: "index_forefront_receipts_on_payment_id"
+    t.index ["recorded_by_id"], name: "index_forefront_receipts_on_recorded_by_id"
+  end
+
   create_table "forefront_sources", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
@@ -333,6 +348,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000011) do
   add_foreign_key "forefront_payments", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_product_allocations", "forefront_admins", column: "admin_id"
   add_foreign_key "forefront_product_allocations", "forefront_products", column: "product_id"
+  add_foreign_key "forefront_receipts", "forefront_admins", column: "recorded_by_id"
+  add_foreign_key "forefront_receipts", "forefront_installments", column: "installment_id"
+  add_foreign_key "forefront_receipts", "forefront_payments", column: "payment_id"
   add_foreign_key "forefront_status_histories", "forefront_admins", column: "changed_by_id"
   add_foreign_key "forefront_subscriptions", "forefront_customers", column: "customer_id"
   add_foreign_key "forefront_subscriptions", "forefront_leads", column: "lead_id"

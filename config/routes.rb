@@ -34,8 +34,9 @@ Forefront::Engine.routes.draw do
     resources :assignments, only: [:create], controller: 'assignments'
     resources :status_histories, only: [:create], controller: 'status_histories'
       resources :followups, only: [:create, :update]
-    resource :payment, only: [ :new, :create, :update ] do
-      resources :installments, only: [ :create, :update ]
+    resource :payment, only: [ :new, :create ] do
+      resources :installments, only: [ :create ]
+      resources :receipts, only: [ :create ]
     end
     resource :lead_share, only: [ :create ]
     resource :awaiting_customer, only: [ :create, :destroy ]

@@ -20,16 +20,6 @@ module Forefront
       end
     end
 
-    def update
-      result = PaymentOperations::MarkPaid.new(payment: @lead.payment, current_admin: current_admin).call
-
-      if result[:success]
-        redirect_to lead_path(@lead), notice: "Payment marked as paid."
-      else
-        redirect_to lead_path(@lead), alert: result[:errors].join(", ")
-      end
-    end
-
     private
 
     def set_lead

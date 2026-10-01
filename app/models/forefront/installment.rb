@@ -4,6 +4,7 @@ module Forefront
 
     belongs_to :payment, class_name: "Forefront::Payment"
     has_many :followups, as: :followupable, class_name: "Forefront::Followup", dependent: :destroy
+    has_many :receipts, class_name: "Forefront::Receipt", dependent: :destroy
 
     enum :status, { pending: "pending", paid: "paid" }
 
@@ -13,6 +14,10 @@ module Forefront
 
     after_create :schedule_reminder_followup
     after_update :complete_pending_followups, if: :saved_change_to_status_when_paid?
+
+    def still_owed
+      amount - receipts.sum(:amount)
+    end
 
     private
 
