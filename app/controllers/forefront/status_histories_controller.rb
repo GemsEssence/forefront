@@ -34,7 +34,7 @@ module Forefront
     end
 
     def status_history_params
-      params.require(:status_history).permit(:status, :note, :actual_amount)
+      params.require(:status_history).permit(:status, :note, :actual_amount, :lost_reason_id)
     end
   end
 end

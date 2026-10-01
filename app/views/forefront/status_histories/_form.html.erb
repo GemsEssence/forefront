@@ -20,8 +20,17 @@
       </div>
     <% end %>
 
+    <% if trackable.is_a?(Forefront::Lead) %>
+      <% losing = selected_status.to_s == "lost" %>
+      <div class="mb-3" data-lost-reason style="<%= 'display:none;' unless losing %>">
+        <%= f.label :lost_reason_id, "Lost reason", class: 'block text-sm font-medium text-gray-700' %>
+        <%= f.collection_select :lost_reason_id, Forefront::LostReason.active.ordered, :id, :name, { prompt: "Why was it lost?", selected: values[:lost_reason_id] }, { required: losing, class: 'mt-1 block w-full border rounded' } %>
+        <p class="text-xs text-gray-500 mt-1">Explain what happened in the note below; it's required for a lost lead.</p>
+      </div>
+    <% end %>
+
     <div class="mb-3">
-      <%= f.label :note, 'Note (optional)', class: 'block text-sm font-medium text-gray-700' %>
+      <%= f.label :note, 'Note (required if lost, otherwise optional)', class: 'block text-sm font-medium text-gray-700' %>
       <%= f.text_area :note, value: values[:note], rows: 3, class: 'mt-1 block w-full border rounded' %>
     </div>
 
@@ -39,6 +48,15 @@
       var won = select.value === 'won';
       field.style.display = won ? '' : 'none';
       field.querySelector('input').required = won;
+
+      // Losing one asks why.
+      var lost = select.value === 'lost';
+      var reason = select.form.querySelector('[data-lost-reason]');
+      if (reason) {
+        reason.style.display = lost ? '' : 'none';
+        reason.querySelector('select').required = lost;
+      }
+      select.form.querySelector('textarea').required = lost;
     }
   </script>
 <% end %>

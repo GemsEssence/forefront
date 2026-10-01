@@ -36,11 +36,18 @@ module Forefront
 
       private
 
-      # A Lead being won also records what it actually closed for.
+      # A Lead being won also records what it actually closed for, and one
+      # being lost records why, with the change's note as its explanation.
       def trackable_attributes
         attributes = { status: params[:status].presence }
-        if params[:status] == "won" && trackable.respond_to?(:actual_amount=)
+        return attributes unless trackable.is_a?(Lead)
+
+        case params[:status]
+        when "won"
           attributes[:actual_amount] = params[:actual_amount].presence
+        when "lost"
+          attributes[:lost_reason_id] = params[:lost_reason_id].presence
+          attributes[:lost_note] = params[:note].presence
         end
         attributes
       end

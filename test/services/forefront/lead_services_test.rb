@@ -41,7 +41,7 @@ class Forefront::LeadServicesFilterTest < ActiveSupport::TestCase
   end
 
   test "the lost filter matches leads whose status is the enum's capitalized stored value" do
-    lost_lead = Forefront::Lead.create!(title: "Lost", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "lost")
+    lost_lead = Forefront::Lead.create!(title: "Lost", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "lost", lost_reason: Forefront::LostReason.find_or_create_by!(name: "Price"), lost_note: "Too dear")
     filters = ActionController::Parameters.new(lost: "true").permit(:lost)
 
     result = Forefront::LeadServices::Filter.new(scope: Forefront::Lead.all, filters: filters).call

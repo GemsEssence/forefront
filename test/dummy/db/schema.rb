@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -147,6 +147,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000002) do
     t.date "due_at"
     t.decimal "estimated_amount", precision: 12, scale: 2
     t.date "expires_at"
+    t.text "lost_note"
+    t.bigint "lost_reason_id"
     t.datetime "next_followup_at", precision: nil
     t.bigint "product_id"
     t.bigint "source_id", null: false
@@ -159,6 +161,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000002) do
     t.index ["created_by_id"], name: "index_forefront_leads_on_created_by_id"
     t.index ["customer_id"], name: "index_forefront_leads_on_customer_id"
     t.index ["due_at"], name: "index_forefront_leads_on_due_at"
+    t.index ["lost_reason_id"], name: "index_forefront_leads_on_lost_reason_id"
     t.index ["next_followup_at"], name: "index_forefront_leads_on_next_followup_at"
     t.index ["product_id"], name: "index_forefront_leads_on_product_id"
     t.index ["source_id"], name: "index_forefront_leads_on_source_id"
@@ -295,6 +298,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000002) do
   add_foreign_key "forefront_leads", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_leads", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_leads", "forefront_customers", column: "customer_id"
+  add_foreign_key "forefront_leads", "forefront_lost_reasons", column: "lost_reason_id"
   add_foreign_key "forefront_leads", "forefront_products", column: "product_id"
   add_foreign_key "forefront_leads", "forefront_sources", column: "source_id"
   add_foreign_key "forefront_payments", "forefront_leads", column: "lead_id"

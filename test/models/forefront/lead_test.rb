@@ -22,7 +22,7 @@ class Forefront::LeadTest < ActiveSupport::TestCase
 
   test "needs_followup scope excludes won and lost leads" do
     won = Forefront::Lead.create!(title: "Won", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "won", actual_amount: 100, next_followup_at: 1.day.ago)
-    lost = Forefront::Lead.create!(title: "Lost", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "lost", next_followup_at: 1.day.ago)
+    lost = Forefront::Lead.create!(title: "Lost", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "lost", lost_reason: Forefront::LostReason.find_or_create_by!(name: "Price"), lost_note: "Too dear", next_followup_at: 1.day.ago)
     open_lead = Forefront::Lead.create!(title: "Open", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", next_followup_at: 1.day.ago)
 
     result = Forefront::Lead.needs_followup

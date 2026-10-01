@@ -5,6 +5,7 @@ module Forefront
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
     belongs_to :product, class_name: "Forefront::Product", optional: true
     belongs_to :source, class_name: "Forefront::Source"
+    belongs_to :lost_reason, class_name: "Forefront::LostReason", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
@@ -33,10 +34,12 @@ module Forefront
     validates :actual_amount, presence: true, if: -> { won? && will_save_change_to_status? }
     validate :source_is_active, if: :will_save_change_to_source_id?
     validate :agreement_only_for_white_label
+    validate :lost_with_reason_and_note, if: -> { lost? && will_save_change_to_status? }
     validates :status, presence: true
     validate :product_allocated_to_sales_person
 
     before_save :set_won_at, if: :status_changed?
+    before_save :forget_lost_reason, unless: :lost?
     after_save :ensure_subscription
 
     # Scopes for filtering
@@ -123,6 +126,21 @@ module Forefront
       else
         create_subscription!(customer: customer, product: product, expires_at: expires_at)
       end
+    end
+
+    # A reason alone never explains a loss, so a note always goes with it.
+    def lost_with_reason_and_note
+      if lost_reason.nil?
+        errors.add(:lost_reason, "must be chosen")
+      elsif !lost_reason.active? && will_save_change_to_lost_reason_id?
+        errors.add(:lost_reason, "is no longer in use")
+      end
+      errors.add(:base, "Note is required when a lead is lost") if lost_note.blank?
+    end
+
+    def forget_lost_reason
+      self.lost_reason = nil
+      self.lost_note = nil
     end
 
     def agreement_only_for_white_label
