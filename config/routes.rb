@@ -22,6 +22,7 @@ Forefront::Engine.routes.draw do
   end
 
   get "unassigned", to: "unassigned#index", as: :unassigned
+  get "my_work", to: "my_work#index", as: :my_work
 
   resources :tickets do
     resource :take, only: [ :create ]

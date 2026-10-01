@@ -1,0 +1,69 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-5xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <h1 class="text-3xl font-bold text-gray-900 mb-1">My work</h1>
+      <p class="text-sm text-gray-500 mb-6"><%= @my_work.team? ? "Your team's open tickets, leads, followups and installments." : "Your open tickets, leads, followups and installments." %></p>
+
+      <% Forefront::MyWork::SECTIONS.each do |key, heading| %>
+        <% items = @my_work.sections[key] %>
+        <div class="mb-6" data-section="<%= key %>">
+          <h2 class="text-lg font-medium <%= key == 'overdue' && items.any? ? 'text-red-700' : 'text-gray-900' %> mb-2"><%= heading %> (<%= items.size %>)</h2>
+          <div class="bg-white shadow sm:rounded-md">
+            <% if items.any? %>
+              <ul class="divide-y divide-gray-200">
+                <% items.each do |item| %>
+                  <li class="px-4 py-2 flex items-center justify-between text-sm">
+                    <%= link_to item.label, polymorphic_path(item.path_target), class: "text-indigo-600 hover:text-indigo-500 font-medium" %>
+                    <span class="text-gray-500 whitespace-nowrap ml-4">
+                      <%= item.date&.strftime("%-d %b") %><%= " · #{item.owner.name}" if @my_work.team? && item.owner %>
+                    </span>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="px-4 py-2 text-sm text-gray-500">Nothing here.</p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mb-6" data-section="available">
+        <h2 class="text-lg font-medium text-gray-900 mb-2">Available to take</h2>
+        <div class="bg-white shadow sm:rounded-md">
+          <% available = @available_tickets.to_a + @available_leads.to_a %>
+          <% if available.any? %>
+            <ul class="divide-y divide-gray-200">
+              <% available.each do |record| %>
+                <li class="px-4 py-2 flex items-center justify-between text-sm">
+                  <%= link_to record.title, polymorphic_path(record), class: "text-indigo-600 hover:text-indigo-500 font-medium" %>
+                  <span class="text-gray-500 ml-4">waiting since <%= record.created_at.strftime("%-d %b") %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="px-4 py-2 text-sm text-gray-500">Nothing waiting. <%= link_to "Unassigned", unassigned_path, class: "text-indigo-600" %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mb-6" data-section="reveals">
+        <h2 class="text-lg font-medium text-gray-900 mb-2">Needs action after reveal</h2>
+        <div class="bg-white shadow sm:rounded-md">
+          <% reveals = @my_work.unanswered_reveals %>
+          <% if reveals.any? %>
+            <ul class="divide-y divide-gray-200">
+              <% reveals.each do |reveal| %>
+                <li class="px-4 py-2 flex items-center justify-between text-sm">
+                  <%= link_to reveal.customer.name, customer_path(reveal.customer), class: "text-indigo-600 hover:text-indigo-500 font-medium" %>
+                  <span class="text-gray-500 ml-4">revealed <%= reveal.created_at.strftime("%-d %b %H:%M") %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="px-4 py-2 text-sm text-gray-500">Nothing to follow up.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
