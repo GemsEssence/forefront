@@ -29,7 +29,10 @@ module Forefront
             changed_by: current_admin
           )
           AuditEvent.record!(actor: current_admin, action: "changed_status", auditable: trackable)
-          open_stage_ticket if trackable.is_a?(Lead) && trackable.saved_change_to_status?
+          if trackable.is_a?(Lead) && trackable.saved_change_to_status?
+            open_stage_ticket
+            close_open_tickets if trackable.lost?
+          end
         end
 
         { success: true, trackable: trackable }
@@ -52,6 +55,15 @@ module Forefront
 
         result = TicketOperations::Create.new(params: stage_ticket_params(kind), current_admin: current_admin).call
         raise ActiveRecord::RecordInvalid, result[:ticket] unless result[:success]
+      end
+
+      # A lost sale has no work left; a won one may still need onboarding.
+      def close_open_tickets
+        note = "Closed because the lead was lost (#{trackable.lost_reason.name})"
+        trackable.tickets.where.not(status: %w[resolved closed]).find_each do |ticket|
+          result = Create.new(trackable: ticket, params: { status: "closed", note: note }, current_admin: current_admin).call
+          raise ActiveRecord::RecordInvalid, ticket unless result[:success]
+        end
       end
 
       def stage_ticket_params(kind)
