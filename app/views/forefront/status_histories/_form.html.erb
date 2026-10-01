@@ -1,11 +1,12 @@
 <%# locals: trackable; on a failed submit also errors:, open: true, values: (the submitted status_history params) %>
 <% values = local_assigns[:values] || {} %>
 <% id = modal_id(:status_history, trackable) %>
+<% term = trackable.is_a?(Forefront::Lead) ? "Stage" : "Status" %>
 <% selected_status = values[:status].presence || trackable.status %>
-<%= render layout: "forefront/shared/modal", locals: { id: id, title: "Change Status", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
+<%= render layout: "forefront/shared/modal", locals: { id: id, title: "Change #{term}", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
   <%= form_with url: polymorphic_path([trackable, :status_histories]), scope: :status_history, method: :post, data: { turbo_frame: '_top' }, html: { class: 'status-history-form' } do |f| %>
     <div class="mb-3">
-      <%= f.label :status, 'New Status', class: 'block text-sm font-medium text-gray-700' %>
+      <%= f.label :status, "New #{term}", class: 'block text-sm font-medium text-gray-700' %>
       <% status_options = trackable.class.respond_to?(:statuses) ? trackable.class.statuses.map { |k, v| [v, k] } : [] %>
       <%= f.select :status, status_options, { selected: selected_status }, class: 'mt-1 block w-full border rounded', required: true, onchange: 'toggleWonAmount(this)' %>
     </div>
@@ -26,7 +27,7 @@
 
     <div class="flex justify-end space-x-2">
       <button type="button" onclick="forefrontCloseModal('<%= id %>')" class="px-3 py-1 border rounded">Cancel</button>
-      <%= f.submit 'Change Status', class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
+      <%= f.submit "Change #{term}", class: 'bg-indigo-600 text-white px-3 py-1 rounded' %>
     </div>
   <% end %>
 

@@ -145,10 +145,10 @@
       <% end %>
 
       <div class="mt-6 flex items-center justify-between">
-        <h2 class="text-lg font-medium text-gray-900">Status</h2>
+        <h2 class="text-lg font-medium text-gray-900">Stage</h2>
         <% if policy(@lead).update? %>
           <div>
-            <button type="button" onclick="forefrontOpenModal('<%= "status_history_modal_#{@lead.class.name.demodulize.underscore}_#{@lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Change Status</button>
+            <button type="button" onclick="forefrontOpenModal('<%= "status_history_modal_#{@lead.class.name.demodulize.underscore}_#{@lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Change Stage</button>
           </div>
         <% end %>
       </div>

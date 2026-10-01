@@ -13,15 +13,16 @@ module Forefront
     has_one :subscription, class_name: "Forefront::Subscription", dependent: :destroy
     has_one :lead_share, class_name: "Forefront::LeadShare", dependent: :destroy
 
+    # The Lead's stage (CONTEXT.md): how far the sale has got. Changed only
+    # through the stage dialog (StatusHistoryOperations), never the edit form.
     enum :status, {
-      open: 'Open',
-      contacted: 'Contacted',
-      follow_up: 'Follow Up',
-      proposal: 'Proposal',
-      negotiation: 'Negotiation',
-      nda_signed: 'NDA Signed',
-      won: 'Won',
-      lost: 'Lost'
+      open: "Open",
+      contacted: "Contacted",
+      demo: "Demo",
+      proposal: "Proposal",
+      negotiation: "Negotiation",
+      won: "Won",
+      lost: "Lost"
     }
 
     validates :title, presence: true

@@ -15,7 +15,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   end
 
   test "winning a lead and setting its expiry creates a subscription, visible via the edit form" do
-    patch "/forefront/leads/#{@lead.id}", params: { lead: { status: "won", actual_amount: 100 } }
+    post "/forefront/leads/#{@lead.id}/status_histories", params: { status_history: { status: "won", actual_amount: 100 } }
     get "/forefront/leads/#{@lead.id}/edit"
     assert_match "Subscription Expires", response.body
 
@@ -50,7 +50,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
     get "/forefront/leads/#{new_lead.id}"
     assert_match "Reclaim", response.body
 
-    patch "/forefront/leads/#{new_lead.id}", params: { lead: { status: "won", actual_amount: 100 } }
+    post "/forefront/leads/#{new_lead.id}/status_histories", params: { status_history: { status: "won", actual_amount: 100 } }
     post "/forefront/leads/#{new_lead.id}/payment", params: { payment: { total_amount: "500" } }
 
     get "/forefront/leads/#{new_lead.id}"
