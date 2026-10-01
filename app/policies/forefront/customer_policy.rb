@@ -35,6 +35,12 @@ module Forefront
       super_admin?
     end
 
+    # Contact details are hidden from Sales persons and Managers until they
+    # reveal them (CONTEXT.md); Admins always see them.
+    def see_contact_details?
+      super_admin?
+    end
+
     class Scope
       def initialize(current_admin, scope)
         @current_admin = current_admin

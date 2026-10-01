@@ -37,6 +37,19 @@ module Forefront
       "#{country_code} #{phone}" if phone
     end
 
+    # Contact details as Staff who can't see them are shown them
+    # (CONTEXT.md): enough to tell Customers apart, not to call or write.
+    def masked_phone
+      "#{country_code} #{"•" * (phone.length - 4)}#{phone.last(4)}" if phone
+    end
+
+    def masked_email
+      return unless email
+
+      local, domain = email.split("@", 2)
+      "#{local.first}•••@#{domain}"
+    end
+
     # A number however it's typed ("098765-43210", "+91 98765 43210") as it's
     # stored: digits only, without the country code or a trunk zero.
     def self.national_number(typed, country_code:)

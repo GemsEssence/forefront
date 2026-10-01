@@ -40,7 +40,8 @@ module Forefront
       result = CustomerOperations::Update.new(
         customer: @customer,
         params: customer_params,
-        current_admin: current_admin
+        current_admin: current_admin,
+        keep_blank_contact_details: !policy(@customer).see_contact_details?
       ).call
 
       if result[:success]

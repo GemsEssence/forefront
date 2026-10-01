@@ -8,7 +8,11 @@
 
   <div>
     <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
-    <%= f.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+    <% hidden = @customer.persisted? && !policy(@customer).see_contact_details? %>
+    <% if hidden %>
+      <p class="text-xs text-gray-500">Contact details are hidden. Leave a field blank to keep it, or type a new value to replace it.</p>
+    <% end %>
+    <%= f.email_field :email, value: (hidden ? nil : @customer.email), placeholder: (@customer.masked_email if hidden), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
   </div>
 
   <div class="grid grid-cols-4 gap-4">
@@ -18,7 +22,7 @@
     </div>
     <div class="col-span-3">
       <%= f.label :phone, class: "block text-sm font-medium text-gray-700" %>
-      <%= f.telephone_field :phone, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <%= f.telephone_field :phone, value: (hidden ? nil : @customer.phone), placeholder: (@customer.masked_phone if hidden), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
     </div>
   </div>
 

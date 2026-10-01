@@ -69,15 +69,18 @@ module Forefront
     class Update
       attr_reader :customer, :params, :current_admin, :errors
 
-      def initialize(customer:, params:, current_admin:)
+      # keep_blank_contact_details: Staff who can't see a Customer's contact
+      # details get blank fields, so blank means "leave it", not "clear it".
+      def initialize(customer:, params:, current_admin:, keep_blank_contact_details: false)
         @customer = customer
         @params = params
         @current_admin = current_admin
+        @keep_blank_contact_details = keep_blank_contact_details
         @errors = []
       end
 
       def call
-        if @customer.update(customer_params)
+        if @customer.update(contact_safe_params)
           AuditEvent.record!(actor: current_admin, action: "updated", auditable: @customer) if @customer.saved_changes?
           { success: true, customer: @customer }
         else
@@ -90,6 +93,15 @@ module Forefront
 
       def customer_params
         params.permit(:name, :email, :country_code, :phone, :address, :business_name, :external_type, :external_id)
+      end
+
+      def contact_safe_params
+        attributes = customer_params
+        return attributes unless @keep_blank_contact_details
+
+        attributes = attributes.except(:email) if attributes[:email].blank?
+        attributes = attributes.except(:phone, :country_code) if attributes[:phone].blank?
+        attributes
       end
     end
 
