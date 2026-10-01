@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000014) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -203,6 +203,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000014) do
     t.index ["name"], name: "index_forefront_lost_reasons_on_name", unique: true
   end
 
+  create_table "forefront_notifications", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "dedupe_key", default: "", null: false
+    t.datetime "emailed_at", precision: nil
+    t.string "kind", null: false
+    t.text "message", null: false
+    t.datetime "read_at", precision: nil
+    t.bigint "recipient_id", null: false
+    t.bigint "subject_id", null: false
+    t.string "subject_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipient_id", "kind", "subject_type", "subject_id", "dedupe_key"], name: "index_forefront_notifications_once", unique: true
+    t.index ["recipient_id"], name: "index_forefront_notifications_on_recipient_id"
+    t.index ["subject_type", "subject_id"], name: "index_forefront_notifications_on_subject"
+  end
+
   create_table "forefront_payments", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "lead_id", null: false
@@ -364,6 +380,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000014) do
   add_foreign_key "forefront_leads", "forefront_lost_reasons", column: "lost_reason_id"
   add_foreign_key "forefront_leads", "forefront_products", column: "product_id"
   add_foreign_key "forefront_leads", "forefront_sources", column: "source_id"
+  add_foreign_key "forefront_notifications", "forefront_admins", column: "recipient_id"
   add_foreign_key "forefront_payments", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_product_allocations", "forefront_admins", column: "admin_id"
   add_foreign_key "forefront_product_allocations", "forefront_products", column: "product_id"

@@ -17,6 +17,9 @@ Forefront::Engine.routes.draw do
   resources :sources, only: [ :index, :create, :edit, :update, :destroy ]
   resources :lost_reasons, only: [ :index, :create, :edit, :update, :destroy ]
   resource :settings, only: [ :show, :update ]
+  resources :notifications, only: [ :index, :show ] do
+    post :read_all, on: :collection
+  end
 
   get "unassigned", to: "unassigned#index", as: :unassigned
 

@@ -16,6 +16,7 @@ module Forefront
 
         if @ticket.save
           AuditEvent.record!(actor: current_admin, action: "created", auditable: @ticket)
+          NotificationOperations::AnnounceUnassigned.new(record: @ticket, created_by: current_admin).call
 
           # Record initial assignment (from system / nil to assigned admin)
           if @ticket.assigned_to_id.present?

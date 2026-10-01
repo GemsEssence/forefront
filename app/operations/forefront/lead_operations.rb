@@ -19,6 +19,7 @@ module Forefront
 
         if @lead.save
           AuditEvent.record!(actor: current_admin, action: "created", auditable: @lead)
+          NotificationOperations::AnnounceUnassigned.new(record: @lead, created_by: current_admin).call
 
           # Record initial assignment
           if @lead.assigned_to_id.present?

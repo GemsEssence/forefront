@@ -11,6 +11,7 @@ module Forefront
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
     has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
+    has_many :notifications, as: :subject, class_name: "Forefront::Notification", dependent: :delete_all
     has_one :payment, class_name: "Forefront::Payment", dependent: :destroy
     has_one :subscription, class_name: "Forefront::Subscription", dependent: :destroy
     has_one :lead_share, class_name: "Forefront::LeadShare", dependent: :destroy

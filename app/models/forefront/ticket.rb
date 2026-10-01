@@ -10,6 +10,7 @@ module Forefront
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
     has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
+    has_many :notifications, as: :subject, class_name: "Forefront::Notification", dependent: :delete_all
 
     enum :category, {
       tech: "Tech",
