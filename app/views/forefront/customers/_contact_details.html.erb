@@ -1,0 +1,32 @@
+<%# locals: customer, revealed: (true right after a reveal) %>
+<% revealed = local_assigns[:revealed] %>
+<% full = policy(customer).see_contact_details? || revealed %>
+<div id="<%= dom_id(customer, :contact_details) %>"<% if revealed %> data-hide-after-seconds="<%= Forefront::ContactReveal::SHOWN_FOR.to_i %>"<% end %>>
+  <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+    <dt class="text-sm font-medium text-gray-500">Email</dt>
+    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" data-contact-email><%= full ? customer.email : customer.masked_email %></dd>
+  </div>
+  <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" data-contact-phone><%= full ? customer.full_phone : customer.masked_phone %></dd>
+  </div>
+  <% unless policy(customer).see_contact_details? %>
+    <div class="bg-white px-4 py-3 sm:px-6" data-contact-reveal>
+      <% if revealed %>
+        <p class="text-xs text-amber-700">Shown for one minute. Your reveal has been recorded; log what you do with them.</p>
+        <script>
+          (function () {
+            var box = document.getElementById("<%= dom_id(customer, :contact_details) %>");
+            setTimeout(function () {
+              box.querySelector("[data-contact-email]").textContent = <%= raw customer.masked_email.to_s.to_json %>;
+              box.querySelector("[data-contact-phone]").textContent = <%= raw customer.masked_phone.to_s.to_json %>;
+              box.querySelector("[data-contact-reveal]").innerHTML = '<p class="text-xs text-gray-500">Hidden again. Reload the page to reveal them once more.</p>';
+            }, box.dataset.hideAfterSeconds * 1000);
+          })();
+        </script>
+      <% else %>
+        <%= button_to "Show contact details", customer_contact_reveal_path(customer), method: :post, class: "text-sm text-indigo-600 hover:text-indigo-500 font-medium" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

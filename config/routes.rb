@@ -42,7 +42,9 @@ Forefront::Engine.routes.draw do
     resource :awaiting_customer, only: [ :create, :destroy ]
   end
 
-  resources :customers
+  resources :customers do
+    resource :contact_reveal, only: [ :create ]
+  end
   resources :campaigns, only: [ :index, :show, :new, :create, :edit, :update ] do
     resources :enquiries, only: [ :create ]
   end
