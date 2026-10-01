@@ -1,4 +1,6 @@
-# desc "Explaining what the task does"
-# task :forefront do
-#   # Task goes here
-# end
+namespace :forefront do
+  desc "Raise Forefront's time-based alerts (unassigned, stale, unanswered reveals, overdue installments)"
+  task notify: :environment do
+    Forefront::NotificationSweepJob.perform_now
+  end
+end

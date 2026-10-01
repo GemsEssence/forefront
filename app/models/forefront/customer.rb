@@ -3,6 +3,7 @@ module Forefront
     has_many :tickets, dependent: :destroy
     has_many :leads, dependent: :destroy
     has_many :subscriptions, class_name: "Forefront::Subscription", dependent: :destroy
+    has_many :notifications, as: :subject, class_name: "Forefront::Notification", dependent: :delete_all
 
     validates :name, presence: true
     # local@domain.tld — URI::MailTo::EMAIL_REGEXP alone accepts "abc@abc".
