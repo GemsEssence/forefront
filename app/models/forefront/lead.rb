@@ -35,12 +35,15 @@ module Forefront
     validate :source_is_active, if: :will_save_change_to_source_id?
     validate :agreement_only_for_white_label
     validate :lost_with_reason_and_note, if: -> { lost? && will_save_change_to_status? }
+    validate :awaiting_only_while_worked, if: -> { awaiting_customer? && will_save_change_to_awaiting_customer_since? }
     validate :paid_win_is_final, if: -> { will_save_change_to_status? && status_in_database == "won" }
     validates :status, presence: true
     validate :product_allocated_to_sales_person
 
     before_save :set_won_at, if: :status_changed?
     before_save :forget_lost_reason, unless: :lost?
+    # A stage change means the sale moved on, so it's no longer waiting.
+    before_save -> { self.awaiting_customer_since = nil }, if: :will_save_change_to_status?
     after_save :ensure_subscription
     after_save :drop_subscription, if: -> { saved_change_to_status? && status_before_last_save == "won" }
 
@@ -73,6 +76,14 @@ module Forefront
 
     def active?
       !won? && !lost?
+    end
+
+    def awaiting_customer?
+      awaiting_customer_since.present?
+    end
+
+    def next_followup
+      followups.pending.order(:scheduled_for).first
     end
 
     def past_assignees
@@ -138,6 +149,10 @@ module Forefront
         errors.add(:lost_reason, "is no longer in use")
       end
       errors.add(:base, "Note is required when a lead is lost") if lost_note.blank?
+    end
+
+    def awaiting_only_while_worked
+      errors.add(:base, "Only a lead still being worked can be awaiting the customer") unless active?
     end
 
     # Once money is recorded against the sale, the win can't be taken back.

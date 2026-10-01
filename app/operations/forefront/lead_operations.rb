@@ -87,6 +87,63 @@ module Forefront
       end
     end
 
+    # The Customer has gone quiet: flag the Lead and schedule the Followup that
+    # chases them, together or not at all.
+    class AwaitCustomer
+      attr_reader :lead, :params, :current_admin, :errors
+
+      def initialize(lead:, params:, current_admin:)
+        @lead = lead
+        @params = params
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def call
+        Lead.transaction do
+          unless lead.update(awaiting_customer_since: Time.current)
+            @errors = lead.errors.full_messages
+            raise ActiveRecord::Rollback
+          end
+
+          followup = FollowupOperations::Create.new(followupable: lead, params: params, current_admin: current_admin).call
+          unless followup[:success]
+            @errors = followup[:errors]
+            raise ActiveRecord::Rollback
+          end
+
+          AuditEvent.record!(actor: current_admin, action: "marked_awaiting_customer", auditable: lead, audited_changes: {})
+        end
+
+        if errors.any?
+          lead.reload
+          { success: false, errors: errors, lead: lead }
+        else
+          { success: true, lead: lead }
+        end
+      end
+    end
+
+    class CustomerResponded
+      attr_reader :lead, :current_admin, :errors
+
+      def initialize(lead:, current_admin:)
+        @lead = lead
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def call
+        if lead.update(awaiting_customer_since: nil)
+          AuditEvent.record!(actor: current_admin, action: "customer_responded", auditable: lead, audited_changes: {})
+          { success: true, lead: lead }
+        else
+          @errors = lead.errors.full_messages
+          { success: false, errors: errors, lead: lead }
+        end
+      end
+    end
+
     class Destroy
       attr_reader :lead, :current_admin, :errors
 

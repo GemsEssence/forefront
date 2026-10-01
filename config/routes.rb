@@ -31,6 +31,7 @@ Forefront::Engine.routes.draw do
       resources :installments, only: [ :create, :update ]
     end
     resource :lead_share, only: [ :create ]
+    resource :awaiting_customer, only: [ :create, :destroy ]
   end
 
   resources :customers
