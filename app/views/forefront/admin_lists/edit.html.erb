@@ -1,18 +1,18 @@
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">Rename source</h1>
+      <h1 class="text-3xl font-bold text-gray-900 mb-6">Rename <%= list_model.model_name.human.downcase %></h1>
 
       <%= render "forefront/shared/messages" %>
 
       <div class="bg-white shadow sm:rounded-lg p-6">
-        <%= form_with model: @source, url: source_path(@source), local: true, class: "space-y-6" do |f| %>
+        <%= form_with model: @record, url: url_for(action: :update, id: @record), method: :patch, local: true, class: "space-y-6" do |f| %>
           <div>
             <%= f.label :name, class: "block text-sm font-medium text-gray-700" %>
             <%= f.text_field :name, required: true, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
           </div>
           <div class="flex justify-end space-x-3">
-            <%= link_to "Cancel", sources_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
+            <%= link_to "Cancel", url_for(action: :index), class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
             <%= f.submit "Save", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
           </div>
         <% end %>

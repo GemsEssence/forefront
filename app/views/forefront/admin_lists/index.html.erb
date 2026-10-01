@@ -1,0 +1,50 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= list_model.model_name.human.pluralize %></h1>
+      <p class="text-sm text-gray-500 mb-6"><%= list_description %></p>
+
+      <%= render "forefront/shared/messages" %>
+
+      <%= form_with model: @record, url: url_for(action: :index), class: "mb-6 bg-white p-4 rounded-lg shadow flex gap-3 items-end" do |f| %>
+        <div class="flex-1">
+          <%= f.label :name, "New #{list_model.model_name.human.downcase}", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :name, required: true, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+        <%= f.submit "Add", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+      <% end %>
+
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <% if @records.any? %>
+          <table class="min-w-full divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200">
+              <% @records.each do |record| %>
+                <tr>
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900"><%= record.name %></td>
+                  <td class="px-4 py-3 text-sm">
+                    <% if record.active? %>
+                      <span class="text-green-700">Active</span>
+                    <% else %>
+                      <span class="text-gray-500">Inactive</span>
+                    <% end %>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-right space-x-3">
+                    <%= link_to "Rename", url_for(action: :edit, id: record), class: "text-indigo-600 hover:text-indigo-500" %>
+                    <%= button_to record.active? ? "Deactivate" : "Activate", url_for(action: :update, id: record), method: :patch,
+                          params: { list_model.model_name.param_key => { active: record.active? ? "0" : "1" } }, form_class: "inline", class: "text-indigo-600 hover:text-indigo-500" %>
+                    <%= button_to "Delete", url_for(action: :destroy, id: record), method: :delete, form_class: "inline",
+                          form: { data: { turbo_confirm: "Delete #{record.name}?" } }, class: "text-red-600 hover:text-red-500" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <div class="text-center py-12">
+            <p class="text-gray-500">Nothing here yet.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
