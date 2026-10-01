@@ -153,6 +153,30 @@
         </div>
       <% end %>
 
+      <div id="lead_tickets" class="mt-6">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-medium text-gray-900">Tickets</h2>
+          <%= link_to "New Ticket for this Lead", new_ticket_path(lead_id: @lead.id), class: "bg-indigo-600 text-white px-3 py-1 rounded text-sm" %>
+        </div>
+        <div class="bg-white shadow sm:rounded-lg">
+          <% if @lead_tickets.any? %>
+            <ul class="divide-y divide-gray-200">
+              <% @lead_tickets.each do |ticket| %>
+                <li class="px-4 py-3 flex items-center justify-between text-sm">
+                  <span>
+                    <%= link_to ticket.title, ticket_path(ticket), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                    <span class="text-gray-500">· <%= ticket.category.humanize %></span>
+                  </span>
+                  <span class="text-gray-500"><%= ticket.status.humanize %><%= " · #{ticket.assigned_to.name}" if ticket.assigned_to %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="px-4 py-3 text-sm text-gray-500">No tickets for this lead yet.</p>
+          <% end %>
+        </div>
+      </div>
+
       <% if @lead.active? && policy(@lead).update? %>
         <div class="mt-6 bg-white shadow sm:rounded-lg p-4">
           <% if @lead.awaiting_customer? %>

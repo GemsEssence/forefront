@@ -21,6 +21,7 @@ module Forefront
     def new
       @ticket = Ticket.new
       @ticket.customer_id = params[:customer_id] if params[:customer_id].present?
+      prefill_from_lead
       authorize @ticket
       @customers = Customer.all.order(:name)
       @admins = Admin.assignable
@@ -32,10 +33,11 @@ module Forefront
       @ticket.created_by = current_admin
       authorize @ticket
 
-      result = TicketOperations::Create.new(
-        params: ticket_params,
-        current_admin: current_admin
-      ).call
+      result = if lead_visible?
+        TicketOperations::Create.new(params: ticket_params, current_admin: current_admin).call
+      else
+        { success: false, ticket: @ticket, errors: [ "Lead not found" ] }
+      end
 
       if result[:success]
         redirect_to ticket_path(result[:ticket]), notice: 'Ticket was successfully created.'
@@ -56,11 +58,11 @@ module Forefront
     end
 
     def update
-      result = TicketOperations::Update.new(
-        ticket: @ticket,
-        params: ticket_params,
-        current_admin: current_admin
-      ).call
+      result = if lead_visible?
+        TicketOperations::Update.new(ticket: @ticket, params: ticket_params, current_admin: current_admin).call
+      else
+        { success: false, ticket: @ticket, errors: [ "Lead not found" ] }
+      end
 
       if result[:success]
         redirect_to ticket_path(result[:ticket]), notice: 'Ticket was successfully updated.'
@@ -86,6 +88,20 @@ module Forefront
 
     private
 
+    # A Ticket can only be put under a Lead the Staff member can see.
+    def lead_visible?
+      ticket_params[:lead_id].blank? || policy_scope(Lead).exists?(id: ticket_params[:lead_id])
+    end
+
+    # "New Ticket for this Lead" starts from the Lead's Customer, Product and
+    # assignee.
+    def prefill_from_lead
+      lead = policy_scope(Lead).find_by(id: params[:lead_id]) if params[:lead_id].present?
+      return unless lead
+
+      @ticket.assign_attributes(lead: lead, customer: lead.customer, product: lead.product, assigned_to: lead.assigned_to)
+    end
+
     def set_ticket
       @ticket = Ticket.find(params[:id])
     end
@@ -97,7 +113,7 @@ module Forefront
     def ticket_params
       params.require(:ticket).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :category, :priority, :status, :due_at, :next_followup_at, :product_id, :renewal_outcome
+        :category, :priority, :status, :due_at, :next_followup_at, :product_id, :renewal_outcome, :lead_id
       )
     end
 

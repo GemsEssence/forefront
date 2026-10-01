@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -265,6 +265,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000004) do
     t.bigint "customer_id", null: false
     t.text "description"
     t.date "due_at"
+    t.bigint "lead_id"
     t.datetime "next_followup_at", precision: nil
     t.string "priority", default: "medium", null: false
     t.bigint "product_id"
@@ -277,6 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000004) do
     t.index ["created_by_id"], name: "index_forefront_tickets_on_created_by_id"
     t.index ["customer_id"], name: "index_forefront_tickets_on_customer_id"
     t.index ["due_at"], name: "index_forefront_tickets_on_due_at"
+    t.index ["lead_id"], name: "index_forefront_tickets_on_lead_id"
     t.index ["next_followup_at"], name: "index_forefront_tickets_on_next_followup_at"
     t.index ["priority"], name: "index_forefront_tickets_on_priority"
     t.index ["product_id"], name: "index_forefront_tickets_on_product_id"
@@ -314,5 +316,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000004) do
   add_foreign_key "forefront_tickets", "forefront_admins", column: "assigned_to_id"
   add_foreign_key "forefront_tickets", "forefront_admins", column: "created_by_id"
   add_foreign_key "forefront_tickets", "forefront_customers", column: "customer_id"
+  add_foreign_key "forefront_tickets", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_tickets", "forefront_products", column: "product_id"
 end

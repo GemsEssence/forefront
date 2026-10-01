@@ -13,6 +13,7 @@ module Forefront
     has_one :payment, class_name: "Forefront::Payment", dependent: :destroy
     has_one :subscription, class_name: "Forefront::Subscription", dependent: :destroy
     has_one :lead_share, class_name: "Forefront::LeadShare", dependent: :destroy
+    has_many :tickets, class_name: "Forefront::Ticket", dependent: :nullify
 
     # The Lead's stage (CONTEXT.md): how far the sale has got. Changed only
     # through the stage dialog (StatusHistoryOperations), never the edit form.

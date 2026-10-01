@@ -20,6 +20,7 @@ module Forefront
     def show
       @activities = @lead.activities.recent
       @assignments = @lead.assignments.order(created_at: :desc)
+      @lead_tickets = @lead.tickets.includes(:assigned_to).order(:created_at)
       @admins = Admin.all.order(:name)
     end
 

@@ -4,22 +4,24 @@ module Forefront
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true
     belongs_to :product, class_name: "Forefront::Product", optional: true
+    belongs_to :lead, class_name: "Forefront::Lead", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
     has_many :followups, as: :followupable, class_name: 'Forefront::Followup', dependent: :destroy
 
     enum :category, {
-      tech: 'Tech',
-      issue: 'Issue',
-      request: 'Request',
-      complaint: 'Complaint',
-      demo: 'Demo',
-      plan_expired: 'Plan Expired',
-      regular_call: 'Regular Call',
-      new_requirement: 'New Requirement',
-      suggestion: 'Suggestion',
-      white_label_app: 'White Label App'
+      tech: "Tech",
+      issue: "Issue",
+      request: "Request",
+      complaint: "Complaint",
+      demo: "Demo",
+      proposal: "Proposal",
+      plan_expired: "Plan Expired",
+      regular_call: "Regular Call",
+      new_requirement: "New Requirement",
+      suggestion: "Suggestion",
+      white_label_app: "White Label App"
     }
 
     enum :priority, {
@@ -46,6 +48,7 @@ module Forefront
     validates :priority, presence: true
     validates :status, presence: true
     validate :assignee_is_not_an_admin, if: :will_save_change_to_assigned_to_id?
+    validate :matches_its_lead, if: :lead
 
     # Scopes for filtering
     scope :by_category, ->(category) { where(category: category) }
@@ -86,6 +89,14 @@ module Forefront
     end
 
     private
+
+    # Work under a Lead is about that Lead's sale; a renewal is about a
+    # Subscription instead, so it never sits under a Lead (ADR 0003).
+    def matches_its_lead
+      errors.add(:customer, "must be the lead's customer") if customer_id != lead.customer_id
+      errors.add(:product, "must be the lead's product") if product_id != lead.product_id
+      errors.add(:base, "A renewal ticket can't belong to a lead") if plan_expired?
+    end
 
     def assignee_is_not_an_admin
       errors.add(:assigned_to, "can't be an admin") if assigned_to&.admin?
