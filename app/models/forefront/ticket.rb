@@ -17,6 +17,7 @@ module Forefront
       complaint: "Complaint",
       demo: "Demo",
       proposal: "Proposal",
+      signup: "Signup",
       plan_expired: "Plan Expired",
       regular_call: "Regular Call",
       new_requirement: "New Requirement",

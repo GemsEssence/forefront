@@ -37,4 +37,10 @@ Forefront::Engine.routes.draw do
   end
 
   resources :customers
+
+  namespace :api do
+    namespace :v1 do
+      post "signup", to: "signups#create"
+    end
+  end
 end

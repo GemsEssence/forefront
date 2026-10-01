@@ -114,6 +114,46 @@ INR, USD, GBP, EUR, AED, AUD, CAD and SGD are formatted the way they're usually
 written; any other code is shown in front of the amount (e.g. `JPY 1,234.50`).
 This only changes how amounts are displayed — no conversion is done.
 
+## Phone numbers
+
+Customers are told apart by country code and phone number together. A phone
+entered without a country code gets the default, `+91` unless you change it:
+
+```ruby
+# config/initializers/forefront.rb
+Forefront.default_country_code = "+44"
+```
+
+## Signup API
+
+When a customer signs up in one of your products' own applications, that
+application can tell Forefront. Forefront finds the customer by country code and
+phone (or creates them) and opens an unassigned, high-priority "Signup" ticket
+asking the sales team to schedule a call.
+
+Each product has its own key. An Admin generates it on the product's edit page
+in Forefront. The key is shown only once, and regenerating it stops the old one
+working. Send the key as a bearer token:
+
+```
+POST /forefront/api/v1/signup
+Authorization: Bearer <the product's key>
+Content-Type: application/json
+
+{ "name": "Priya Shah", "country_code": "+91", "phone": "98765 43210",
+  "email": "priya@example.com", "external_id": "user-881" }
+```
+
+`name` and `phone` are required. `country_code` defaults to the setting above.
+`email` and `external_id` (the customer's id in your application) are optional.
+
+| Response | When |
+|---|---|
+| `201 {"status":"ok"}` | A ticket was opened |
+| `200 {"status":"ok"}` | The customer already has an open signup ticket for this product. A note is added to it instead of opening a second ticket |
+| `422 {"status":"error","errors":[...]}` | Something's missing or invalid |
+| `401 {"status":"error","errors":["Invalid API key"]}` | The key is missing, wrong or was regenerated |
+
 ## Usage
 
 Once installed, visit:
