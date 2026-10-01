@@ -44,6 +44,8 @@ module Forefront
     end
 
     def self.name_foreign_keys(model, changes)
+      return changes.to_h unless model.respond_to?(:reflect_on_all_associations)
+
       changes.to_h.each_with_object({}) do |(field, values), named|
         reflection = model.reflect_on_all_associations(:belongs_to).find { |r| !r.polymorphic? && r.foreign_key.to_s == field.to_s }
         if reflection

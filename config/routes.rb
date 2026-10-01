@@ -16,6 +16,7 @@ Forefront::Engine.routes.draw do
   resources :audit_events, path: "audit_log", only: [ :index ]
   resources :sources, only: [ :index, :create, :edit, :update, :destroy ]
   resources :lost_reasons, only: [ :index, :create, :edit, :update, :destroy ]
+  resource :settings, only: [ :show, :update ]
 
   get "unassigned", to: "unassigned#index", as: :unassigned
 

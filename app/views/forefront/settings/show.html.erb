@@ -1,0 +1,42 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <h1 class="text-3xl font-bold text-gray-900 mb-6">Settings</h1>
+
+      <%= render "forefront/shared/messages" %>
+
+      <%= form_with model: @settings, url: settings_path, method: :patch, scope: :settings, local: true, class: "space-y-6" do |f| %>
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h2 class="text-lg font-medium text-gray-900">Alerts</h2>
+          <p class="text-sm text-gray-500 mb-4">When Forefront alerts Staff, and whether it also emails them.</p>
+          <% [
+               [ :unassigned_alert_after_hours, "Work still unassigned after", "hours", :email_unassigned ],
+               [ :stale_after_hours, "Assigned work with no action for", "hours", :email_stale ],
+               [ :reveal_action_within_minutes, "Contact details revealed with no action for", "minutes", :email_unanswered_reveal ],
+               [ :installment_overdue_after_days, "Installment unpaid this long after it's due", "days", :email_installment_overdue ]
+             ].each do |limit, label, unit, email| %>
+            <div class="grid grid-cols-6 gap-3 items-center py-2">
+              <%= f.label limit, label, class: "col-span-3 text-sm text-gray-700" %>
+              <%= f.number_field limit, min: 1, step: 1, required: true, class: "col-span-1 rounded-md border-gray-300 shadow-sm text-sm" %>
+              <span class="text-sm text-gray-500"><%= unit %></span>
+              <label class="text-sm text-gray-700 flex items-center gap-1"><%= f.check_box email %> email</label>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="bg-white shadow sm:rounded-lg p-6">
+          <h2 class="text-lg font-medium text-gray-900">Customers</h2>
+          <div class="mt-3 grid grid-cols-6 gap-3 items-center">
+            <%= f.label :default_country_code, "Default country code", class: "col-span-3 text-sm text-gray-700" %>
+            <%= f.text_field :default_country_code, required: true, class: "col-span-1 rounded-md border-gray-300 shadow-sm text-sm" %>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Given to a phone number entered without one.</p>
+        </div>
+
+        <div class="flex justify-end">
+          <%= f.submit "Save settings", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -69,7 +69,7 @@ module Forefront
     def normalize_contact_details
       self.email = email.to_s.strip.presence
       typed = phone.to_s.strip.presence
-      self.country_code = country_code.to_s.strip.presence || (Forefront.default_country_code if typed)
+      self.country_code = country_code.to_s.strip.presence || (Forefront::Settings.current.default_country_code if typed)
       @foreign_country_code = false
       return self.phone = typed if typed.nil? || typed !~ PHONE_FORMAT
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_000013) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_000014) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -249,6 +249,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_000013) do
     t.index ["installment_id"], name: "index_forefront_receipts_on_installment_id"
     t.index ["payment_id"], name: "index_forefront_receipts_on_payment_id"
     t.index ["recorded_by_id"], name: "index_forefront_receipts_on_recorded_by_id"
+  end
+
+  create_table "forefront_settings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "key", null: false
+    t.datetime "updated_at", null: false
+    t.string "value"
+    t.index ["key"], name: "index_forefront_settings_on_key", unique: true
   end
 
   create_table "forefront_sources", force: :cascade do |t|

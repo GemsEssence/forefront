@@ -117,7 +117,9 @@ This only changes how amounts are displayed — no conversion is done.
 ## Phone numbers
 
 Customers are told apart by country code and phone number together. A phone
-entered without a country code gets the default, `+91` unless you change it:
+entered without a country code gets the default. Admins can change the default
+on Forefront's Settings page. Until they do, it's `+91`, or whatever you set
+in an initializer:
 
 ```ruby
 # config/initializers/forefront.rb

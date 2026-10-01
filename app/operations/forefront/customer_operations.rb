@@ -49,7 +49,7 @@ module Forefront
       private
 
       def country_code
-        params[:country_code].presence || Forefront.default_country_code
+        params[:country_code].presence || Forefront::Settings.current.default_country_code
       end
 
       def create

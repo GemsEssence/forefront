@@ -28,7 +28,7 @@
           </div>
           <div>
             <%= f.label :country_code, "Code", class: "block text-xs font-medium text-gray-500" %>
-            <%= f.text_field :country_code, value: Forefront.default_country_code, class: "mt-1 block w-full border rounded" %>
+            <%= f.text_field :country_code, value: Forefront::Settings.current.default_country_code, class: "mt-1 block w-full border rounded" %>
           </div>
           <div class="md:col-span-2">
             <%= f.label :phone, class: "block text-xs font-medium text-gray-500" %>
