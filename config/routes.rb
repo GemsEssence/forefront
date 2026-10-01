@@ -17,7 +17,10 @@ Forefront::Engine.routes.draw do
   resources :sources, only: [ :index, :create, :edit, :update, :destroy ]
   resources :lost_reasons, only: [ :index, :create, :edit, :update, :destroy ]
 
+  get "unassigned", to: "unassigned#index", as: :unassigned
+
   resources :tickets do
+    resource :take, only: [ :create ]
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
     resources :assignments, only: [:create], controller: 'assignments'
     resources :status_histories, only: [:create], controller: 'status_histories'
@@ -25,6 +28,7 @@ Forefront::Engine.routes.draw do
   end
 
   resources :leads do
+    resource :take, only: [ :create ]
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
     resources :assignments, only: [:create], controller: 'assignments'
     resources :status_histories, only: [:create], controller: 'status_histories'

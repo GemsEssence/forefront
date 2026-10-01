@@ -1,5 +1,7 @@
 module Forefront
   class TicketPolicy
+    include UnassignedPool
+
     attr_reader :current_admin, :ticket
 
     def initialize(current_admin, ticket)
@@ -12,7 +14,7 @@ module Forefront
     end
 
     def show?
-      super_admin? || owner? || assignee? || manages_owner_or_assignee?
+      super_admin? || owner? || assignee? || manages_owner_or_assignee? || pooled_for_me?
     end
 
     def create?
@@ -36,7 +38,7 @@ module Forefront
     end
 
     def change_assignee?
-      super_admin? || assignee? || manages_owner_or_assignee?
+      super_admin? || assignee? || manages_owner_or_assignee? || manages_pool?
     end
 
     class Scope
@@ -51,12 +53,13 @@ module Forefront
         elsif @current_admin.manager?
           ids = @current_admin.direct_report_ids << @current_admin.id
           @scope.where("created_by_id IN (:ids) OR assigned_to_id IN (:ids)", ids: ids)
+                .or(UnassignedPool.visible_to(@current_admin, @scope))
         else
           @scope.where(
             "created_by_id = ? OR assigned_to_id = ?",
             @current_admin.id,
             @current_admin.id
-          )
+          ).or(UnassignedPool.visible_to(@current_admin, @scope))
         end
       end
 
@@ -71,6 +74,10 @@ module Forefront
 
     def super_admin?
       current_admin.super_admin?
+    end
+
+    def record_in_pool
+      ticket
     end
 
     def owner?
