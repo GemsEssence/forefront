@@ -4,6 +4,7 @@ module Forefront
 
     def create
       authorize @trackable, :update?
+      authorize @trackable, :reopen? if reopening_lead?
 
       result = Forefront::StatusHistoryOperations::Create.new(
         trackable: @trackable,
@@ -31,6 +32,11 @@ module Forefront
       else
         raise ActiveRecord::RecordNotFound
       end
+    end
+
+    def reopening_lead?
+      @trackable.is_a?(Lead) && (@trackable.won? || @trackable.lost?) &&
+        status_history_params[:status].present? && status_history_params[:status] != @trackable.status
     end
 
     def status_history_params

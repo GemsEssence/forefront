@@ -35,6 +35,12 @@ module Forefront
       super_admin?
     end
 
+    # Moving a Lead out of Won or Lost undoes a recorded outcome, so it takes
+    # an Admin, or a Manager responsible for the Lead.
+    def reopen?
+      super_admin? || (current_admin.manager? && (owner? || assignee? || manages_owner_or_assignee?))
+    end
+
     def change_assignee?
       super_admin? || assignee? || manages_owner_or_assignee?
     end

@@ -35,12 +35,14 @@ module Forefront
     validate :source_is_active, if: :will_save_change_to_source_id?
     validate :agreement_only_for_white_label
     validate :lost_with_reason_and_note, if: -> { lost? && will_save_change_to_status? }
+    validate :paid_win_is_final, if: -> { will_save_change_to_status? && status_in_database == "won" }
     validates :status, presence: true
     validate :product_allocated_to_sales_person
 
     before_save :set_won_at, if: :status_changed?
     before_save :forget_lost_reason, unless: :lost?
     after_save :ensure_subscription
+    after_save :drop_subscription, if: -> { saved_change_to_status? && status_before_last_save == "won" }
 
     # Scopes for filtering
     scope :by_source, ->(source_id) { where(source_id: source_id) }
@@ -136,6 +138,18 @@ module Forefront
         errors.add(:lost_reason, "is no longer in use")
       end
       errors.add(:base, "Note is required when a lead is lost") if lost_note.blank?
+    end
+
+    # Once money is recorded against the sale, the win can't be taken back.
+    def paid_win_is_final
+      errors.add(:base, "A won lead with a payment recorded can't change stage") if payment.present?
+    end
+
+    # An undone win never was a sale, so it no longer gives the Customer a
+    # Subscription to renew.
+    def drop_subscription
+      subscription&.destroy!
+      reset_subscription
     end
 
     def forget_lost_reason
