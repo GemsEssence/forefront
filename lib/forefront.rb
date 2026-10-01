@@ -14,4 +14,8 @@ module Forefront
   # The country code a Customer's phone number gets when none is given, e.g.
   # "+44". Customers are matched by country code and phone together.
   mattr_accessor :default_country_code, default: "+91"
+
+  # The From address of the alert emails Forefront sends. Mail goes out
+  # through the host app's own Action Mailer settings.
+  mattr_accessor :mailer_sender, default: "forefront@example.com"
 end

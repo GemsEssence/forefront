@@ -3,6 +3,13 @@ module Forefront
     # Raises one kind of alert about one record for each recipient, at most
     # once per dedupe key, so running the same check again changes nothing.
     class Notify
+      # Which Settings switch decides whether a kind is also emailed. The
+      # immediate "unassigned" alert is shown in Forefront only.
+      EMAIL_SETTINGS = {
+        "still_unassigned" => :email_unassigned, "stale" => :email_stale,
+        "unanswered_reveal" => :email_unanswered_reveal, "installment_overdue" => :email_installment_overdue
+      }.freeze
+
       def initialize(kind:, subject:, recipients:, message:, key: "")
         @kind = kind
         @subject = subject
@@ -13,10 +20,22 @@ module Forefront
 
       def call
         @recipients.reject(&:system?).map do |recipient|
-          Notification.create_or_find_by!(recipient: recipient, kind: @kind, subject: @subject, dedupe_key: @key) do |notification|
-            notification.message = @message
+          notification = Notification.create_or_find_by!(recipient: recipient, kind: @kind, subject: @subject, dedupe_key: @key) do |new_one|
+            new_one.message = @message
           end
+          email(notification) if notification.previously_new_record?
+          notification
         end
+      end
+
+      private
+
+      def email(notification)
+        setting = EMAIL_SETTINGS[@kind]
+        return unless setting && Settings.current.public_send(setting)
+
+        NotificationMailer.alert(notification).deliver_now
+        notification.update_column(:emailed_at, Time.current)
       end
     end
 

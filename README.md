@@ -126,6 +126,40 @@ in an initializer:
 Forefront.default_country_code = "+44"
 ```
 
+## Alerts
+
+Forefront alerts Staff in the app (a Notifications bell) and by email when:
+- work is left unassigned
+- assigned work goes stale (nobody has acted on it)
+- someone reveals a customer's contact details and records nothing afterwards
+- an installment is overdue
+
+Admins set the time limits, and which alerts are emailed, on the Settings page.
+
+New unassigned work is announced straight away. The other alerts come from a
+check that your app needs to run on a schedule, for example every 15 minutes.
+Either enqueue the job from whatever scheduler you use:
+
+```ruby
+Forefront::NotificationSweepJob.perform_later
+```
+
+or run the rake task from cron:
+
+```
+*/15 * * * * cd /path/to/app && bin/rails forefront:notify
+```
+
+Running it more often is safe: each alert is raised and emailed only once.
+Emails go out through your app's Action Mailer settings. Set the From address
+in an initializer, and make sure `config.action_mailer.default_url_options`
+is set so the links in the emails work:
+
+```ruby
+# config/initializers/forefront.rb
+Forefront.mailer_sender = "sales-alerts@yourcompany.com"
+```
+
 ## Signup API
 
 When a customer signs up in one of your products' own applications, that
