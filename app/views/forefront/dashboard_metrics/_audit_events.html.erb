@@ -1,0 +1,11 @@
+<table data-records class="min-w-full divide-y divide-gray-200 text-sm">
+  <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">What</th><th class="px-4 py-2 text-left">Record</th><th class="px-4 py-2 text-left">By</th><th class="px-4 py-2 text-left">When</th></tr></thead>
+  <tbody class="divide-y divide-gray-100">
+    <% records.includes(:actor, :auditable).each do |event| %>
+      <tr><td class="px-4 py-2"><%= event.action.humanize %></td>
+          <td class="px-4 py-2"><%= event.auditable ? subject_link(event.auditable) : event.auditable_label %></td>
+          <td class="px-4 py-2"><%= event.actor&.name %></td>
+          <td class="px-4 py-2"><%= event.created_at.strftime("%-d %b %H:%M") %></td></tr>
+    <% end %>
+  </tbody>
+</table>

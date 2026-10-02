@@ -109,6 +109,38 @@ module Forefront
         scope.subscriptions.where(expires_at: Date.current..(Date.current + 30))
              .where("NOT EXISTS (#{contacted.select('1').to_sql})")
       end
+
+      # My activity / Performance per person
+      ACTIVITY = %i[demos proposals conversions won lost].freeze
+
+      def self.moved_into(scope, stage, by_people:)
+        moves = StatusHistory.where(trackable_type: Lead.name, new_status: Lead.statuses.fetch(stage), created_at: scope.period.times)
+        moves = by_people && scope.people_ids ? moves.where(changed_by_id: scope.people_ids) : moves
+        leads = by_people ? (scope.product_id ? Lead.where(product_id: scope.product_id) : nil) : scope.leads
+        leads ? moves.where(trackable_id: leads.select(:id)) : moves
+      end
+
+      define :demos, title: "Demos given", kind: :status_histories, periodic: true do |scope, _|
+        moved_into(scope, "demo", by_people: true)
+      end
+
+      define :proposals, title: "Proposals sent", kind: :status_histories, periodic: true do |scope, _|
+        moved_into(scope, "proposal", by_people: true)
+      end
+
+      define :conversions, title: "Tickets converted to leads", kind: :audit_events, periodic: true do |scope, _|
+        events = AuditEvent.where(action: "converted", auditable_type: Ticket.name, created_at: scope.period.times)
+        events = events.where(actor_id: scope.people_ids) if scope.people_ids
+        scope.product_id ? events.where(auditable_id: Ticket.where(product_id: scope.product_id).select(:id)) : events
+      end
+
+      define :won, title: "Leads won", kind: :leads, periodic: true do |scope, _|
+        scope.leads.won.where(won_at: scope.period.times)
+      end
+
+      define :lost, title: "Leads lost", kind: :status_histories, periodic: true do |scope, _|
+        moved_into(scope, "lost", by_people: false)
+      end
     end
   end
 end

@@ -1,0 +1,8 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "My activity" } do %>
+  <dl class="grid grid-cols-5 gap-3 text-sm">
+    <% Forefront::Dashboard::Metrics::ACTIVITY.each do |key| %>
+      <div><dt class="text-xs text-gray-500"><%= Forefront::Dashboard::Metrics.fetch(key).title %></dt>
+        <dd class="text-xl font-semibold"><%= metric_link key, scope %><%= metric_change key, scope %></dd></div>
+    <% end %>
+  </dl>
+<% end %>
