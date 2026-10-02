@@ -1,160 +1,21 @@
-<div class="mb-6">
-  <h2 class="text-2xl font-bold text-gray-900 mb-4">Dashboard</h2>
-  <p class="text-gray-600">Welcome to the Forefront ticket and lead management system.</p>
-  <% if Forefront::MyWorkPolicy.new(current_admin).index? %>
-    <% my_work = Forefront::MyWork.new(current_admin).sections %>
-    <p class="mt-2 text-sm" data-my-work-summary>
-      <%= link_to "My work", my_work_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>:
-      <span class="<%= 'text-red-700 font-medium' if my_work['overdue'].any? %>"><%= my_work["overdue"].size %> overdue</span>
-      · <%= my_work["today"].size %> due today · <%= my_work["next_7_days"].size %> in the next 7 days
-    </p>
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+  <h2 class="text-2xl font-bold text-gray-900"><%= { "my_day" => "My Day", "team" => "Team", "company" => "Company" }.fetch(@dashboard) %></h2>
+  <% if current_admin.manager? %>
+    <nav class="flex gap-2 text-sm">
+      <%= link_to "Team", root_path, class: "rounded-md px-3 py-1 #{@dashboard == 'team' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'}" %>
+      <%= link_to "My Day", root_path(tab: "my_day"), class: "rounded-md px-3 py-1 #{@dashboard == 'my_day' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'}" %>
+    </nav>
   <% end %>
 </div>
 
-<div class="bg-white shadow rounded-lg p-4 mb-6">
-  <%= form_with url: root_path, method: :get, local: true, class: "flex flex-wrap items-end gap-4" do %>
-    <div>
-      <label class="block text-xs font-medium text-gray-500">From</label>
-      <input type="date" name="from" value="<%= @from %>" class="mt-1 block rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-    </div>
-    <div>
-      <label class="block text-xs font-medium text-gray-500">To</label>
-      <input type="date" name="to" value="<%= @to %>" class="mt-1 block rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-    </div>
-    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">Filter</button>
-    <% if @from || @to %>
-      <%= link_to "Clear", root_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
-    <% end %>
-    <div class="flex gap-3 ml-auto text-sm">
-      <%= link_to "This Month", root_path(from: Date.current.beginning_of_month, to: Date.current.end_of_month), class: "text-indigo-600 hover:text-indigo-500" %>
-      <%= link_to "This Quarter", root_path(from: Date.current.beginning_of_quarter, to: Date.current.end_of_quarter), class: "text-indigo-600 hover:text-indigo-500" %>
-      <%= link_to "This Year", root_path(from: Date.current.beginning_of_year, to: Date.current.end_of_year), class: "text-indigo-600 hover:text-indigo-500" %>
-    </div>
-  <% end %>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
-    <dt class="text-sm font-medium text-gray-500 truncate">Revenue Collected</dt>
-    <dd class="text-2xl font-semibold text-gray-900 mt-1"><%= format_money(@summary.total_revenue) %></dd>
-  </div>
-
-  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
-    <dt class="text-sm font-medium text-gray-500 truncate">Leads Won / Open</dt>
-    <dd class="text-2xl font-semibold text-gray-900 mt-1"><%= @summary.won_leads_count %> / <%= @summary.open_leads_count %></dd>
-  </div>
-
-  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
-    <dt class="text-sm font-medium text-gray-500 truncate">Targets Achieved / Missed</dt>
-    <dd class="text-2xl font-semibold text-gray-900 mt-1">
-      <span class="text-green-700"><%= @summary.target_summary[:achieved] %></span> /
-      <span class="text-red-700"><%= @summary.target_summary[:missed] %></span>
-      <span class="text-sm text-gray-500 font-normal">(<%= @summary.target_summary[:in_progress] %> in progress)</span>
-    </dd>
-  </div>
-
-  <div class="bg-white overflow-hidden shadow rounded-lg p-5">
-    <dt class="text-sm font-medium text-gray-500 truncate">Overdue Followups</dt>
-    <dd class="text-2xl font-semibold <%= @summary.overdue_followups_count > 0 ? 'text-red-700' : 'text-gray-900' %> mt-1"><%= @summary.overdue_followups_count %></dd>
-  </div>
-</div>
-
-<% if @summary.show_leaderboard? %>
-  <div class="bg-white shadow rounded-lg p-6 mb-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Leaderboard</h3>
-    <% leaderboard = @summary.leaderboard %>
-    <% if leaderboard.any? %>
-      <ol class="divide-y divide-gray-200">
-        <% leaderboard.each_with_index do |row, index| %>
-          <li class="py-2 flex items-center justify-between">
-            <span class="text-sm text-gray-900"><%= index + 1 %>. <%= row[:admin].name %></span>
-            <span class="text-sm font-medium text-gray-900"><%= format_money(row[:revenue]) %></span>
-          </li>
-        <% end %>
-      </ol>
-    <% else %>
-      <p class="text-sm text-gray-500">No sales persons yet.</p>
-    <% end %>
-  </div>
+<% if Forefront::MyWorkPolicy.new(current_admin).index? %>
+  <% my_work = Forefront::MyWork.new(current_admin).sections %>
+  <p class="mb-4 text-sm" data-my-work-summary>
+    <%= link_to "My work", my_work_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>:
+    <span class="<%= 'text-red-700 font-medium' if my_work['overdue'].any? %>"><%= my_work["overdue"].size %> overdue</span>
+    · <%= my_work["today"].size %> due today · <%= my_work["next_7_days"].size %> in the next 7 days
+  </p>
 <% end %>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-  <div class="bg-white overflow-hidden shadow rounded-lg">
-    <div class="p-5">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-            <span class="text-indigo-600 font-medium">T</span>
-          </div>
-        </div>
-        <div class="ml-5 w-0 flex-1">
-          <dl>
-            <dt class="text-sm font-medium text-gray-500 truncate">Total Tickets</dt>
-            <dd class="text-lg font-medium text-gray-900"><%= Forefront::Ticket.count %></dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-    <div class="bg-gray-50 px-5 py-3">
-      <div class="text-sm">
-        <%= link_to "View all tickets", tickets_path, class: "font-medium text-indigo-700 hover:text-indigo-900" %>
-      </div>
-    </div>
-  </div>
-
-  <div class="bg-white overflow-hidden shadow rounded-lg">
-    <div class="p-5">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-            <span class="text-green-600 font-medium">L</span>
-          </div>
-        </div>
-        <div class="ml-5 w-0 flex-1">
-          <dl>
-            <dt class="text-sm font-medium text-gray-500 truncate">Total Leads</dt>
-            <dd class="text-lg font-medium text-gray-900"><%= Forefront::Lead.count %></dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-    <div class="bg-gray-50 px-5 py-3">
-      <div class="text-sm">
-        <%= link_to "View all leads", leads_path, class: "font-medium text-indigo-700 hover:text-indigo-900" %>
-      </div>
-    </div>
-  </div>
-
-  <div class="bg-white overflow-hidden shadow rounded-lg">
-    <div class="p-5">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <span class="text-blue-600 font-medium">C</span>
-          </div>
-        </div>
-        <div class="ml-5 w-0 flex-1">
-          <dl>
-            <dt class="text-sm font-medium text-gray-500 truncate">Total Customers</dt>
-            <dd class="text-lg font-medium text-gray-900"><%= Forefront::Customer.count %></dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-    <div class="bg-gray-50 px-5 py-3">
-      <div class="text-sm">
-        <%= link_to "View all customers", customers_path, class: "font-medium text-indigo-700 hover:text-indigo-900" %>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="bg-white shadow rounded-lg p-6">
-  <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-  <div class="flex flex-wrap gap-3">
-    <%= link_to "New Ticket", new_ticket_path, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
-    <%= link_to "New Lead", new_lead_path, class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
-    <%= link_to "New Customer", new_customer_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
-  </div>
-</div>
-
+<%= render "forefront/dashboard/filters", scope: @scope %>
+<%= render "forefront/dashboard/#{@dashboard}", scope: @scope %>

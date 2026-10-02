@@ -20,3 +20,36 @@ class ActiveSupport::TestCase
     Forefront::Source.find_or_create_by!(name: name)
   end
 end
+
+# For the role dashboards: read the numbers off the page and the records
+# behind them, the way the browser sees them.
+module DashboardTestHelpers
+  def sign_in_as(admin, password: "password123")
+    delete "/forefront/admins/sign_out"
+    get "/forefront/admins/sign_in"
+    post "/forefront/admins/sign_in", params: { admin: { email: admin.email, password: password } }
+  end
+
+  def dashboard_staff(name, role, manager: nil)
+    Forefront::Admin.create!(name: name, email: "#{name.parameterize}-#{SecureRandom.hex(4)}@example.com",
+                             password: "password123", role: role, manager: manager)
+  end
+
+  # The number a metric shows on the page just fetched (outside per-person rows unless member: is given).
+  def metric(key, slice: nil, member: nil)
+    selector = +"[data-metric='#{key}']"
+    selector << "[data-slice='#{slice}']" if slice
+    selector << (member ? "[data-member='#{member.id}']" : ":not([data-member])")
+    css_select(selector).first&.text&.squish
+  end
+
+  # The rows listed behind a metric.
+  def drill(key, **params)
+    get "/forefront/dashboard/metrics/#{key}", params: params
+    css_select("table[data-records] tbody tr").map { |row| row.text.squish }
+  end
+
+  def widget(title)
+    css_select("section[data-widget='#{title}']").first
+  end
+end
