@@ -33,4 +33,39 @@ class Forefront::Dashboard::SharedWithMeTest < ActionDispatch::IntegrationTest
     get "/forefront/dashboard/metrics/shared_with_me"
     assert_redirected_to "/forefront/"
   end
+
+  test "leads I own, and leads shared only between other people, are not counted" do
+    joint = Forefront::Lead.create!(title: "Joint Deal", description: "D", customer: @customer, created_by: @owner, assigned_to: @rep, source: forefront_source)
+    joint.assignments.create!(to_user: @rep, changed_by: @owner)
+    joint.assignments.create!(to_user: @owner, from_user: @rep, changed_by: @rep)
+    joint.update!(assigned_to: @owner)
+    share_lead(joint, @owner => 70, @rep => 30)
+
+    mine = Forefront::Lead.create!(title: "My Own Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source)
+    mine.assignments.create!(to_user: @rep, changed_by: @rep)
+    mine.assignments.create!(to_user: @owner, from_user: @rep, changed_by: @rep)
+    share_lead(mine, @rep => 60, @owner => 40)
+
+    third = dashboard_staff("Tara Third", "sales_person")
+    others = Forefront::Lead.create!(title: "Their Deal", description: "D", customer: @customer, created_by: @owner, assigned_to: @owner, source: forefront_source)
+    others.assignments.create!(to_user: @owner, changed_by: @owner)
+    others.assignments.create!(to_user: third, from_user: @owner, changed_by: @owner)
+    share_lead(others, @owner => 50, third => 50)
+    sign_in_as(@rep)
+
+    get "/forefront/"
+
+    assert_equal "1", metric(:shared_with_me)
+    rows = drill(:shared_with_me)
+    assert_equal 1, rows.size
+    assert_match "Joint Deal", rows.first
+  end
+
+  private
+
+  def share_lead(lead, percentages)
+    share = Forefront::LeadShare.new(lead: lead, recorded_by: @owner)
+    percentages.each { |admin, percentage| share.lead_share_participants.build(admin: admin, percentage: percentage) }
+    share.save!
+  end
 end

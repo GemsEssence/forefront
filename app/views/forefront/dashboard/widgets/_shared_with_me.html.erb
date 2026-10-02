@@ -1,7 +1,7 @@
 <%= render layout: "forefront/dashboard/widget", locals: { title: "Shared with me" } do %>
   <p class="text-sm text-gray-600 mb-2"><%= metric_link :shared_with_me, scope %> leads</p>
   <ul class="text-sm divide-y divide-gray-100">
-    <% Forefront::Dashboard::Metrics.fetch(:shared_with_me).relation(scope).includes(lead_share: :lead_share_participants).limit(10).each do |lead| %>
+    <% Forefront::Dashboard::Metrics.fetch(:shared_with_me).relation(scope).includes(lead_share: :lead_share_participants).order(:created_at, :id).limit(10).each do |lead| %>
       <% mine = lead.lead_share.lead_share_participants.select { |participant| scope.people_ids.include?(participant.admin_id) }.sum(&:percentage) %>
       <% next_followup = lead.followups.pending.order(:scheduled_for).first %>
       <li class="py-1"><%= subject_link(lead) %> · <%= number_to_percentage(mine, precision: 0) %>
