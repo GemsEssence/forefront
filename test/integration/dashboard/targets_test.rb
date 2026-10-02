@@ -28,12 +28,24 @@ class Forefront::Dashboard::TargetsTest < ActionDispatch::IntegrationTest
   end
 
   test "the team target totals each kind of target and shows each person's progress" do
+    second = dashboard_staff("Rita Rep", "sales_person", manager: @manager)
+    @product.admins << second
+    counted = Forefront::Target.create!(admin: second, product: @product, metric: "lead_count", period: "monthly",
+                                        goal_value: 4, starts_on: Date.current.beginning_of_month)
+    Forefront::Lead.create!(title: "Ravi win", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep,
+                            source: forefront_source, product: @product, status: "won", actual_amount: 2_500)
+    Forefront::Lead.create!(title: "Rita win", description: "D", customer: @customer, created_by: second, assigned_to: second,
+                            source: forefront_source, product: @product, status: "won", actual_amount: 1_000)
     sign_in_as(@manager)
 
     get "/forefront/"
 
-    assert_match "₹0.00 of ₹10,000.00", widget("team_target").text
-    assert_match "Ravi Rep", widget("team_target").text
+    text = widget("team_target").text.squish
+    assert_match "Amount: ₹2,500.00 of ₹10,000.00", text
+    assert_match "Lead count: 1.0 of 4.0", text
+    assert_match "Ravi Rep", text
+    assert_match "Rita Rep", text
+    assert_equal "1.0", metric(:target_credit, slice: counted.id)
   end
 
   test "a target outside the viewer's scope can't be drilled into" do

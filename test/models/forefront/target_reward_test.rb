@@ -61,6 +61,7 @@ class Forefront::TargetRewardTest < ActiveSupport::TestCase
     assert_equal 25, target.total_payout
 
     win_lead(won_at: Time.utc(2026, 3, 10))
+    target.reload
 
     assert_equal 40, target.bonus_amount
     assert_equal 65, target.total_payout

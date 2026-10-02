@@ -33,18 +33,16 @@ module Forefront
     # amount: the same shares applied to each won Lead's actual amount (Leads
     # won before actual amounts were recorded add nothing).
     def achieved_value
-      won_leads_in_period = product.leads.won.where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
-      credited = won_leads_in_period.map { |lead| [ lead, lead.share_fraction_for(admin_id) ] }.select { |_, share| share.positive? }
+      @achieved_value ||= begin
+        credited = won_leads_in_period.map { |lead| [ lead, lead.share_fraction_for(admin_id) ] }.select { |_, share| share.positive? }
 
-      return credited.sum { |_, share| share } if lead_count?
-
-      credited.sum { |lead, share| lead.actual_amount.to_d * share }
+        lead_count? ? credited.sum { |_, share| share } : credited.sum { |lead, share| lead.actual_amount.to_d * share }
+      end
     end
 
     # The won Leads behind achieved_value.
     def credited_leads
-      won = product.leads.won.where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
-      Lead.where(id: won.select { |lead| lead.share_fraction_for(admin_id).positive? }.map(&:id))
+      Lead.where(id: won_leads_in_period.select { |lead| lead.share_fraction_for(admin_id).positive? }.map(&:id))
     end
 
     def days_left
@@ -55,6 +53,11 @@ module Forefront
     def daily_run_rate
       remaining = [ goal_value - achieved_value, 0 ].max
       days_left.zero? ? remaining : remaining / days_left
+    end
+
+    def reload(*)
+      @achieved_value = nil
+      super
     end
 
     def achieved?
@@ -88,6 +91,10 @@ module Forefront
     end
 
     private
+
+    def won_leads_in_period
+      product.leads.won.where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
+    end
 
     def starts_on_is_calendar_aligned
       return if starts_on.blank? || period.blank?
