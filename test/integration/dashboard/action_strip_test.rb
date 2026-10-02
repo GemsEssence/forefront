@@ -38,9 +38,15 @@ class Forefront::Dashboard::ActionStripTest < ActionDispatch::IntegrationTest
 
   test "a sales person can't drill into someone else's records by naming them" do
     followup(lead("Otto's", @outsider), @outsider, 2.hours.ago)
+    followup(lead("Ravi's", @rep), @rep, 2.hours.ago)
     sign_in_as(@rep)
 
-    assert_empty drill(:overdue_followups, member_id: @outsider.id)
+    rows = drill(:overdue_followups, member_id: @outsider.id)
+
+    assert_response :success
+    assert_equal 1, rows.size
+    assert_match "Ravi's", rows.first
+    assert_no_match(/Otto's/, rows.join)
   end
 
   test "an unknown metric is not found" do
