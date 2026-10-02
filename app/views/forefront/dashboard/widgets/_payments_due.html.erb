@@ -1,0 +1,9 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Payments due" } do %>
+  <dl class="grid grid-cols-3 gap-4 text-sm">
+    <div><dt class="text-xs text-gray-500">Awaiting payment</dt><dd class="text-2xl font-semibold"><%= metric_link :awaiting_payment, scope %></dd></div>
+    <div><dt class="text-xs text-gray-500">Instalments due (7 days)</dt><dd class="text-2xl font-semibold"><%= metric_link :instalments_due, scope %></dd>
+      <dd class="text-xs"><%= metric_link :instalments_due, scope, sum: :amount, money: true %></dd></div>
+    <div><dt class="text-xs text-gray-500">Overdue instalments</dt><dd class="text-2xl font-semibold text-red-700"><%= metric_link :instalments_overdue, scope %></dd>
+      <dd class="text-xs"><%= metric_link :instalments_overdue, scope, sum: :amount, money: true %></dd></div>
+  </dl>
+<% end %>

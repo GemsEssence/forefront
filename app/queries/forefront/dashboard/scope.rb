@@ -118,6 +118,14 @@ module Forefront
         targets.select { |target| target.ends_on >= Date.current }
       end
 
+      def installments
+        Installment.where(payment_id: Payment.where(lead_id: leads.select(:id)).select(:id))
+      end
+
+      def receipts
+        Receipt.where(payment_id: Payment.where(lead_id: leads.select(:id)).select(:id))
+      end
+
       private
 
       def narrow(relation)

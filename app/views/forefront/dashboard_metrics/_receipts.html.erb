@@ -1,0 +1,12 @@
+<table data-records class="min-w-full divide-y divide-gray-200 text-sm">
+  <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Lead</th><th class="px-4 py-2 text-left">Received</th><th class="px-4 py-2 text-left">Method</th><th class="px-4 py-2 text-left">Recorded by</th><th class="px-4 py-2 text-right">Amount</th></tr></thead>
+  <tbody class="divide-y divide-gray-100">
+    <% records.includes(:recorded_by, payment: :lead).each do |receipt| %>
+      <tr><td class="px-4 py-2"><%= subject_link(receipt.payment.lead) %></td>
+          <td class="px-4 py-2"><%= receipt.received_on.strftime("%-d %b %Y") %></td>
+          <td class="px-4 py-2"><%= receipt.payment_method.to_s.humanize %></td>
+          <td class="px-4 py-2"><%= receipt.recorded_by&.name %></td>
+          <td class="px-4 py-2 text-right"><%= format_money(receipt.amount) %></td></tr>
+    <% end %>
+  </tbody>
+</table>

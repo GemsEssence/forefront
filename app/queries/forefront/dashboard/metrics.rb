@@ -77,6 +77,24 @@ module Forefront
         leads = Lead.where(id: mine).where.not(assigned_to_id: scope.people_ids)
         scope.product_id ? leads.where(product_id: scope.product_id) : leads
       end
+
+      # Payments due / Payments
+      define :awaiting_payment, title: "Won leads awaiting payment", kind: :leads do |scope, _|
+        won = scope.leads.won
+        won.where.not(id: Payment.select(:lead_id)).or(won.where(id: Payment.pending.select(:lead_id)))
+      end
+
+      define :instalments_due, title: "Instalments due in the next 7 days", kind: :installments do |scope, _|
+        scope.installments.pending.where(due_on: Date.current..(Date.current + 7))
+      end
+
+      define :instalments_overdue, title: "Overdue instalments", kind: :installments do |scope, _|
+        scope.installments.pending.where("due_on < ?", Date.current)
+      end
+
+      define :receipts_received, title: "Receipts", kind: :receipts, periodic: true do |scope, _|
+        scope.receipts.where(received_on: scope.period.dates)
+      end
     end
   end
 end

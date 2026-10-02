@@ -1,0 +1,11 @@
+<table data-records class="min-w-full divide-y divide-gray-200 text-sm">
+  <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Lead</th><th class="px-4 py-2 text-left">Assigned to</th><th class="px-4 py-2 text-left">Due</th><th class="px-4 py-2 text-right">Amount</th></tr></thead>
+  <tbody class="divide-y divide-gray-100">
+    <% records.includes(payment: { lead: :assigned_to }).each do |installment| %>
+      <tr><td class="px-4 py-2"><%= subject_link(installment.payment.lead) %></td>
+          <td class="px-4 py-2"><%= installment.payment.lead.assigned_to&.name %></td>
+          <td class="px-4 py-2"><%= installment.due_on.strftime("%-d %b %Y") %></td>
+          <td class="px-4 py-2 text-right"><%= format_money(installment.amount) %></td></tr>
+    <% end %>
+  </tbody>
+</table>
