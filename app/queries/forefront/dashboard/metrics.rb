@@ -70,6 +70,13 @@ module Forefront
         target = scope.current_targets.find { |current| current.id == target_id.to_i }
         target ? target.credited_leads : Lead.none
       end
+
+      # Shared with me
+      define :shared_with_me, title: "Leads shared with me", kind: :leads, roles: %w[sales_person manager] do |scope, _|
+        mine = LeadShareParticipant.joins(:lead_share).where(admin_id: scope.people_ids).select("forefront_lead_shares.lead_id")
+        leads = Lead.where(id: mine).where.not(assigned_to_id: scope.people_ids)
+        scope.product_id ? leads.where(product_id: scope.product_id) : leads
+      end
     end
   end
 end
