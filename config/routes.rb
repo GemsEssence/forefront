@@ -7,6 +7,7 @@ Forefront::Engine.routes.draw do
     }
 
   root to: "dashboard#index"
+  get "dashboard/metrics/:key", to: "dashboard_metrics#show", as: :dashboard_metric
 
   resources :admins, path: "staff", only: [ :index, :new, :create, :edit, :update ]
   resources :products, only: [ :index, :new, :create, :edit, :update ] do

@@ -1,0 +1,9 @@
+<div class="mb-4">
+  <%= link_to "← Dashboard", root_path(@scope.to_params), class: "text-sm text-indigo-600 hover:underline" %>
+  <h1 class="mt-2 text-2xl font-bold text-gray-900"><%= @metric.title %></h1>
+  <p class="text-sm text-gray-500"><%= @scope.description %><%= " · #{params[:slice].to_s.humanize}" if params[:slice].present? %></p>
+</div>
+<div class="bg-white shadow rounded-lg overflow-x-auto">
+  <%= render "forefront/dashboard_metrics/#{@metric.kind}", records: @records %>
+</div>
+<div class="mt-4"><%= paginate @records %></div>

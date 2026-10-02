@@ -1,0 +1,7 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Action strip" } do %>
+  <dl class="grid grid-cols-3 gap-4">
+    <div><dt class="text-xs text-gray-500">Overdue Followups</dt><dd class="text-2xl font-semibold text-red-700"><%= metric_link :overdue_followups, scope %></dd></div>
+    <div><dt class="text-xs text-gray-500">Due today</dt><dd class="text-2xl font-semibold"><%= metric_link :followups_due_today, scope %></dd></div>
+    <div><dt class="text-xs text-gray-500">Newly assigned</dt><dd class="text-2xl font-semibold"><%= metric_link :newly_assigned, scope %></dd></div>
+  </dl>
+<% end %>

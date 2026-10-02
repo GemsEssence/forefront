@@ -6,9 +6,12 @@ module Forefront
     end
 
     def index?
-      # # any signed-in admin can access the dashboard
-      # current_admin.present?
       true
+    end
+
+    # record: a Dashboard::Metrics::Metric
+    def metric?
+      record.open_to?(current_admin)
     end
 
     private

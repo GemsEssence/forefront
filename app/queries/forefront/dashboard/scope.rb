@@ -90,6 +90,26 @@ module Forefront
         narrow(Ticket.all)
       end
 
+      # Followups on Leads or Tickets (or Installment reminders) for the people in view.
+      def followups
+        relation = Followup.all
+        relation = relation.where(assigned_to_id: people_ids) if people_ids
+        return relation unless product_id
+
+        relation.where(followupable_type: Lead.name, followupable_id: Lead.where(product_id: product_id).select(:id))
+                .or(relation.where(followupable_type: Ticket.name, followupable_id: Ticket.where(product_id: product_id).select(:id)))
+      end
+
+      # Work handed to the people in view (including work they took themselves).
+      def assignments
+        relation = Assignment.all
+        relation = relation.where(to_user_id: people_ids) if people_ids
+        return relation unless product_id
+
+        relation.where(assignable_type: Lead.name, assignable_id: Lead.where(product_id: product_id).select(:id))
+                .or(relation.where(assignable_type: Ticket.name, assignable_id: Ticket.where(product_id: product_id).select(:id)))
+      end
+
       private
 
       def narrow(relation)
