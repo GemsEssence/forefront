@@ -1,0 +1,19 @@
+<% title = local_assigns.fetch(:title, "My pipeline") %>
+<% values = local_assigns.fetch(:values, true) %>
+<%= render layout: "forefront/dashboard/widget", locals: { title: title } do %>
+  <table class="w-full text-sm">
+    <thead><tr class="text-xs text-gray-500"><th class="text-left">Stage</th><th class="text-right">Leads</th><% if values %><th class="text-right">Expected value</th><% end %></tr></thead>
+    <tbody>
+      <% Forefront::Dashboard::Metrics::ACTIVE_STAGES.each do |stage| %>
+        <tr class="border-t border-gray-100">
+          <td class="py-1"><%= stage.humanize %></td>
+          <td class="py-1 text-right"><%= metric_link :pipeline, scope, slice: stage %>
+            <% if metric_value(:pipeline_shared, scope, slice: stage).positive? %>
+              <span class="text-xs text-gray-500">(<%= metric_link :pipeline_shared, scope, slice: stage %> shared)</span>
+            <% end %></td>
+          <% if values %><td class="py-1 text-right"><%= metric_link :pipeline, scope, slice: stage, sum: :estimated_amount, money: true %></td><% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

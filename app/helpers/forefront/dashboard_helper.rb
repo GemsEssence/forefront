@@ -7,7 +7,7 @@ module Forefront
       value = metric_value(key, scope, slice: slice, sum: sum)
       link_to (money ? format_money(value) : number_with_delimiter(value)),
               dashboard_metric_path(key, scope.to_params.merge(slice: slice).compact),
-              class: "hover:underline", data: { metric: key, slice: slice, member: member&.id }.compact
+              class: "hover:underline", data: { metric: key, slice: slice, member: member&.id, sum: sum }.compact
     end
 
     def metric_value(key, scope, slice: nil, sum: nil)

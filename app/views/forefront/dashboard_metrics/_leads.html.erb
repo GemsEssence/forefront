@@ -1,0 +1,12 @@
+<table data-records class="min-w-full divide-y divide-gray-200 text-sm">
+  <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Lead</th><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Stage</th><th class="px-4 py-2 text-left">Assigned to</th><th class="px-4 py-2 text-right">Amount</th></tr></thead>
+  <tbody class="divide-y divide-gray-100">
+    <% records.each do |lead| %>
+      <tr><td class="px-4 py-2"><%= subject_link(lead) %></td>
+          <td class="px-4 py-2"><%= lead.customer.name %></td>
+          <td class="px-4 py-2"><%= lead.status.humanize %></td>
+          <td class="px-4 py-2"><%= lead.assigned_to&.name || "Unassigned" %></td>
+          <td class="px-4 py-2 text-right"><%= format_money(lead.actual_amount || lead.estimated_amount || 0) %></td></tr>
+    <% end %>
+  </tbody>
+</table>

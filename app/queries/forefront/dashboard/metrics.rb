@@ -45,6 +45,25 @@ module Forefront
       define :newly_assigned, title: "Newly assigned", kind: :assignments, periodic: true do |scope, _|
         scope.assignments.where(created_at: scope.period.times)
       end
+
+      ACTIVE_STAGES = %w[open contacted demo proposal negotiation].freeze
+
+      # My pipeline / Leads by stage
+      define :pipeline, title: "Open leads", kind: :leads do |scope, stage|
+        leads = scope.leads.active
+        next leads if stage.nil?
+
+        ACTIVE_STAGES.include?(stage) ? leads.where(status: stage) : leads.none
+      end
+
+      define :pipeline_shared, title: "Open leads shared with others", kind: :leads do |scope, stage|
+        fetch(:pipeline).relation(scope, stage).where(id: LeadShare.select(:lead_id))
+      end
+
+      # Orphan
+      define :orphan_leads, title: "Open leads with no followup", kind: :leads do |scope, _|
+        scope.leads.active.where.not(id: Followup.pending.where(followupable_type: Lead.name).select(:followupable_id))
+      end
     end
   end
 end
