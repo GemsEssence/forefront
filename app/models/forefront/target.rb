@@ -41,6 +41,22 @@ module Forefront
       credited.sum { |lead, share| lead.actual_amount.to_d * share }
     end
 
+    # The won Leads behind achieved_value.
+    def credited_leads
+      won = product.leads.won.where(won_at: starts_on.beginning_of_day..ends_on.end_of_day)
+      Lead.where(id: won.select { |lead| lead.share_fraction_for(admin_id).positive? }.map(&:id))
+    end
+
+    def days_left
+      [ (ends_on - Date.current).to_i + 1, 0 ].max
+    end
+
+    # What's still needed per day to reach the goal.
+    def daily_run_rate
+      remaining = [ goal_value - achieved_value, 0 ].max
+      days_left.zero? ? remaining : remaining / days_left
+    end
+
     def achieved?
       achieved_value >= goal_value
     end

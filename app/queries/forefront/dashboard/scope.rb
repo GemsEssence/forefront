@@ -110,6 +110,14 @@ module Forefront
                 .or(relation.where(assignable_type: Ticket.name, assignable_id: Ticket.where(product_id: product_id).select(:id)))
       end
 
+      # Targets whose period includes today, for the people and Product in view.
+      def current_targets
+        targets = Target.includes(:admin, :product).where("starts_on <= ?", Date.current)
+        targets = targets.where(admin_id: people_ids) if people_ids
+        targets = targets.where(product_id: product_id) if product_id
+        targets.select { |target| target.ends_on >= Date.current }
+      end
+
       private
 
       def narrow(relation)

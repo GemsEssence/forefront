@@ -64,6 +64,12 @@ module Forefront
       define :orphan_leads, title: "Open leads with no followup", kind: :leads do |scope, _|
         scope.leads.active.where.not(id: Followup.pending.where(followupable_type: Lead.name).select(:followupable_id))
       end
+
+      # Target meter / Team target
+      define :target_credit, title: "Leads counted towards the target", kind: :leads do |scope, target_id|
+        target = scope.current_targets.find { |current| current.id == target_id.to_i }
+        target ? target.credited_leads : Lead.none
+      end
     end
   end
 end

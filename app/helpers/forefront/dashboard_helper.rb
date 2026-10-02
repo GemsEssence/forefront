@@ -10,6 +10,12 @@ module Forefront
               class: "hover:underline", data: { metric: key, slice: slice, member: member&.id, sum: sum }.compact
     end
 
+    # Link text other than the metric's own count (e.g. a Target's achieved value).
+    def metric_link_with(text, key, scope, slice: nil)
+      link_to text, dashboard_metric_path(key, scope.to_params.merge(slice: slice).compact),
+              class: "hover:underline", data: { metric: key, slice: slice }.compact
+    end
+
     def metric_value(key, scope, slice: nil, sum: nil)
       relation = Dashboard::Metrics.fetch(key).relation(scope, slice)
       sum ? relation.sum(sum) : relation.count

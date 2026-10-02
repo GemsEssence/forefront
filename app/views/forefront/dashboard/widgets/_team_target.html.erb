@@ -1,0 +1,15 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Team target" } do %>
+  <% targets = scope.current_targets %>
+  <% targets.group_by(&:metric).each do |metric, group| %>
+    <% show = ->(value) { metric == "amount" ? format_money(value) : number_with_precision(value, precision: 1) } %>
+    <p class="text-sm font-medium"><%= metric.humanize %>: <%= show.call(group.sum(&:achieved_value)) %> of <%= show.call(group.sum(&:goal_value)) %></p>
+    <ul class="mb-3">
+      <% group.sort_by { |target| target.admin.name }.each do |target| %>
+        <li class="text-xs mt-1"><%= target.admin.name %> · <%= target.product.name %> ·
+          <%= metric_link_with show.call(target.achieved_value), :target_credit, scope, slice: target.id %> of <%= show.call(target.goal_value) %>
+          <div class="h-1.5 bg-gray-100 rounded"><div class="h-1.5 bg-indigo-500 rounded" style="width: <%= target.progress_percentage %>%"></div></div></li>
+      <% end %>
+    </ul>
+  <% end %>
+  <% if targets.empty? %><p class="text-sm text-gray-500">No targets running right now.</p><% end %>
+<% end %>
