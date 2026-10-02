@@ -100,6 +100,13 @@ module Forefront
       next_followup_at.present? && next_followup_at <= Time.current && !resolved? && !closed?
     end
 
+    # For a renewal Ticket: when the Customer's Subscription to this Product runs out.
+    def subscription_expires_on
+      return if product_id.nil?
+
+      Subscription.where(customer_id: customer_id, product_id: product_id).maximum(:expires_at)
+    end
+
     def renewal_reward_amount
       return 0 unless plan_expired? && renewed? && product.present?
       return 0 if product.renewal_reward_percentage.blank?

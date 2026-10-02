@@ -126,6 +126,10 @@ module Forefront
         Receipt.where(payment_id: Payment.where(lead_id: leads.select(:id)).select(:id))
       end
 
+      def subscriptions
+        Subscription.where(lead_id: leads.select(:id))
+      end
+
       private
 
       def narrow(relation)

@@ -1,0 +1,4 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Renewal risk" } do %>
+  <p class="text-sm text-gray-600">Subscriptions expiring within 30 days that nobody has contacted:
+    <span class="text-2xl font-semibold text-red-700"><%= metric_link :renewal_risk, scope %></span></p>
+<% end %>

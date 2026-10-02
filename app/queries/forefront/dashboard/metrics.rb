@@ -95,6 +95,20 @@ module Forefront
       define :receipts_received, title: "Receipts", kind: :receipts, periodic: true do |scope, _|
         scope.receipts.where(received_on: scope.period.dates)
       end
+
+      # Renewal Tickets / Renewal risk
+      define :renewal_tickets, title: "Renewal tickets", kind: :tickets do |scope, _|
+        scope.tickets.plan_expired.unfinished
+      end
+
+      define :renewal_risk, title: "Renewals at risk", kind: :subscriptions, roles: TEAM_ROLES do |scope, _|
+        acted_on = AuditEvent.actions.where.not(action: "created").where(auditable_type: Ticket.name).select(:auditable_id)
+        contacted = Ticket.plan_expired.where(id: acted_on)
+                          .where("forefront_tickets.customer_id = forefront_subscriptions.customer_id")
+                          .where("forefront_tickets.product_id = forefront_subscriptions.product_id")
+        scope.subscriptions.where(expires_at: Date.current..(Date.current + 30))
+             .where("NOT EXISTS (#{contacted.select('1').to_sql})")
+      end
     end
   end
 end

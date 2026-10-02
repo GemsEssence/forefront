@@ -1,0 +1,11 @@
+<table data-records class="min-w-full divide-y divide-gray-200 text-sm">
+  <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Product</th><th class="px-4 py-2 text-left">Expires</th><th class="px-4 py-2 text-left">Sold on</th></tr></thead>
+  <tbody class="divide-y divide-gray-100">
+    <% records.includes(:customer, :product, :lead).each do |subscription| %>
+      <tr><td class="px-4 py-2"><%= link_to subscription.customer.name, subscription.customer, class: "text-indigo-600 hover:underline" %></td>
+          <td class="px-4 py-2"><%= subscription.product.name %></td>
+          <td class="px-4 py-2"><%= subscription.expires_at.strftime("%-d %b %Y") %></td>
+          <td class="px-4 py-2"><%= subject_link(subscription.lead) %></td></tr>
+    <% end %>
+  </tbody>
+</table>

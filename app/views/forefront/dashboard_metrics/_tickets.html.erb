@@ -1,0 +1,12 @@
+<table data-records class="min-w-full divide-y divide-gray-200 text-sm">
+  <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Ticket</th><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Category</th><th class="px-4 py-2 text-left">Status</th><th class="px-4 py-2 text-left">Assigned to</th></tr></thead>
+  <tbody class="divide-y divide-gray-100">
+    <% records.includes(:customer, :assigned_to).each do |ticket| %>
+      <tr><td class="px-4 py-2"><%= subject_link(ticket) %></td>
+          <td class="px-4 py-2"><%= ticket.customer.name %></td>
+          <td class="px-4 py-2"><%= ticket.category.humanize %></td>
+          <td class="px-4 py-2"><%= ticket.status.humanize %></td>
+          <td class="px-4 py-2"><%= ticket.assigned_to&.name || "Unassigned" %></td></tr>
+    <% end %>
+  </tbody>
+</table>
