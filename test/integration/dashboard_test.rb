@@ -60,6 +60,20 @@ class Forefront::DashboardTest < ActionDispatch::IntegrationTest
     assert_equal "1", metric(:pipeline, slice: "open")
   end
 
+  test "filters and slices sent as lists instead of single values are ignored" do
+    sign_in_as(@admin)
+
+    get "/forefront/", params: { product_id: [ @product.id.to_s ], manager_id: [ @manager.id.to_s ], member_id: [ @rep.id.to_s ] }
+    assert_response :success
+    assert_select "select[name=product_id] option[selected]", count: 0
+
+    Forefront::Target.create!(admin: @rep, product: @product, metric: "amount", period: "monthly",
+                              goal_value: 10_000, starts_on: Date.current.beginning_of_month)
+    get "/forefront/dashboard/metrics/target_credit", params: { slice: [ "x" ] }
+    assert_response :success
+    assert_select "table[data-records]"
+  end
+
   test "the old company-wide tiles are gone, so a sales person sees no one else's totals" do
     sign_in_as(@rep)
     get "/forefront/"

@@ -5,7 +5,8 @@ module Forefront
       @metric = Dashboard::Metrics.find(params[:key]) or raise ActiveRecord::RecordNotFound
       authorize @metric, :metric?, policy_class: Forefront::DashboardPolicy
       @scope = Dashboard::Scope.from_params(current_admin, params, own: params[:tab] == "my_day")
-      relation = @metric.relation(@scope, params[:slice].presence)
+      @slice = params[:slice].presence if params[:slice].is_a?(String)
+      relation = @metric.relation(@scope, @slice)
       @records = relation.reorder(relation.klass.arel_table[:id].desc).page(params[:page])
     end
   end

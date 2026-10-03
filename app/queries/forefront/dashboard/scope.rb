@@ -8,8 +8,13 @@ module Forefront
       attr_reader :viewer, :period, :product_id, :manager_id, :member_id
 
       def self.from_params(viewer, params, own: false)
-        new(viewer, period: Period.from_params(params), product_id: params[:product_id].presence,
-                    manager_id: params[:manager_id].presence, member_id: params[:member_id].presence, own: own)
+        new(viewer, period: Period.from_params(params), product_id: scalar(params[:product_id]),
+                    manager_id: scalar(params[:manager_id]), member_id: scalar(params[:member_id]), own: own)
+      end
+
+      # A filter is one id; a list or nested value (?product_id[]=1) is ignored.
+      def self.scalar(value)
+        value.presence if value.is_a?(String) || value.is_a?(Integer)
       end
 
       def initialize(viewer, period:, product_id: nil, manager_id: nil, member_id: nil, own: false)

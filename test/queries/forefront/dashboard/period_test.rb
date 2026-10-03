@@ -20,6 +20,16 @@ class Forefront::Dashboard::PeriodTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 1, 1)..Date.new(2026, 12, 31), period(period: "year").dates
   end
 
+  test "a week runs Monday to Sunday even when the host starts weeks on Sunday" do
+    host_setting = Date.beginning_of_week
+    Date.beginning_of_week = :sunday
+    week = period(period: "week")
+    assert_equal Date.new(2026, 10, 12)..Date.new(2026, 10, 18), week.dates
+    assert_equal Date.new(2026, 10, 5)..Date.new(2026, 10, 11), week.previous.dates
+  ensure
+    Date.beginning_of_week = host_setting
+  end
+
   test "custom dates are inclusive, swapped when backwards, and fall back when unparseable" do
     assert_equal Date.new(2026, 9, 1)..Date.new(2026, 9, 10), period(period: "custom", from: "2026-09-01", to: "2026-09-10").dates
     assert_equal Date.new(2026, 9, 1)..Date.new(2026, 9, 10), period(period: "custom", from: "2026-09-10", to: "2026-09-01").dates

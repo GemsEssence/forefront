@@ -28,7 +28,7 @@ module Forefront
       def self.calendar_unit(name, day)
         case name
         when "today" then day..day
-        when "week" then day.beginning_of_week..day.end_of_week
+        when "week" then day.beginning_of_week(:monday)..day.end_of_week(:monday)
         when "month" then day.beginning_of_month..day.end_of_month
         when "quarter" then day.beginning_of_quarter..day.end_of_quarter
         when "year" then day.beginning_of_year..day.end_of_year
