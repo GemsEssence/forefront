@@ -38,6 +38,8 @@ module Forefront
       Column.new(key: :lost_by_reason, title: "Lost by reason", format: :reasons, metric: "leads_lost")
     ].freeze
 
+    TREND_COLUMNS = COLUMNS.reject { |column| %i[overdue_now target_achievement collected_vs_target].include?(column.key) }.freeze
+
     attr_reader :scope
 
     def initialize(scope)
@@ -146,6 +148,17 @@ module Forefront
       counts = Dashboard::Metrics.fetch(:leads_lost).relation(row_scope).group(:lost_reason_id).count
       reasons = LostReason.where(id: counts.keys).index_by(&:id)
       counts.sort_by { |id, count| [ -count, reasons[id]&.name.to_s ] }.first(3).filter_map { |id, count| [ reasons[id], count ] if reasons[id] }
+    end
+
+    # The last 12 calendar months of one person, oldest first.
+    def trend(person, today: Date.current)
+      first = today.beginning_of_month << 11
+      (0..11).map do |offset|
+        month = first >> offset
+        month_scope = scope.with(period: Dashboard::Period.for_dates(month..month.end_of_month)).for_member(person)
+        Row.new(label: month.strftime("%b %Y"), person: person, scope: month_scope,
+                values: TREND_COLUMNS.to_h { |column| [ column.key, public_send("value_#{column.key}", month_scope) ] })
+      end
     end
 
     private

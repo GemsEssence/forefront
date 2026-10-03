@@ -12,6 +12,11 @@ module Forefront
       true
     end
 
+    # record: the Admin whose trend is asked for.
+    def trend?
+      Dashboard::Scope.new(current_admin, period: Dashboard::Period.from_params({})).member_ids.include?(record.id)
+    end
+
     private
 
     attr_reader :current_admin, :record
