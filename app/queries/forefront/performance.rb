@@ -17,6 +17,9 @@ module Forefront
       end
     end
 
+    # The lost-by-reason cell: the top reasons as [LostReason, count], and every lost Lead.
+    LostBreakdown = Struct.new(:top, :total)
+
     DEFAULT_SORT = "revenue_collected".freeze
 
     COLUMNS = [
@@ -143,11 +146,13 @@ module Forefront
       rate(row_scope, "renewals_renewed", "renewals_closed")
     end
 
-    # The three most frequent reasons as [LostReason, count], most frequent first.
+    # The three most frequent reasons, most frequent first, and the total lost.
     def value_lost_by_reason(row_scope)
       counts = Dashboard::Metrics.fetch(:leads_lost).relation(row_scope).group(:lost_reason_id).count
-      reasons = LostReason.where(id: counts.keys).index_by(&:id)
-      counts.sort_by { |id, count| [ -count, reasons[id]&.name.to_s ] }.first(3).filter_map { |id, count| [ reasons[id], count ] if reasons[id] }
+      reasons = LostReason.where(id: counts.keys.compact).index_by(&:id)
+      named = counts.select { |id, _| reasons[id] }
+      top = named.sort_by { |id, count| [ -count, reasons[id].name ] }.first(3).map { |id, count| [ reasons[id], count ] }
+      LostBreakdown.new(top, counts.values.sum)
     end
 
     # The last 12 calendar months of one person, oldest first.
@@ -174,7 +179,7 @@ module Forefront
     def sort_value(value)
       case value
       when Rate then value.percent
-      when Array then value.sum { |_, count| count }.then { |total| total.zero? ? nil : total }
+      when LostBreakdown then value.total.zero? ? nil : value.total
       else value
       end
     end

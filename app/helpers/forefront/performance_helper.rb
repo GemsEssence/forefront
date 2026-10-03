@@ -20,9 +20,10 @@ module Forefront
     def performance_value(row, column)
       value = row.values[column.key]
       if column.format == :reasons
-        return "—" if value.blank?
+        return "—" if value.total.zero?
 
-        return safe_join(value.map { |reason, count| metric_link_with("#{reason.name} (#{count})", column.metric, row.scope, slice: reason.id) }, " · ")
+        links = value.top.map { |reason, count| metric_link_with("#{reason.name} (#{count})", column.metric, row.scope, slice: reason.id) }
+        return safe_join(links + [ metric_link_with("all #{value.total}", column.metric, row.scope) ], " · ")
       end
 
       text = performance_text(value, column.format)

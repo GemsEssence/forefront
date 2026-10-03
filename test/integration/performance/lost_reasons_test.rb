@@ -27,8 +27,25 @@ class Forefront::Performance::LostReasonsTest < ActionDispatch::IntegrationTest
 
     get "/forefront/performance"
 
-    assert_match(/\APrice \(3\) · Timing \(2\) · (Rival|Budget) \(1\)\z/, cell("Ravi Rep", "lost_by_reason"))
+    assert_match(/\APrice \(3\) · Timing \(2\) · (Rival|Budget) \(1\) · all 7\z/, cell("Ravi Rep", "lost_by_reason"))
     assert_equal 3, drill(:leads_lost, member_id: @ravi.id, slice: price.id).size
+  end
+
+  test "past the top three, an all link opens every lost lead, and each reason link carries its slice" do
+    reasons = { "Price" => 4, "Timing" => 3, "Rival" => 2, "Budget" => 1 }.map do |name, count|
+      reason = Forefront::LostReason.create!(name: name)
+      count.times { lose(reason) }
+      reason
+    end
+    sign_in_as(@manager)
+
+    get "/forefront/performance"
+
+    assert_equal "Price (4) · Timing (3) · Rival (2) · all 10", cell("Ravi Rep", "lost_by_reason")
+    links = css_select("tr[data-row='Ravi Rep'] td[data-column='lost_by_reason'] a")
+    assert_equal [ reasons[0].id.to_s, reasons[1].id.to_s, reasons[2].id.to_s, nil ], links.map { |link| link["data-slice"] }
+    assert_nil URI.parse(links.last["href"]).query.to_s[/slice=/]
+    assert_equal 10, drill(:leads_lost, member_id: @ravi.id).size
   end
 
   test "no lost leads shows a dash, and a Lead lost before the period does not count" do
