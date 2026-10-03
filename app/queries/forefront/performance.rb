@@ -21,7 +21,10 @@ module Forefront
       Column.new(key: :records_claimed, title: "Records claimed", format: :count, metric: "claims"),
       Column.new(key: :avg_time_to_claim, title: "Avg time to claim", format: :hours, metric: "claims"),
       Column.new(key: :ticket_to_lead, title: "Ticket → lead", format: :rate, metric: "enquiries_converted", denominator_metric: "enquiries_handled"),
-      Column.new(key: :lead_to_win, title: "Lead → win", format: :rate, metric: "won", denominator_metric: "leads_closed")
+      Column.new(key: :lead_to_win, title: "Lead → win", format: :rate, metric: "won", denominator_metric: "leads_closed"),
+      Column.new(key: :demos_done, title: "Demos done", format: :count, metric: "demos"),
+      Column.new(key: :avg_deal_size, title: "Avg deal size", format: :money, metric: "won"),
+      Column.new(key: :avg_sales_cycle, title: "Avg sales cycle", format: :days, metric: "won")
     ].freeze
 
     attr_reader :scope
@@ -54,6 +57,22 @@ module Forefront
 
     def value_lead_to_win(row_scope)
       rate(row_scope, "won", "leads_closed")
+    end
+
+    def value_demos_done(row_scope)
+      Dashboard::Metrics.fetch(:demos).relation(row_scope).count
+    end
+
+    def value_avg_deal_size(row_scope)
+      won = Dashboard::Metrics.fetch(:won).relation(row_scope)
+      count = won.count
+      count.zero? ? nil : won.sum(:actual_amount) / count
+    end
+
+    # Days from created to won, worked out in Ruby (portable SQL).
+    def value_avg_sales_cycle(row_scope)
+      days = Dashboard::Metrics.fetch(:won).relation(row_scope).pluck(:created_at, :won_at).map { |created, won| (won - created) / 1.day }
+      days.empty? ? nil : days.sum / days.size
     end
 
     private
