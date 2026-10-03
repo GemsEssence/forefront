@@ -283,7 +283,7 @@ module Forefront
       end
 
       define :target_credited, title: "Won leads counted towards running targets", kind: :leads do |scope, _|
-        Lead.where(id: scope.current_targets.flat_map { |target| target.credited_leads.ids })
+        Lead.where(id: scope.current_targets.select(&:amount?).flat_map { |target| target.credited_leads.ids })
       end
 
       define :receipts_credited, title: "Receipts credited", kind: :receipts, periodic: true do |scope, _|

@@ -77,14 +77,14 @@ module Forefront
 
     # The Targets page's rule (won amounts), for amount Targets running today.
     def value_target_achievement(row_scope)
-      targets = row_scope.current_targets.select(&:amount?)
+      targets = amount_targets(row_scope)
       goal = targets.sum(&:goal_value)
       goal.zero? ? nil : targets.sum(&:achieved_value) * 100 / goal
     end
 
     # Money received against the same goals.
     def value_collected_vs_target(row_scope)
-      goal = row_scope.current_targets.select(&:amount?).sum(&:goal_value)
+      goal = amount_targets(row_scope).sum(&:goal_value)
       goal.zero? ? nil : value_revenue_collected(row_scope) * 100 / goal
     end
 
@@ -101,6 +101,10 @@ module Forefront
     end
 
     private
+
+    def amount_targets(row_scope)
+      row_scope.current_targets.select(&:amount?)
+    end
 
     # Each Receipt's amount times the row's people's combined share of its Lead.
     def credited(receipts, row_scope)
