@@ -1,0 +1,16 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Subscriptions" } do %>
+  <table class="w-full text-sm">
+    <thead><tr class="text-xs text-gray-500"><th class="text-left">Product</th><th class="text-right">Active</th><th class="text-right">Expiring (30 days)</th><th class="text-right">Expired</th></tr></thead>
+    <tbody>
+      <tr class="border-t border-gray-100 font-medium"><td class="py-1">All</td>
+        <% %w[active expiring expired].each do |state| %><td class="py-1 text-right"><%= metric_link :subscriptions, scope, slice: state %></td><% end %></tr>
+      <% unless scope.product_id %>
+        <% scope.products.order(:name).each do |product| %>
+          <% per_product = scope.with(product_id: product.id) %>
+          <tr class="border-t border-gray-100" data-product="<%= product.id %>"><td class="py-1"><%= product.name %></td>
+            <% %w[active expiring expired].each do |state| %><td class="py-1 text-right"><%= metric_link :subscriptions, per_product, slice: state %></td><% end %></tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

@@ -197,6 +197,23 @@ module Forefront
       define :source_won, title: "Leads created and now won", kind: :leads, periodic: true do |scope, source_id|
         fetch(:source_leads).relation(scope, source_id).won
       end
+
+      # Subscriptions / Data health (Company)
+      define :subscriptions, title: "Subscriptions", kind: :subscriptions, roles: %w[admin] do |scope, state|
+        subscriptions = scope.subscriptions
+        today = Date.current
+        case state
+        when "active" then subscriptions.where("expires_at > ?", today + 30)
+        when "expiring" then subscriptions.where(expires_at: today..(today + 30))
+        when "expired" then subscriptions.where("expires_at < ?", today)
+        else subscriptions.none
+        end
+      end
+
+      define :failed_intake, title: "Rejected Signup API calls", kind: :audit_events, roles: %w[admin], periodic: true do |scope, _|
+        events = AuditEvent.where(action: "rejected_signup", created_at: scope.period.times)
+        scope.product_id ? events.where(auditable_type: Product.name, auditable_id: scope.product_id) : events
+      end
     end
   end
 end
