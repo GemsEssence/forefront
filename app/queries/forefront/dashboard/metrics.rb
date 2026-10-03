@@ -305,6 +305,27 @@ module Forefront
       define :receipts_shared, title: "Receipts from shared leads", kind: :receipts, periodic: true do |scope, _|
         fetch(:receipts_credited).relation(scope).where(payment_id: Payment.where(lead_id: LeadShare.select(:lead_id)).select(:id))
       end
+
+      # Only those whose date has come: one due later isn't a miss yet.
+      define :instalments_due_in_period, title: "Instalments due", kind: :installments, periodic: true do |scope, _|
+        scope.installments.where(due_on: scope.period.dates).where("due_on <= ?", Date.current)
+      end
+
+      # Paid by the due date (compared in Ruby: portable SQL).
+      define :instalments_on_time, title: "Instalments paid on time", kind: :installments, periodic: true do |scope, _|
+        paid = fetch(:instalments_due_in_period).relation(scope).where.not(paid_at: nil)
+        Installment.where(id: paid.pluck(:id, :due_on, :paid_at).select { |_, due, paid_at| paid_at.to_date <= due }.map(&:first))
+      end
+
+      define :renewals_closed, title: "Renewal tickets closed", kind: :tickets, periodic: true do |scope, _|
+        finished = StatusHistory.where(trackable_type: Ticket.name, created_at: scope.period.times,
+                                       new_status: [ Ticket.statuses.fetch("resolved"), Ticket.statuses.fetch("closed") ]).select(:trackable_id)
+        scope.tickets.plan_expired.where(id: finished).where.not(renewal_outcome: nil)
+      end
+
+      define :renewals_renewed, title: "Renewal tickets renewed", kind: :tickets, periodic: true do |scope, _|
+        fetch(:renewals_closed).relation(scope).renewed
+      end
     end
   end
 end

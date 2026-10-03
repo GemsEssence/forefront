@@ -30,7 +30,9 @@ module Forefront
       Column.new(key: :avg_deal_size, title: "Avg deal size", format: :money, metric: "won"),
       Column.new(key: :avg_sales_cycle, title: "Avg sales cycle", format: :days, metric: "won"),
       Column.new(key: :followup_discipline, title: "Follow-up discipline", format: :rate, metric: "followups_on_time", denominator_metric: "followups_due"),
-      Column.new(key: :overdue_now, title: "Overdue now", format: :count, metric: "overdue_followups")
+      Column.new(key: :overdue_now, title: "Overdue now", format: :count, metric: "overdue_followups"),
+      Column.new(key: :instalment_collection, title: "Instalment collection", format: :rate, metric: "instalments_on_time", denominator_metric: "instalments_due_in_period"),
+      Column.new(key: :renewal_rate, title: "Renewal rate", format: :rate, metric: "renewals_renewed", denominator_metric: "renewals_closed")
     ].freeze
 
     attr_reader :scope
@@ -108,6 +110,14 @@ module Forefront
 
     def value_overdue_now(row_scope)
       Dashboard::Metrics.fetch(:overdue_followups).relation(row_scope).count
+    end
+
+    def value_instalment_collection(row_scope)
+      rate(row_scope, "instalments_on_time", "instalments_due_in_period")
+    end
+
+    def value_renewal_rate(row_scope)
+      rate(row_scope, "renewals_renewed", "renewals_closed")
     end
 
     private
