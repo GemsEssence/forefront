@@ -1,0 +1,26 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Revenue" } do %>
+  <dl class="grid grid-cols-3 gap-4 text-sm mb-4">
+    <div><dt class="text-xs text-gray-500">Received · <%= scope.period.label %></dt>
+      <dd class="text-xl font-semibold"><%= metric_link :receipts_received, scope, sum: :amount, money: true %><%= metric_change :receipts_received, scope, sum: :amount %></dd></div>
+    <div><dt class="text-xs text-gray-500">One-off</dt><dd class="text-lg"><%= metric_link :receipts_received, scope, slice: "one_off", sum: :amount, money: true %></dd></div>
+    <div><dt class="text-xs text-gray-500">Instalments</dt><dd class="text-lg"><%= metric_link :receipts_received, scope, slice: "instalment", sum: :amount, money: true %></dd></div>
+  </dl>
+  <p class="text-xs text-gray-500 mb-1">By product</p>
+  <ul class="text-sm mb-4">
+    <% scope.products.order(:name).each do |product| %>
+      <li><%= product.name %>: <%= metric_link :receipts_received, scope.with(product_id: product.id), sum: :amount, money: true %></li>
+    <% end %>
+  </ul>
+  <p class="text-xs text-gray-500 mb-1">Last 12 months</p>
+  <% months = Forefront::Dashboard::RevenueTrend.new(scope).months %>
+  <% top = [ months.map(&:last).max, 1 ].max %>
+  <ul class="text-xs space-y-1">
+    <% months.each do |month, total| %>
+      <li data-trend-month="<%= month.iso8601 %>" class="flex items-center gap-2">
+        <span class="w-16 text-gray-500"><%= month.strftime("%b %Y") %></span>
+        <span class="h-2 bg-indigo-400 rounded" style="width: <%= (total / top * 60).round %>%"></span>
+        <%= link_to format_money(total), dashboard_metric_path(:receipts_received, scope.with(period: Forefront::Dashboard::Period.for_dates(month..month.end_of_month)).to_params), class: "hover:underline" %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

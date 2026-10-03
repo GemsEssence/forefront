@@ -92,8 +92,14 @@ module Forefront
         scope.installments.pending.where("due_on < ?", Date.current)
       end
 
-      define :receipts_received, title: "Receipts", kind: :receipts, periodic: true do |scope, _|
-        scope.receipts.where(received_on: scope.period.dates)
+      define :receipts_received, title: "Receipts", kind: :receipts, periodic: true do |scope, kind|
+        receipts = scope.receipts.where(received_on: scope.period.dates)
+        case kind
+        when nil then receipts
+        when "one_off" then receipts.where(installment_id: nil)
+        when "instalment" then receipts.where.not(installment_id: nil)
+        else receipts.none
+        end
       end
 
       # Renewal Tickets / Renewal risk
