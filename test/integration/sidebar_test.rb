@@ -23,7 +23,7 @@ class Forefront::SidebarTest < ActionDispatch::IntegrationTest
 
     get "/forefront/"
 
-    assert_equal({ "main" => [ "Dashboard", "My work", "Notifications" ],
+    assert_equal({ "main" => [ "Dashboard", "My work", "My performance", "Notifications" ],
                    "Sales" => [ "Leads", "Tickets", "Unassigned", "Customers" ],
                    "Marketing" => [ "Campaigns", "Products", "Targets" ] }, sidebar_groups)
   end
@@ -34,7 +34,7 @@ class Forefront::SidebarTest < ActionDispatch::IntegrationTest
     get "/forefront/"
 
     assert_equal [ "Dashboard", "My work", "Notifications" ], sidebar_groups["main"]
-    assert_equal [ "Staff", "Audit log" ], sidebar_groups["Team"]
+    assert_equal [ "Staff", "Performance", "Audit log" ], sidebar_groups["Team"]
     assert_nil sidebar_groups["Admin"]
   end
 
@@ -44,7 +44,7 @@ class Forefront::SidebarTest < ActionDispatch::IntegrationTest
     get "/forefront/"
 
     assert_equal [ "Dashboard", "Notifications" ], sidebar_groups["main"]
-    assert_equal [ "Staff", "Audit log" ], sidebar_groups["Team"]
+    assert_equal [ "Staff", "Performance", "Audit log" ], sidebar_groups["Team"]
     assert_equal [ "Sources", "Lost reasons", "Settings" ], sidebar_groups["Admin"]
   end
 

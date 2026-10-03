@@ -53,3 +53,14 @@ module DashboardTestHelpers
     css_select("section[data-widget='#{title}']").first
   end
 end
+
+# For /performance: read a row's cell the way the browser shows it.
+module PerformanceTestHelpers
+  def cell(label, key)
+    css_select("tr[data-row='#{label}'] td[data-column='#{key}']").first&.text&.squish
+  end
+
+  def row_labels
+    css_select("tbody tr[data-row]").map { |row| row["data-row"] }
+  end
+end

@@ -1,0 +1,23 @@
+  <% if scope.own? %><input type="hidden" name="tab" value="my_day"><% end %>
+  <label class="text-xs font-medium text-gray-500">Period
+    <%= select_tag :period, options_for_select(Forefront::Dashboard::Period::LABELS.invert, scope.period.name), class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+  </label>
+  <label class="text-xs font-medium text-gray-500">From
+    <input type="date" name="from" value="<%= scope.period.dates.begin.iso8601 %>" class="mt-1 block rounded-md border-gray-300 text-sm">
+  </label>
+  <label class="text-xs font-medium text-gray-500">To
+    <input type="date" name="to" value="<%= scope.period.dates.end.iso8601 %>" class="mt-1 block rounded-md border-gray-300 text-sm">
+  </label>
+  <label class="text-xs font-medium text-gray-500">Product
+    <%= select_tag :product_id, options_from_collection_for_select(scope.products.order(:name), :id, :name, scope.product_id), include_blank: "All products", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+  </label>
+  <% if current_admin.admin? %>
+    <label class="text-xs font-medium text-gray-500">Manager
+      <%= select_tag :manager_id, options_from_collection_for_select(Forefront::Admin.people.where(role: "manager").order(:name), :id, :name, scope.manager_id), include_blank: "All teams", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+    </label>
+  <% end %>
+  <% if scope.members.count > 1 %>
+    <label class="text-xs font-medium text-gray-500">Member
+      <%= select_tag :member_id, options_from_collection_for_select(scope.members.order(:name), :id, :name, scope.member_id), include_blank: "Everyone", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+    </label>
+  <% end %>
