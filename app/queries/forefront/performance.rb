@@ -91,9 +91,18 @@ module Forefront
     def credited(receipts, row_scope)
       people = row_scope.people_ids
       receipts.includes(payment: { lead: { lead_share: :lead_share_participants } }).sum do |receipt|
-        lead = receipt.payment.lead
-        share = people ? people.sum { |id| lead.share_fraction_for(id) } : 1
-        receipt.amount * share
+        receipt.amount * share_of(receipt.payment.lead, people)
+      end
+    end
+
+    # Worked out from the preloaded Lead (Lead#share_fraction_for queries per call).
+    def share_of(lead, people)
+      return 1 unless people
+
+      if lead.lead_share
+        lead.lead_share.lead_share_participants.select { |participant| people.include?(participant.admin_id) }.sum { |participant| participant.percentage / 100r }
+      else
+        people.include?(lead.assigned_to_id) ? 1 : 0
       end
     end
 
