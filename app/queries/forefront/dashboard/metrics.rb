@@ -172,6 +172,15 @@ module Forefront
       define :pool_leads_by_source, title: "Unassigned leads by source", kind: :leads, roles: TEAM_ROLES do |scope, source_id|
         source_id ? pool(scope, Lead).where(source_id: source_id) : pool(scope, Lead)
       end
+
+      # Workload per person
+      define :open_tickets, title: "Open tickets", kind: :tickets do |scope, _|
+        scope.tickets.unfinished
+      end
+
+      define :active_leads, title: "Open leads", kind: :leads do |scope, _|
+        scope.leads.active
+      end
     end
   end
 end

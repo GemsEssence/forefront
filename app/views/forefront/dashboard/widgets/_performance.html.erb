@@ -1,0 +1,17 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Performance" } do %>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead><tr class="text-xs text-gray-500"><th class="text-left">Person</th>
+        <% Forefront::Dashboard::Metrics::ACTIVITY.each do |key| %><th class="text-right"><%= Forefront::Dashboard::Metrics.fetch(key).title %></th><% end %>
+        <th class="text-right">Won value</th><th class="text-right">Received</th></tr></thead>
+      <tbody>
+        <% scope.rows.each do |person| %>
+          <tr class="border-t border-gray-100"><td class="py-1"><%= person.name %></td>
+            <% Forefront::Dashboard::Metrics::ACTIVITY.each do |key| %><td class="py-1 text-right"><%= metric_link key, scope, member: person %></td><% end %>
+            <td class="py-1 text-right"><%= metric_link :won, scope, member: person, sum: :actual_amount, money: true %></td>
+            <td class="py-1 text-right"><%= metric_link :receipts_received, scope, member: person, sum: :amount, money: true %></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

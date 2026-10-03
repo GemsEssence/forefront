@@ -1,0 +1,14 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Workload" } do %>
+  <table class="w-full text-sm">
+    <thead><tr class="text-xs text-gray-500"><th class="text-left">Person</th><th class="text-right">Open tickets</th><th class="text-right">Open leads</th><th class="text-right">Followups today</th><th class="text-right">Overdue</th></tr></thead>
+    <tbody>
+      <% scope.rows.each do |person| %>
+        <tr class="border-t border-gray-100"><td class="py-1"><%= person.name %></td>
+          <td class="py-1 text-right"><%= metric_link :open_tickets, scope, member: person %></td>
+          <td class="py-1 text-right"><%= metric_link :active_leads, scope, member: person %></td>
+          <td class="py-1 text-right"><%= metric_link :followups_due_today, scope, member: person %></td>
+          <td class="py-1 text-right text-red-700"><%= metric_link :overdue_followups, scope, member: person %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
