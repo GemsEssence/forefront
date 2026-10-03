@@ -269,6 +269,26 @@ module Forefront
       define :leads_closed, title: "Leads closed (won or lost)", kind: :leads, periodic: true do |scope, _|
         fetch(:won).relation(scope).or(scope.leads.where(id: fetch(:leads_lost).relation(scope).select(:id)))
       end
+
+      # Leads the people in view have credit for: their own unshared Leads,
+      # and shared Leads they take part in.
+      def self.credited_leads(scope)
+        leads = Lead.all
+        if scope.people_ids
+          shared = LeadShare.select(:lead_id)
+          taking_part = LeadShareParticipant.joins(:lead_share).where(admin_id: scope.people_ids).select("#{LeadShare.table_name}.lead_id")
+          leads = Lead.where(assigned_to_id: scope.people_ids).where.not(id: shared).or(Lead.where(id: taking_part))
+        end
+        scope.product_id ? leads.where(product_id: scope.product_id) : leads
+      end
+
+      define :receipts_credited, title: "Receipts credited", kind: :receipts, periodic: true do |scope, _|
+        Receipt.where(received_on: scope.period.dates, payment_id: Payment.where(lead_id: credited_leads(scope).select(:id)).select(:id))
+      end
+
+      define :receipts_shared, title: "Receipts from shared leads", kind: :receipts, periodic: true do |scope, _|
+        fetch(:receipts_credited).relation(scope).where(payment_id: Payment.where(lead_id: LeadShare.select(:lead_id)).select(:id))
+      end
     end
   end
 end

@@ -23,6 +23,8 @@ module Forefront
       Column.new(key: :ticket_to_lead, title: "Ticket → lead", format: :rate, metric: "enquiries_converted", denominator_metric: "enquiries_handled"),
       Column.new(key: :lead_to_win, title: "Lead → win", format: :rate, metric: "won", denominator_metric: "leads_closed"),
       Column.new(key: :demos_done, title: "Demos done", format: :count, metric: "demos"),
+      Column.new(key: :revenue_collected, title: "Revenue collected", format: :money, metric: "receipts_credited"),
+      Column.new(key: :shared_revenue, title: "Shared revenue", format: :money, metric: "receipts_shared"),
       Column.new(key: :avg_deal_size, title: "Avg deal size", format: :money, metric: "won"),
       Column.new(key: :avg_sales_cycle, title: "Avg sales cycle", format: :days, metric: "won")
     ].freeze
@@ -63,6 +65,14 @@ module Forefront
       Dashboard::Metrics.fetch(:demos).relation(row_scope).count
     end
 
+    def value_revenue_collected(row_scope)
+      credited(Dashboard::Metrics.fetch(:receipts_credited).relation(row_scope), row_scope)
+    end
+
+    def value_shared_revenue(row_scope)
+      credited(Dashboard::Metrics.fetch(:receipts_shared).relation(row_scope), row_scope)
+    end
+
     def value_avg_deal_size(row_scope)
       won = Dashboard::Metrics.fetch(:won).relation(row_scope)
       count = won.count
@@ -76,6 +86,16 @@ module Forefront
     end
 
     private
+
+    # Each Receipt's amount times the row's people's combined share of its Lead.
+    def credited(receipts, row_scope)
+      people = row_scope.people_ids
+      receipts.includes(payment: { lead: { lead_share: :lead_share_participants } }).sum do |receipt|
+        lead = receipt.payment.lead
+        share = people ? people.sum { |id| lead.share_fraction_for(id) } : 1
+        receipt.amount * share
+      end
+    end
 
     def rate(row_scope, numerator, denominator)
       Rate.new(Dashboard::Metrics.fetch(numerator).relation(row_scope).count,
