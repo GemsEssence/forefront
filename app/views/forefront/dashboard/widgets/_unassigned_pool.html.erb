@@ -1,0 +1,34 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Unassigned pool" } do %>
+  <table class="w-full text-sm mb-3">
+    <thead><tr class="text-xs text-gray-500"><th class="text-left">Waiting</th><th class="text-right">Tickets</th><th class="text-right">Leads</th></tr></thead>
+    <tbody>
+      <% { "under_2h" => "Under 2 hours", "2h_24h" => "2–24 hours", "1d_3d" => "1–3 days", "over_3d" => "Over 3 days" }.each do |bucket, label| %>
+        <tr class="border-t border-gray-100"><td class="py-1"><%= label %></td>
+          <td class="py-1 text-right"><%= metric_link :pool_tickets, scope, slice: bucket %></td>
+          <td class="py-1 text-right"><%= metric_link :pool_leads, scope, slice: bucket %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="text-xs text-gray-500 mb-1">By product</p>
+  <p class="text-sm mb-3">
+    <% scope.products.order(:name).each do |product| %>
+      <span class="mr-3"><%= product.name %>: <%= metric_link :pool_tickets, scope.with(product_id: product.id) %> tickets · <%= metric_link :pool_leads, scope.with(product_id: product.id) %> leads</span>
+    <% end %>
+  </p>
+  <p class="text-xs text-gray-500 mb-1">Leads by source</p>
+  <p class="text-sm mb-3">
+    <% Forefront::Source.order(:name).each do |source| %>
+      <% next if metric_value(:pool_leads_by_source, scope, slice: source.id).zero? %>
+      <span class="mr-3"><%= source.name %>: <%= metric_link :pool_leads_by_source, scope, slice: source.id %></span>
+    <% end %>
+  </p>
+  <p class="text-xs text-gray-500 mb-1">Oldest first</p>
+  <ul class="text-sm divide-y divide-gray-100">
+    <% oldest = (Forefront::Dashboard::Metrics.pool(scope, Forefront::Ticket).order(:created_at).limit(5).to_a +
+                 Forefront::Dashboard::Metrics.pool(scope, Forefront::Lead).order(:created_at).limit(5).to_a).min_by(5, &:created_at) %>
+    <% oldest.each do |work| %>
+      <li class="py-1 flex justify-between"><span><%= work.title %> · <%= time_ago_in_words(work.created_at) %></span>
+        <%= link_to "Assign", work, class: "text-indigo-600 hover:underline" %></li>
+    <% end %>
+  </ul>
+<% end %>

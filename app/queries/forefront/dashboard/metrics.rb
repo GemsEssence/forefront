@@ -141,6 +141,37 @@ module Forefront
       define :lost, title: "Leads lost", kind: :status_histories, periodic: true do |scope, _|
         moved_into(scope, "lost", by_people: false)
       end
+
+      # Unassigned pool
+      AGES = { "under_2h" => [ 0.hours, 2.hours ], "2h_24h" => [ 2.hours, 24.hours ], "1d_3d" => [ 24.hours, 72.hours ], "over_3d" => [ 72.hours, nil ] }.freeze
+
+      def self.aged(relation, bucket)
+        return relation if bucket.nil?
+        return relation.none unless AGES.key?(bucket)
+
+        newest, oldest = AGES.fetch(bucket)
+        table = relation.klass.table_name
+        relation = relation.where("#{table}.created_at <= ?", newest.ago)
+        oldest ? relation.where("#{table}.created_at > ?", oldest.ago) : relation
+      end
+
+      def self.pool(scope, model)
+        work = model == Lead ? Lead.active : Ticket.unfinished
+        pool = UnassignedPool.visible_to(scope.viewer, work)
+        scope.product_id ? pool.where(product_id: scope.product_id) : pool
+      end
+
+      define :pool_leads, title: "Unassigned leads", kind: :leads, roles: TEAM_ROLES do |scope, bucket|
+        aged(pool(scope, Lead), bucket)
+      end
+
+      define :pool_tickets, title: "Unassigned tickets", kind: :tickets, roles: TEAM_ROLES do |scope, bucket|
+        aged(pool(scope, Ticket), bucket)
+      end
+
+      define :pool_leads_by_source, title: "Unassigned leads by source", kind: :leads, roles: TEAM_ROLES do |scope, source_id|
+        source_id ? pool(scope, Lead).where(source_id: source_id) : pool(scope, Lead)
+      end
     end
   end
 end
