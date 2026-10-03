@@ -107,11 +107,15 @@ module Forefront
         scope.tickets.plan_expired.unfinished
       end
 
+      # A renewal moves the same Subscription's expires_at (CONTEXT.md), so only
+      # an unfinished renewal ticket someone acted on covers this cycle; a
+      # resolved one from the last cycle doesn't.
       define :renewal_risk, title: "Renewals at risk", kind: :subscriptions, roles: TEAM_ROLES do |scope, _|
         acted_on = AuditEvent.actions.where.not(action: "created").where(auditable_type: Ticket.name).select(:auditable_id)
-        contacted = Ticket.plan_expired.where(id: acted_on)
-                          .where("forefront_tickets.customer_id = forefront_subscriptions.customer_id")
-                          .where("forefront_tickets.product_id = forefront_subscriptions.product_id")
+        tickets, subscriptions = Ticket.table_name, Subscription.table_name
+        contacted = Ticket.plan_expired.unfinished.where(id: acted_on)
+                          .where("#{tickets}.customer_id = #{subscriptions}.customer_id")
+                          .where("#{tickets}.product_id = #{subscriptions}.product_id")
         scope.subscriptions.where(expires_at: Date.current..(Date.current + 30))
              .where("NOT EXISTS (#{contacted.select('1').to_sql})")
       end

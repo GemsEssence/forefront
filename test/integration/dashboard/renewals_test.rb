@@ -48,4 +48,17 @@ class Forefront::Dashboard::RenewalsTest < ActionDispatch::IntegrationTest
     assert_equal [ "No Ticket", "Untouched" ], drill(:renewal_risk).map { |row| row.split(" Widget").first }.sort
     assert_response :success
   end
+
+  test "last cycle's resolved renewal ticket doesn't count as contacting the customer about this one" do
+    renewed = subscriber("Renewed Last Year", 10)
+    old = renewal_ticket(renewed)
+    Forefront::AuditEvent.record!(actor: @rep, action: "added_activity", auditable: old, audited_changes: {})
+    old.update_columns(status: "resolved", created_at: 1.year.ago)
+    sign_in_as(@manager)
+
+    get "/forefront/"
+
+    assert_equal "1", metric(:renewal_risk)
+    assert_match "Renewed Last Year", drill(:renewal_risk).first
+  end
 end
