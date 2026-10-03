@@ -173,6 +173,13 @@ Forefront's home page is a dashboard for each role:
 - **Admins** see *Company*: the Team view across all teams, plus revenue,
   subscriptions and data health.
 
+**Performance** (`/performance`) ranks people over the period: records claimed
+and how fast, conversion and win rates, demos, revenue collected (by share
+on shared deals), target achievement, deal size and cycle, follow-up and
+instalment discipline, renewal rate and top lost reasons. Managers see their
+team, Admins one row per team (click through to its people), and each Sales
+person their own row. Click a name for that person's last 12 months.
+
 Filter by period (with a comparison to the period before), product, and, for
 Managers and Admins, team or person. Every number opens the list behind it.
 
