@@ -282,6 +282,10 @@ module Forefront
         scope.product_id ? leads.where(product_id: scope.product_id) : leads
       end
 
+      define :target_credited, title: "Won leads counted towards running targets", kind: :leads do |scope, _|
+        Lead.where(id: scope.current_targets.flat_map { |target| target.credited_leads.ids })
+      end
+
       define :receipts_credited, title: "Receipts credited", kind: :receipts, periodic: true do |scope, _|
         Receipt.where(received_on: scope.period.dates, payment_id: Payment.where(lead_id: credited_leads(scope).select(:id)).select(:id))
       end

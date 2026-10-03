@@ -25,6 +25,8 @@ module Forefront
       Column.new(key: :demos_done, title: "Demos done", format: :count, metric: "demos"),
       Column.new(key: :revenue_collected, title: "Revenue collected", format: :money, metric: "receipts_credited"),
       Column.new(key: :shared_revenue, title: "Shared revenue", format: :money, metric: "receipts_shared"),
+      Column.new(key: :target_achievement, title: "Target achievement", format: :percent, metric: "target_credited"),
+      Column.new(key: :collected_vs_target, title: "Collected vs target", format: :percent, metric: "receipts_credited"),
       Column.new(key: :avg_deal_size, title: "Avg deal size", format: :money, metric: "won"),
       Column.new(key: :avg_sales_cycle, title: "Avg sales cycle", format: :days, metric: "won")
     ].freeze
@@ -71,6 +73,19 @@ module Forefront
 
     def value_shared_revenue(row_scope)
       credited(Dashboard::Metrics.fetch(:receipts_shared).relation(row_scope), row_scope)
+    end
+
+    # The Targets page's rule (won amounts), for amount Targets running today.
+    def value_target_achievement(row_scope)
+      targets = row_scope.current_targets.select(&:amount?)
+      goal = targets.sum(&:goal_value)
+      goal.zero? ? nil : targets.sum(&:achieved_value) * 100 / goal
+    end
+
+    # Money received against the same goals.
+    def value_collected_vs_target(row_scope)
+      goal = row_scope.current_targets.select(&:amount?).sum(&:goal_value)
+      goal.zero? ? nil : value_revenue_collected(row_scope) * 100 / goal
     end
 
     def value_avg_deal_size(row_scope)
