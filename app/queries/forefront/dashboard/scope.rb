@@ -56,7 +56,8 @@ module Forefront
         elsif viewer.manager?
           Admin.where(id: [ viewer.id, *viewer.direct_report_ids ])
         elsif no_manager?
-          Admin.people.where(role: "sales_person", manager_id: nil)
+          sales = Admin.people.where(role: "sales_person")
+          sales.where(manager_id: nil).or(sales.where.not(manager_id: Admin.people.where(role: "manager").select(:id)))
         elsif manager_id
           Admin.people.where(id: manager_id).or(Admin.people.where(manager_id: manager_id))
         else

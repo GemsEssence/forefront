@@ -13,7 +13,7 @@
   </label>
   <% if current_admin.admin? %>
     <label class="text-xs font-medium text-gray-500">Manager
-      <%= select_tag :manager_id, options_from_collection_for_select(Forefront::Admin.people.where(role: "manager").order(:name), :id, :name, scope.manager_id), include_blank: "All teams", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+      <%= select_tag :manager_id, options_for_select([ [ "No manager", "none" ] ] + Forefront::Admin.people.where(role: "manager").order(:name).pluck(:name, :id), scope.no_manager? ? "none" : scope.manager_id), include_blank: "All teams", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
     </label>
   <% end %>
   <% if scope.members.count > 1 %>
