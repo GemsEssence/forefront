@@ -38,8 +38,9 @@ module Forefront
         scope.followups.pending.where("scheduled_for < ?", Time.current)
       end
 
+      # Only those whose time has come: one scheduled later isn't a miss yet.
       define :followups_due, title: "Followups due", kind: :followups, periodic: true do |scope, _|
-        scope.followups.where(scheduled_for: scope.period.times).where.not(status: "cancelled")
+        scope.followups.where(scheduled_for: scope.period.times).where("scheduled_for <= ?", Time.current).where.not(status: "cancelled")
       end
 
       # Completed by the end of the scheduled day (compared in Ruby: portable SQL).
