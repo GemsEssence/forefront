@@ -35,12 +35,20 @@ module Forefront
       content_tag :span, text, class: "ml-1 text-xs #{colour}", data: { change: key }, title: "vs #{scope.previous.period.label}"
     end
 
+    # The record's name, linked only when the viewer may open it (a share
+    # participant can see a Lead listed here without being allowed to open it).
     def subject_link(record)
       case record
-      when Lead, Ticket then link_to record.title, record, class: "text-indigo-600 hover:underline"
-      when Installment then link_to "Installment on #{record.payment.lead.title}", record.payment.lead, class: "text-indigo-600 hover:underline"
+      when Lead, Ticket then link_if_shown(record.title, record)
+      when Installment then link_if_shown("Installment on #{record.payment.lead.title}", record.payment.lead)
       else record.to_s
       end
+    end
+
+    private
+
+    def link_if_shown(text, record)
+      policy(record).show? ? link_to(text, record, class: "text-indigo-600 hover:underline") : text
     end
   end
 end
