@@ -236,6 +236,39 @@ module Forefront
       define :claims, title: "Records claimed", kind: :assignments, periodic: true do |scope, _|
         claims(scope)
       end
+
+      ENQUIRY_CATEGORIES = %w[enquiry signup].freeze
+
+      def self.enquiries(scope)
+        scope.tickets.where(category: ENQUIRY_CATEGORIES)
+      end
+
+      def self.converted_ticket_ids(scope)
+        AuditEvent.where(action: "converted", auditable_type: Ticket.name, created_at: scope.period.times).select(:auditable_id)
+      end
+
+      define :enquiries_converted, title: "Enquiries converted to leads", kind: :tickets, periodic: true do |scope, _|
+        enquiries(scope).where(id: converted_ticket_ids(scope))
+      end
+
+      # Converted in the period, or finished in the period without ever being converted.
+      define :enquiries_handled, title: "Enquiries handled", kind: :tickets, periodic: true do |scope, _|
+        finished = StatusHistory.where(trackable_type: Ticket.name, created_at: scope.period.times,
+                                       new_status: [ Ticket.statuses.fetch("resolved"), Ticket.statuses.fetch("closed") ]).select(:trackable_id)
+        ever_converted = AuditEvent.where(action: "converted", auditable_type: Ticket.name).select(:auditable_id)
+        enquiries(scope).where(id: converted_ticket_ids(scope))
+                        .or(enquiries(scope).where(id: finished).where.not(id: ever_converted))
+      end
+
+      define :leads_lost, title: "Leads lost", kind: :leads, periodic: true do |scope, reason_id|
+        lost = scope.leads.where(id: StatusHistory.where(trackable_type: Lead.name, new_status: Lead.statuses.fetch("lost"),
+                                                         created_at: scope.period.times).select(:trackable_id))
+        reason_id ? lost.where(lost_reason_id: reason_id) : lost
+      end
+
+      define :leads_closed, title: "Leads closed (won or lost)", kind: :leads, periodic: true do |scope, _|
+        fetch(:won).relation(scope).or(scope.leads.where(id: fetch(:leads_lost).relation(scope).select(:id)))
+      end
     end
   end
 end

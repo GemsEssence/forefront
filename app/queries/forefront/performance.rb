@@ -19,7 +19,9 @@ module Forefront
 
     COLUMNS = [
       Column.new(key: :records_claimed, title: "Records claimed", format: :count, metric: "claims"),
-      Column.new(key: :avg_time_to_claim, title: "Avg time to claim", format: :hours, metric: "claims")
+      Column.new(key: :avg_time_to_claim, title: "Avg time to claim", format: :hours, metric: "claims"),
+      Column.new(key: :ticket_to_lead, title: "Ticket → lead", format: :rate, metric: "enquiries_converted", denominator_metric: "enquiries_handled"),
+      Column.new(key: :lead_to_win, title: "Lead → win", format: :rate, metric: "won", denominator_metric: "leads_closed")
     ].freeze
 
     attr_reader :scope
@@ -46,7 +48,20 @@ module Forefront
       waits.empty? ? nil : waits.sum / waits.size
     end
 
+    def value_ticket_to_lead(row_scope)
+      rate(row_scope, "enquiries_converted", "enquiries_handled")
+    end
+
+    def value_lead_to_win(row_scope)
+      rate(row_scope, "won", "leads_closed")
+    end
+
     private
+
+    def rate(row_scope, numerator, denominator)
+      Rate.new(Dashboard::Metrics.fetch(numerator).relation(row_scope).count,
+               Dashboard::Metrics.fetch(denominator).relation(row_scope).count)
+    end
 
     def build_row(label, person, row_scope)
       Row.new(label: label, person: person, scope: row_scope,

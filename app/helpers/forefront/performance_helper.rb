@@ -12,6 +12,12 @@ module Forefront
       text = performance_text(value, column.format)
       return text if text == "—" || column.format == :reasons
 
+      if column.format == :rate
+        return safe_join([ metric_link_with(value.numerator.to_s, column.metric, row.scope), " of ",
+                           metric_link_with(value.denominator.to_s, column.denominator_metric, row.scope),
+                           " (#{number_to_percentage(value.percent, precision: 0)})" ])
+      end
+
       metric_link_with(text, column.metric, row.scope)
     end
 
