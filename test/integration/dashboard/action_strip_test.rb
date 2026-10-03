@@ -71,7 +71,9 @@ class Forefront::Dashboard::ActionStripTest < ActionDispatch::IntegrationTest
   end
 
   test "a role can't open a metric that isn't theirs" do
-    Forefront::Dashboard::Metrics.define(:managers_only_probe, title: "Probe", kind: :followups, roles: %w[manager]) { |scope, _| scope.followups }
+    unless Forefront::Dashboard::Metrics.find(:managers_only_probe)
+      Forefront::Dashboard::Metrics.define(:managers_only_probe, title: "Probe", kind: :followups, roles: %w[manager]) { |scope, _| scope.followups }
+    end
     sign_in_as(@rep)
 
     get "/forefront/dashboard/metrics/managers_only_probe"

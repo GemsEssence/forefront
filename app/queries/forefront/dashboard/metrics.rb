@@ -22,6 +22,8 @@ module Forefront
       @registry = {}
 
       def self.define(key, title:, kind:, roles: ALL_ROLES, periodic: false, &build)
+        raise ArgumentError, "Metric #{key} is already defined" if @registry.key?(key.to_s)
+
         @registry[key.to_s] = Metric.new(key: key.to_s, title: title, kind: kind, roles: roles, periodic: periodic, build: build)
       end
 
