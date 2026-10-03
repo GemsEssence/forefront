@@ -44,4 +44,16 @@ class Forefront::Dashboard::PaymentsTest < ActionDispatch::IntegrationTest
     assert_match "₹7,000.00", received.text
     assert_equal 1, drill(:receipts_received, period: "today").size
   end
+
+  test "receipts received in the period compare with the previous period" do
+    travel_to Time.zone.local(2026, 10, 15, 12)
+    payment = Forefront::Payment.create!(lead: won("Paying"), total_amount: 30_000)
+    Forefront::Receipt.create!(payment: payment, amount: 3_000, received_on: Date.current, payment_method: "cash", recorded_by: @rep)
+    Forefront::Receipt.create!(payment: payment, amount: 2_000, received_on: 1.month.ago.to_date, payment_method: "cash", recorded_by: @rep)
+    sign_in_as(@manager)
+
+    get "/forefront/"
+
+    assert_equal "▲ 50%", css_select(widget("payments"), "[data-change='receipts_received']").first&.text&.squish
+  end
 end

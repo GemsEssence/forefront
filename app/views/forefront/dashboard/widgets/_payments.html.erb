@@ -2,7 +2,7 @@
   <% today = scope.with(period: Forefront::Dashboard::Period.from_params({ period: "today" })) %>
   <dl class="grid grid-cols-3 gap-4 text-sm">
     <div><dt class="text-xs text-gray-500">Received today</dt><dd class="text-xl font-semibold"><%= metric_link :receipts_received, today, sum: :amount, money: true %></dd></div>
-    <div><dt class="text-xs text-gray-500">Received · <%= scope.period.label %></dt><dd class="text-xl font-semibold"><%= metric_link :receipts_received, scope, sum: :amount, money: true %></dd></div>
+    <div><dt class="text-xs text-gray-500">Received · <%= scope.period.label %></dt><dd class="text-xl font-semibold"><%= metric_link :receipts_received, scope, sum: :amount, money: true %><%= metric_change :receipts_received, scope, sum: :amount %></dd></div>
     <div><dt class="text-xs text-gray-500">Overdue instalments</dt><dd class="text-xl font-semibold text-red-700"><%= metric_link :instalments_overdue, scope %></dd></div>
   </dl>
 <% end %>

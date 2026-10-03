@@ -36,6 +36,21 @@ class Forefront::Dashboard::ActionStripTest < ActionDispatch::IntegrationTest
     assert_match "Ravi Rep", drill(:newly_assigned).first
   end
 
+  test "newly assigned compares with the previous period" do
+    travel_to Time.zone.local(2026, 10, 15, 12)
+    big = lead("Big Deal", @rep)
+    big.assignments.create!(to_user: @rep, changed_by: @manager)
+    big.assignments.create!(to_user: @rep, changed_by: @manager, created_at: 1.month.ago)
+    big.assignments.create!(to_user: @rep, changed_by: @manager, created_at: 1.month.ago)
+    sign_in_as(@rep)
+
+    get "/forefront/"
+
+    strip = widget("action_strip")
+    assert_equal "1", css_select(strip, "[data-metric='newly_assigned']").first.text.squish
+    assert_equal "▼ 50%", css_select(strip, "[data-change='newly_assigned']").first&.text&.squish
+  end
+
   test "a sales person can't drill into someone else's records by naming them" do
     followup(lead("Otto's", @outsider), @outsider, 2.hours.ago)
     followup(lead("Ravi's", @rep), @rep, 2.hours.ago)
