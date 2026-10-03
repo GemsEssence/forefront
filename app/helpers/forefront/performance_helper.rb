@@ -5,6 +5,16 @@ module Forefront
       content_tag :td, performance_value(row, column), class: "px-3 py-2 text-right whitespace-nowrap", data: { column: column.key }
     end
 
+    # A column header that sorts by that column; a Sales person only has
+    # themselves to look at, so gets plain titles.
+    def performance_sort_link(column, scope, sort, dir)
+      return column.title if current_admin.sales_person?
+
+      next_dir = sort.to_s == column.key.to_s && dir.to_s != "asc" ? "asc" : "desc"
+      link_to column.title, performance_path(scope.to_params.merge(sort: column.key, dir: next_dir)),
+              class: "hover:underline", data: { sort: column.key }
+    end
+
     private
 
     def performance_value(row, column)

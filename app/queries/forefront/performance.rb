@@ -17,6 +17,8 @@ module Forefront
       end
     end
 
+    DEFAULT_SORT = "revenue_collected".freeze
+
     COLUMNS = [
       Column.new(key: :records_claimed, title: "Records claimed", format: :count, metric: "claims"),
       Column.new(key: :avg_time_to_claim, title: "Avg time to claim", format: :hours, metric: "claims"),
@@ -48,6 +50,19 @@ module Forefront
 
     def rows
       scope.rows.map { |person| build_row(person.name, person, scope.for_member(person)) }
+    end
+
+    # Rows ranked by one column. Rows with nothing to show for it sort last;
+    # ties fall back to label order in both directions.
+    def sorted_rows(sort, dir)
+      key = columns.map { |column| column.key.to_s }.include?(sort) ? sort.to_sym : DEFAULT_SORT.to_sym
+      present, blank = rows.partition { |row| !sort_value(row.values[key]).nil? }
+      ranked = if dir == "asc"
+        present.sort_by { |row| [ sort_value(row.values[key]), row.label ] }
+      else
+        present.sort_by { |row| [ -sort_value(row.values[key]), row.label ] }
+      end
+      ranked + blank.sort_by(&:label)
     end
 
     def value_records_claimed(row_scope)
@@ -129,6 +144,14 @@ module Forefront
     end
 
     private
+
+    def sort_value(value)
+      case value
+      when Rate then value.percent
+      when Array then value.sum { |_, count| count }.then { |total| total.zero? ? nil : total }
+      else value
+      end
+    end
 
     def amount_targets(row_scope)
       row_scope.current_targets.select(&:amount?)

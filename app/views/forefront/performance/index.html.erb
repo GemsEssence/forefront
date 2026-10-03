@@ -14,7 +14,7 @@
       <tr>
         <th class="px-3 py-2 text-left"><%= current_admin.admin? && @scope.manager_id.nil? && @scope.member_id.nil? ? "Team" : "Person" %></th>
         <% @performance.columns.each do |column| %>
-          <th class="px-3 py-2 text-right"><%= column.title %></th>
+          <th class="px-3 py-2 text-right"><%= performance_sort_link(column, @scope, @sort, @dir) %></th>
         <% end %>
       </tr>
     </thead>
