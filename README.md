@@ -160,6 +160,22 @@ is set so the links in the emails work:
 Forefront.mailer_sender = "sales-alerts@yourcompany.com"
 ```
 
+## Dashboards
+
+Forefront's home page is a dashboard for each role:
+
+- **Sales persons** see *My Day*: what's overdue and due today, their target
+  progress, pipeline, leads shared with them, payments and renewals due, and
+  their activity this period.
+- **Managers** see *Team*: the unassigned pool, each person's workload and
+  performance, leads by stage and source, the team target, payments and
+  renewals at risk. Their own *My Day* is a tab away.
+- **Admins** see *Company*: the Team view across all teams, plus revenue,
+  subscriptions and data health.
+
+Filter by period (with a comparison to the period before), product, and, for
+Managers and Admins, team or person. Every number opens the list behind it.
+
 ## Signup API
 
 When a customer signs up in one of your products' own applications, that
