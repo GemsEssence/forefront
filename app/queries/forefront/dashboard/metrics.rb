@@ -218,6 +218,24 @@ module Forefront
         events = AuditEvent.where(action: "rejected_signup", created_at: scope.period.times)
         scope.product_id ? events.where(auditable_type: Product.name, auditable_id: scope.product_id) : events
       end
+
+      # Performance
+      # Taken from the pool: no previous assignee, assigned to themselves, on
+      # a Ticket or Lead someone else created (your own records are never claims).
+      def self.claims(scope)
+        table = Assignment.table_name
+        created_it = lambda do |model|
+          "NOT EXISTS (SELECT 1 FROM #{model.table_name} WHERE #{model.table_name}.id = #{table}.assignable_id " \
+            "AND #{table}.assignable_type = #{Assignment.connection.quote(model.name)} " \
+            "AND #{model.table_name}.created_by_id = #{table}.to_user_id)"
+        end
+        scope.assignments.where(from_user_id: nil).where("#{table}.changed_by_id = #{table}.to_user_id")
+             .where(created_at: scope.period.times).where(created_it.call(Lead)).where(created_it.call(Ticket))
+      end
+
+      define :claims, title: "Records claimed", kind: :assignments, periodic: true do |scope, _|
+        claims(scope)
+      end
     end
   end
 end

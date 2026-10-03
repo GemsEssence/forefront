@@ -17,7 +17,10 @@ module Forefront
       end
     end
 
-    COLUMNS = [].freeze
+    COLUMNS = [
+      Column.new(key: :records_claimed, title: "Records claimed", format: :count, metric: "claims"),
+      Column.new(key: :avg_time_to_claim, title: "Avg time to claim", format: :hours, metric: "claims")
+    ].freeze
 
     attr_reader :scope
 
@@ -31,6 +34,16 @@ module Forefront
 
     def rows
       scope.rows.map { |person| build_row(person.name, person, scope.for_member(person)) }
+    end
+
+    def value_records_claimed(row_scope)
+      Dashboard::Metrics.claims(row_scope).count
+    end
+
+    # Hours from the record entering the pool (its creation) to being taken.
+    def value_avg_time_to_claim(row_scope)
+      waits = Dashboard::Metrics.claims(row_scope).includes(:assignable).map { |claim| (claim.created_at - claim.assignable.created_at) / 3600.0 }
+      waits.empty? ? nil : waits.sum / waits.size
     end
 
     private
