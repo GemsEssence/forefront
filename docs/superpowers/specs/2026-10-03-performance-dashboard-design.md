@@ -19,7 +19,7 @@ features not yet built are left out entirely (see "Out of scope").
 |---|---|
 | Sales person | **My performance**: their own row and their own 12-month trend. No other people, no ranking. |
 | Manager | One row per person: their direct reports and themselves, sortable. |
-| Admin | One row per Manager's team (team totals, the Manager's own work included), plus a **No manager** row for Sales persons without one. Clicking a team opens the same page with `manager_id` set, showing one row per person in it. |
+| Admin | One row per Manager's team (team totals, the Manager's own work included), plus a **No manager** row for Sales persons with no Manager, or whose Manager is no longer a Manager. A Manager who reports to another Manager appears in both team rows. Clicking a team opens the same page with `manager_id` set, showing one row per person in it. |
 
 A sidebar link appears in the Team group for Managers and Admins, and as
 "My performance" for Sales persons. Visibility follows the role dashboards:
@@ -51,28 +51,28 @@ with a zero denominator shows "—".
 | **Records claimed** | Assignments with no previous assignee (`from_user_id` nil), made by the person to themselves (`changed_by_id = to_user_id`), in the period, on a Ticket or Lead **not created by that person**. Records someone created themselves are never claims. | those Assignments |
 | **Avg time to claim** | For the claims above: the mean time from the record's `created_at` (it entered the pool) to the Assignment's `created_at`, shown in hours (one decimal place). | the claims |
 | **Ticket → lead rate** | Numerator: Enquiry and Signup Tickets assigned to the person that were converted to a Lead in the period (an AuditEvent `converted` on the Ticket, `created_at` in the period). Denominator: the numerator, plus Enquiry and Signup Tickets assigned to the person that moved to Resolved or Closed in the period (a StatusHistory into Resolved or Closed) without being converted. Shown as "x of y (z%)". | numerator and denominator lists separately |
-| **Lead → win rate** | Leads assigned to the person that closed in the period. Won is `won_at` in the period. Lost is a StatusHistory into Lost in the period. The rate is Won ÷ (Won + Lost). | won list, lost list |
+| **Lead → win rate** | Leads assigned to the person that closed in the period. Won is `won_at` in the period. Lost is a StatusHistory into Lost in the period. The rate is Won ÷ (Won + Lost). | the won list, and the won-plus-lost list (`leads_closed`) |
 | **Demos done** | StatusHistory into Demo on a Lead, `changed_by` the person, in the period. This is the same as the dashboard's `demos` metric. | those stage moves |
 | **Revenue collected** | For each Receipt with `received_on` in the period, its amount × the person's share of that Receipt's Lead (`Lead#share_fraction_for`: the LeadShare percentage, or 100% for the assignee of an unshared Lead). The sum over the person's Leads. | the Receipts counted |
 | **Shared revenue** | The part of Revenue collected that came from Leads with a LeadShare. | those Receipts |
-| **Target achievement %** | The existing Target rule for the person's Targets running today: Σ `achieved_value` ÷ Σ `goal_value` over the person's **amount** Targets. Lead-count Targets stay on the Targets page and the dashboard Target meter. | the won Leads credited to those Targets (`Target#credited_leads`, combined) |
+| **Target achievement %** | The existing Target rule for the person's Targets running today: Σ `achieved_value` ÷ Σ `goal_value` over the person's **amount** Targets. Lead-count Targets stay on the Targets page and the dashboard Target meter. | the won Leads credited to those Targets (`Target#credited_leads`, combined); only amount Targets are listed |
 | **Collected vs target %** | Revenue collected ÷ Σ `goal_value` of the person's amount-based Targets running today. Shown only when they have one. This sits alongside Target achievement, which still counts won amounts (agreed option C). | the Receipts counted |
 | **Avg deal size** | Σ `actual_amount` ÷ number of Leads won in the period (`won_at` in the period), assigned to the person. | the won Leads |
 | **Avg sales cycle** | The mean of (`won_at` − `created_at`) in days, one decimal place, for the same won Leads. | the won Leads |
-| **Follow-up discipline** | Denominator: Followups assigned to the person with `scheduled_for` in the period, excluding cancelled ones. Numerator: those completed (`completed_at` present) by the end of their scheduled day. | numerator and denominator lists |
+| **Follow-up discipline** | Denominator: Followups assigned to the person with `scheduled_for` in the period and already past (`scheduled_for <= now`), excluding cancelled ones. A Followup scheduled later is not a miss yet. Numerator: those completed (`completed_at` present) by the end of their scheduled day. | numerator and denominator lists |
 | **Overdue now** | Pending Followups assigned to the person with `scheduled_for` before now. Not period-bound. This is the same as the dashboard's `overdue_followups`. | those Followups |
-| **Instalment collection** | Denominator: Instalments on the person's Leads with `due_on` in the period. Numerator: those paid (`paid_at` present) on or before `due_on`. | numerator and denominator lists |
+| **Instalment collection** | Denominator: Instalments on the person's Leads with `due_on` in the period and on or before today. Numerator: those paid (`paid_at` present) on or before `due_on`. | numerator and denominator lists |
 | **Renewal rate** | Renewal (`plan_expired`) Tickets assigned to the person that are Resolved or Closed in the period with a `renewal_outcome`. Renewed ÷ all of those. | renewed list, all list |
-| **Lost by reason** | The top 3 Lost reasons, with counts, among the person's Leads lost in the period. The full breakdown opens on click. | the lost Leads, by reason |
+| **Lost by reason** | The top 3 Lost reasons, with counts, among the person's Leads lost in the period. After the top 3, an "all N" link shows the total. | each reason's lost Leads, and an "all" list of every lost Lead |
 
 ## Trend
 
 `/performance/:admin_id/trend` shows the 12 months ending with this one, one
-column per month, one row per metric above. Overdue now and Target
-achievement are left out, because they describe today and not a month. Each
+column per month, one row per metric above. Overdue now, Target
+achievement and Collected vs target are left out, because they describe today (or a Target's own period) and not a month. Each
 month is computed as that month's custom period. A Sales person can open
-only their own trend. A Manager can open their reports' and their own. An
-Admin can open anyone's. Any other person returns 404.
+only their own trend. A Manager's trend is their own numbers, and they can open their reports' and their own. An
+Admin can open the trend of anyone shown on the Performance page (not other Admins). Any other person returns 404.
 
 ## Out of scope (until their features exist)
 
@@ -84,7 +84,7 @@ Admin can open anyone's. Any other person returns 404.
 ## Code layout
 
 - `app/queries/forefront/performance.rb`: `Performance.new(scope)` with `rows` (person or team rows, each a Struct of metric values with numerators and denominators) and `trend(person)`. It uses `Dashboard::Scope` and its relations. Durations are computed in Ruby from plucked timestamps, so the SQL stays portable.
-- New metrics are added to `Dashboard::Metrics` for every list a number opens: `claims`, `enquiries_finished`, `enquiries_converted`, `leads_lost`, `followups_due`, `followups_on_time`, `instalments_due`, `instalments_on_time`, `renewals_closed`, `renewals_renewed`, `receipts_credited`, `receipts_shared`, `target_credited`. Existing metrics are reused where they match: `demos`, `won`, `overdue_followups`.
+- New metrics are added to `Dashboard::Metrics` for every list a number opens: `claims`, `enquiries_handled`, `enquiries_converted`, `leads_lost`, `leads_closed`, `followups_due`, `followups_on_time`, `instalments_due_in_period`, `instalments_on_time`, `renewals_closed`, `renewals_renewed`, `receipts_credited`, `receipts_shared`, `target_credited`. Existing metrics are reused where they match: `demos`, `won`, `overdue_followups`.
 - `PerformanceController#index` and `#trend`. Pundit: a new `PerformancePolicy` (`index?` for every role; `trend?` when the person is the viewer, or within the viewer's visible people).
 - Views: `performance/index` (the ranking table) and `performance/trend`, plus a sidebar entry.
 
