@@ -12,7 +12,7 @@
   <table class="min-w-full divide-y divide-gray-200 text-sm" data-performance>
     <thead class="bg-gray-50">
       <tr>
-        <th class="px-3 py-2 text-left"><%= current_admin.admin? && @scope.manager_id.nil? && @scope.member_id.nil? ? "Team" : "Person" %></th>
+        <th class="px-3 py-2 text-left"><%= @performance.team_rows? ? "Team" : "Person" %></th>
         <% @performance.columns.each do |column| %>
           <th class="px-3 py-2 text-right"><%= performance_sort_link(column, @scope, @sort, @dir) %></th>
         <% end %>
@@ -21,7 +21,7 @@
     <tbody class="divide-y divide-gray-100">
       <% @rows.each do |row| %>
         <tr data-row="<%= row.label %>">
-          <td class="px-3 py-2 font-medium"><%= row.label %></td>
+          <td class="px-3 py-2 font-medium"><%= @performance.team_rows? ? link_to(row.label, performance_path(row.scope.to_params.except(:member_id))) : row.label %></td>
           <% @performance.columns.each do |column| %>
             <%= performance_cell(row, column) %>
           <% end %>

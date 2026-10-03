@@ -33,6 +33,16 @@ class Forefront::Dashboard::ScopeTest < ActiveSupport::TestCase
     assert_equal [ @manager.id, @rep.id ].sort, scope(@manager, member_id: @outsider.id.to_s).people_ids.sort
   end
 
+  test "an admin can narrow to sales persons with no manager; nobody else can" do
+    loner = staff("Lena Loner", "sales_person")
+    s = scope(@admin, manager_id: "none")
+    assert s.no_manager?
+    assert_includes s.people_ids, loner.id
+    assert_not_includes s.people_ids, @rep.id
+    assert_equal "none", s.to_params[:manager_id]
+    assert_not scope(@manager, manager_id: "none").no_manager?
+  end
+
   test "a manager's own tab covers only themselves" do
     own = Forefront::Dashboard::Scope.from_params(@manager, ActionController::Parameters.new({}), own: true)
     assert_equal [ @manager.id ], own.people_ids

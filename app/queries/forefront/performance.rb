@@ -49,7 +49,12 @@ module Forefront
     end
 
     def rows
-      scope.rows.map { |person| build_row(person.name, person, scope.for_member(person)) }
+      @rows ||= team_rows? ? team_row_list : scope.rows.map { |person| build_row(person.name, person, scope.for_member(person)) }
+    end
+
+    # Public: the view asks it to label the first column and link team names.
+    def team_rows?
+      scope.viewer.admin? && scope.manager_id.nil? && scope.member_id.nil? && !scope.no_manager?
     end
 
     # Rows ranked by one column. Rows with nothing to show for it sort last;
@@ -144,6 +149,14 @@ module Forefront
     end
 
     private
+
+    # One row per Manager's team, plus the Sales persons with no Manager.
+    def team_row_list
+      managers = Admin.people.where(role: "manager").order(:name)
+      teams = managers.map { |manager| build_row(manager.name, nil, scope.with(manager_id: manager.id)) }
+      loners = scope.with(manager_id: "none")
+      loners.member_ids.any? ? teams + [ build_row("No manager", nil, loners) ] : teams
+    end
 
     def sort_value(value)
       case value

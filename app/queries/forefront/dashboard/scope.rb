@@ -21,9 +21,14 @@ module Forefront
         @viewer = viewer
         @period = period
         @own = own && viewer.manager?
+        @no_manager = manager_id == "none" && viewer.admin?
         @product_id = product_id.to_i if product_id.present? && products.exists?(id: product_id)
         @manager_id = manager_id.to_i if manager_id.present? && viewer.admin? && Admin.people.manager.exists?(id: manager_id)
         @member_id = member_id.to_i if member_id.present? && member_ids.include?(member_id.to_i)
+      end
+
+      def no_manager?
+        @no_manager
       end
 
       def own?
@@ -34,7 +39,7 @@ module Forefront
       # with no Manager or member picked), so unassigned work still counts.
       def people_ids
         return [ member_id ] if member_id
-        return nil if viewer.admin? && manager_id.nil?
+        return nil if viewer.admin? && manager_id.nil? && !no_manager?
 
         member_ids
       end
@@ -50,6 +55,8 @@ module Forefront
           Admin.where(id: viewer.id)
         elsif viewer.manager?
           Admin.where(id: [ viewer.id, *viewer.direct_report_ids ])
+        elsif no_manager?
+          Admin.people.where(role: "sales_person", manager_id: nil)
         elsif manager_id
           Admin.people.where(id: manager_id).or(Admin.people.where(manager_id: manager_id))
         else
@@ -75,7 +82,7 @@ module Forefront
 
       def with(**changes)
         self.class.new(viewer, period: changes.fetch(:period, period), product_id: changes.fetch(:product_id, product_id),
-                               manager_id: changes.fetch(:manager_id, manager_id), member_id: changes.fetch(:member_id, member_id), own: own?)
+                               manager_id: changes.fetch(:manager_id, no_manager? ? "none" : manager_id), member_id: changes.fetch(:member_id, member_id), own: own?)
       end
 
       def previous
@@ -91,7 +98,7 @@ module Forefront
       end
 
       def to_params
-        period.to_params.merge(product_id: product_id, manager_id: manager_id, member_id: member_id,
+        period.to_params.merge(product_id: product_id, manager_id: (no_manager? ? "none" : manager_id), member_id: member_id,
                                tab: (own? ? "my_day" : nil)).compact
       end
 
@@ -99,6 +106,7 @@ module Forefront
         parts = [ period.label ]
         parts << Product.find(product_id).name if product_id
         parts << "#{Admin.find(manager_id).name}'s team" if manager_id && member_id.nil?
+        parts << "No manager" if no_manager? && member_id.nil?
         parts << Admin.find(member_id).name if member_id
         parts.join(" · ")
       end
