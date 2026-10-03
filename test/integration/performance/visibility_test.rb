@@ -40,6 +40,28 @@ class Forefront::Performance::VisibilityTest < ActionDispatch::IntegrationTest
     assert_not_includes row_labels, "Otto Outsider"
   end
 
+  test "a sales person cannot widen their view with member_id or manager_id" do
+    sign_in_as(@ravi)
+
+    get "/forefront/performance", params: { member_id: @otto.id }
+    assert_response :success
+    assert_equal [ "Ravi Rep" ], row_labels
+
+    get "/forefront/performance", params: { manager_id: @manager.id }
+    assert_response :success
+    assert_equal [ "Ravi Rep" ], row_labels
+  end
+
+  test "an admin can open the page and sees the people rows" do
+    sign_in_as(@admin)
+
+    get "/forefront/performance"
+
+    assert_response :success
+    assert_select "h2", "Performance"
+    assert_operator row_labels.size, :>, 0
+  end
+
   test "the sidebar links to it for every role" do
     sign_in_as(@ravi)
     get "/forefront/"
