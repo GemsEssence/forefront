@@ -9,8 +9,14 @@ module Forefront
 
     def performance_value(row, column)
       value = row.values[column.key]
+      if column.format == :reasons
+        return "—" if value.blank?
+
+        return safe_join(value.map { |reason, count| metric_link_with("#{reason.name} (#{count})", column.metric, row.scope, slice: reason.id) }, " · ")
+      end
+
       text = performance_text(value, column.format)
-      return text if text == "—" || column.format == :reasons
+      return text if text == "—"
 
       if column.format == :rate
         return safe_join([ metric_link_with(value.numerator.to_s, column.metric, row.scope), " of ",

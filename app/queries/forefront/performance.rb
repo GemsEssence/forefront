@@ -32,7 +32,8 @@ module Forefront
       Column.new(key: :followup_discipline, title: "Follow-up discipline", format: :rate, metric: "followups_on_time", denominator_metric: "followups_due"),
       Column.new(key: :overdue_now, title: "Overdue now", format: :count, metric: "overdue_followups"),
       Column.new(key: :instalment_collection, title: "Instalment collection", format: :rate, metric: "instalments_on_time", denominator_metric: "instalments_due_in_period"),
-      Column.new(key: :renewal_rate, title: "Renewal rate", format: :rate, metric: "renewals_renewed", denominator_metric: "renewals_closed")
+      Column.new(key: :renewal_rate, title: "Renewal rate", format: :rate, metric: "renewals_renewed", denominator_metric: "renewals_closed"),
+      Column.new(key: :lost_by_reason, title: "Lost by reason", format: :reasons, metric: "leads_lost")
     ].freeze
 
     attr_reader :scope
@@ -118,6 +119,13 @@ module Forefront
 
     def value_renewal_rate(row_scope)
       rate(row_scope, "renewals_renewed", "renewals_closed")
+    end
+
+    # The three most frequent reasons as [LostReason, count], most frequent first.
+    def value_lost_by_reason(row_scope)
+      counts = Dashboard::Metrics.fetch(:leads_lost).relation(row_scope).group(:lost_reason_id).count
+      reasons = LostReason.where(id: counts.keys).index_by(&:id)
+      counts.sort_by { |id, count| [ -count, reasons[id]&.name.to_s ] }.first(3).filter_map { |id, count| [ reasons[id], count ] if reasons[id] }
     end
 
     private
