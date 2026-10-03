@@ -58,13 +58,34 @@ class Forefront::Performance::SortingTest < ActionDispatch::IntegrationTest
     assert_equal [ "Mona Manager", "Ravi Rep", "Sara Seller" ], row_labels
   end
 
-  test "array or junk sort params fall back to the default" do
+  def give_sara_revenue
+    customer = Forefront::Customer.first
+    lead = Forefront::Lead.create!(title: "Paid", description: "D", customer: customer, created_by: @sara, assigned_to: @sara,
+                                   source: forefront_source, status: "won", actual_amount: 5_000)
+    payment = Forefront::Payment.create!(lead: lead, total_amount: 5_000)
+    Forefront::Receipt.create!(payment: payment, amount: 5_000, received_on: Date.current, payment_method: "cash", recorded_by: @sara)
+  end
+
+  test "no, unknown or junk sort params all rank by revenue collected, highest first" do
+    give_sara_revenue
+    sign_in_as(@manager)
+    expected = [ "Sara Seller", "Mona Manager", "Ravi Rep" ]
+
+    [ "", "?sort=no_such_column", "?sort[]=x", "?sort=revenue_collected&dir=sideways", "?sort=revenue_collected&dir[]=x" ].each do |query|
+      get "/forefront/performance#{query}"
+      assert_response :success
+      assert_equal expected, row_labels, "order for #{query.inspect}"
+    end
+  end
+
+  test "the default column's header link toggles to ascending, and back" do
     sign_in_as(@manager)
 
-    get "/forefront/performance?sort[]=x&dir[]=asc"
+    get "/forefront/performance"
+    assert_select "thead a[data-sort='revenue_collected'][href*='dir=asc']"
 
-    assert_response :success
-    assert_equal 3, row_labels.size
+    get "/forefront/performance", params: { sort: "revenue_collected", dir: "asc" }
+    assert_select "thead a[data-sort='revenue_collected'][href*='dir=desc']"
   end
 
   test "a column whose values are all dashes still sorts, by name" do

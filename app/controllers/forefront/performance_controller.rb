@@ -8,8 +8,9 @@ module Forefront
       authorize :performance, :index?, policy_class: Forefront::PerformancePolicy
       @scope = Dashboard::Scope.from_params(current_admin, params)
       @performance = Performance.new(@scope)
-      @sort = params[:sort] if params[:sort].is_a?(String)
-      @dir = params[:dir] if params[:dir].is_a?(String)
+      sort = params[:sort]
+      @sort = @performance.columns.any? { |column| column.key.to_s == sort } ? sort : Performance::DEFAULT_SORT
+      @dir = params[:dir] == "asc" ? "asc" : "desc"
       @rows = @performance.sorted_rows(@sort, @dir)
     end
   end
