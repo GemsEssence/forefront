@@ -52,8 +52,15 @@ module Forefront
         member_id ? Admin.where(id: member_id) : members.order(:name)
       end
 
+      # Products the filter offers: all for an Admin, a Manager's team's
+      # allocations (theirs or a direct report's), a Sales person's own.
       def products
-        viewer.admin? ? Product.all : viewer.products
+        if viewer.admin? then Product.all
+        elsif viewer.manager?
+          team = Admin.where(id: viewer.id).or(Admin.where(manager_id: viewer.id))
+          Product.where(id: ProductAllocation.where(admin_id: team.select(:id)).select(:product_id))
+        else viewer.products
+        end
       end
 
       def with(**changes)

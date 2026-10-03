@@ -43,6 +43,23 @@ class Forefront::DashboardTest < ActionDispatch::IntegrationTest
     assert_select "select[name=product_id] option", text: "Widget"
   end
 
+  test "a manager with no allocations of their own can filter by their team's products" do
+    customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
+    Forefront::Lead.create!(title: "Widget deal", description: "D", customer: customer, created_by: @rep, assigned_to: @rep,
+                            source: forefront_source, product: @product)
+    Forefront::Lead.create!(title: "Other deal", description: "D", customer: customer, created_by: @rep, assigned_to: @rep,
+                            source: forefront_source)
+    sign_in_as(@manager)
+
+    get "/forefront/"
+    assert_select "select[name=product_id] option", text: "Widget"
+    assert_equal "2", metric(:pipeline, slice: "open")
+
+    get "/forefront/", params: { product_id: @product.id }
+    assert_select "select[name=product_id] option[selected]", text: "Widget"
+    assert_equal "1", metric(:pipeline, slice: "open")
+  end
+
   test "the old company-wide tiles are gone, so a sales person sees no one else's totals" do
     sign_in_as(@rep)
     get "/forefront/"
