@@ -38,6 +38,17 @@ module Forefront
         scope.followups.pending.where("scheduled_for < ?", Time.current)
       end
 
+      define :followups_due, title: "Followups due", kind: :followups, periodic: true do |scope, _|
+        scope.followups.where(scheduled_for: scope.period.times).where.not(status: "cancelled")
+      end
+
+      # Completed by the end of the scheduled day (compared in Ruby: portable SQL).
+      define :followups_on_time, title: "Followups done on time", kind: :followups, periodic: true do |scope, _|
+        due = fetch(:followups_due).relation(scope).where.not(completed_at: nil)
+        on_time = due.pluck(:id, :scheduled_for, :completed_at).select { |_, scheduled, done| done <= scheduled.end_of_day }.map(&:first)
+        Followup.where(id: on_time)
+      end
+
       define :followups_due_today, title: "Followups due today", kind: :followups do |scope, _|
         scope.followups.pending.where(scheduled_for: Time.current..Time.current.end_of_day)
       end

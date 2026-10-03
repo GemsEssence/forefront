@@ -28,7 +28,9 @@ module Forefront
       Column.new(key: :target_achievement, title: "Target achievement", format: :percent, metric: "target_credited"),
       Column.new(key: :collected_vs_target, title: "Collected vs target", format: :percent, metric: "receipts_credited"),
       Column.new(key: :avg_deal_size, title: "Avg deal size", format: :money, metric: "won"),
-      Column.new(key: :avg_sales_cycle, title: "Avg sales cycle", format: :days, metric: "won")
+      Column.new(key: :avg_sales_cycle, title: "Avg sales cycle", format: :days, metric: "won"),
+      Column.new(key: :followup_discipline, title: "Follow-up discipline", format: :rate, metric: "followups_on_time", denominator_metric: "followups_due"),
+      Column.new(key: :overdue_now, title: "Overdue now", format: :count, metric: "overdue_followups")
     ].freeze
 
     attr_reader :scope
@@ -98,6 +100,14 @@ module Forefront
     def value_avg_sales_cycle(row_scope)
       days = Dashboard::Metrics.fetch(:won).relation(row_scope).pluck(:created_at, :won_at).map { |created, won| (won - created) / 1.day }
       days.empty? ? nil : days.sum / days.size
+    end
+
+    def value_followup_discipline(row_scope)
+      rate(row_scope, "followups_on_time", "followups_due")
+    end
+
+    def value_overdue_now(row_scope)
+      Dashboard::Metrics.fetch(:overdue_followups).relation(row_scope).count
     end
 
     private
