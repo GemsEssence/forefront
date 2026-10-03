@@ -15,6 +15,9 @@ if ActiveSupport::TestCase.respond_to?(:fixture_paths=)
 end
 
 class ActiveSupport::TestCase
+  # One process per core, each with its own database (forefront_dummy_test-N).
+  parallelize(workers: :number_of_processors)
+
   # Leads need a Source; most tests don't care which.
   def forefront_source(name = "Website")
     Forefront::Source.find_or_create_by!(name: name)
