@@ -1,0 +1,18 @@
+<%= render layout: "forefront/dashboard/widget", locals: { title: title } do %>
+  <table class="w-full text-sm">
+    <thead><tr class="text-xs text-gray-500"><th class="text-left">Source</th><th class="text-right">Leads</th><th class="text-right">Won</th><th class="text-right">Rate</th><th class="text-right">Revenue</th></tr></thead>
+    <tbody>
+      <% Forefront::Source.order(:name).each do |source| %>
+        <% created = metric_value(:source_leads, scope, slice: source.id) %>
+        <% next if created.zero? %>
+        <% won = metric_value(:source_won, scope, slice: source.id) %>
+        <tr class="border-t border-gray-100"><td class="py-1"><%= source.name %></td>
+          <td class="py-1 text-right"><%= metric_link :source_leads, scope, slice: source.id %></td>
+          <td class="py-1 text-right"><%= metric_link :source_won, scope, slice: source.id %></td>
+          <td class="py-1 text-right"><%= number_to_percentage(won * 100.0 / created, precision: 0) %></td>
+          <td class="py-1 text-right"><%= metric_link :source_won, scope, slice: source.id, sum: :actual_amount, money: true %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="mt-2 text-xs text-gray-500">Leads created in the period, and how many of those are won.</p>
+<% end %>

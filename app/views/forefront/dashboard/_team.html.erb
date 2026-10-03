@@ -3,6 +3,8 @@
   <%= render "forefront/dashboard/widgets/team_target", scope: scope %>
   <%= render "forefront/dashboard/widgets/workload", scope: scope %>
   <%= render "forefront/dashboard/widgets/payments", scope: scope %>
+  <%= render "forefront/dashboard/widgets/pipeline", scope: scope, title: "Leads by stage", values: false %>
+  <%= render "forefront/dashboard/widgets/leads_by_source", scope: scope, title: (current_admin.admin? ? "Source ROI" : "Leads by source") %>
   <%= render "forefront/dashboard/widgets/renewal_risk", scope: scope %>
   <div class="lg:col-span-2">
     <%= render "forefront/dashboard/widgets/performance", scope: scope %>

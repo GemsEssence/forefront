@@ -181,6 +181,16 @@ module Forefront
       define :active_leads, title: "Open leads", kind: :leads do |scope, _|
         scope.leads.active
       end
+
+      # Leads by source / Source ROI
+      define :source_leads, title: "Leads created", kind: :leads, periodic: true do |scope, source_id|
+        leads = scope.leads.where(created_at: scope.period.times)
+        source_id ? leads.where(source_id: source_id) : leads
+      end
+
+      define :source_won, title: "Leads created and now won", kind: :leads, periodic: true do |scope, source_id|
+        fetch(:source_leads).relation(scope, source_id).won
+      end
     end
   end
 end
