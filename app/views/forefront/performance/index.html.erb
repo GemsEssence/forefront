@@ -4,6 +4,8 @@
 </div>
 
 <%= form_with url: performance_path, method: :get, local: true, class: "bg-white shadow rounded-lg p-4 mb-6 flex flex-wrap items-end gap-4" do %>
+  <%= hidden_field_tag :sort, @sort, id: nil %>
+  <%= hidden_field_tag :dir, @dir, id: nil %>
   <%= render "forefront/dashboard/filter_fields", scope: @scope %>
   <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">Apply</button>
 <% end %>
@@ -21,7 +23,7 @@
     <tbody class="divide-y divide-gray-100">
       <% @rows.each do |row| %>
         <tr data-row="<%= row.label %>">
-          <td class="px-3 py-2 font-medium"><% if @performance.team_rows? %><%= link_to row.label, performance_path(row.scope.to_params.except(:member_id)) %><% elsif row.person %><%= link_to row.label, performance_trend_path(row.person) %><% else %><%= row.label %><% end %></td>
+          <td class="px-3 py-2 font-medium"><% if @performance.team_rows? %><%= link_to row.label, performance_path(row.scope.to_params.except(:member_id)) %><% elsif row.person %><%= link_to row.label, performance_trend_path(row.person, product_id: @scope.product_id) %><% else %><%= row.label %><% end %></td>
           <% @performance.columns.each do |column| %>
             <%= performance_cell(row, column) %>
           <% end %>

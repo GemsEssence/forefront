@@ -32,6 +32,15 @@ class Forefront::Performance::SortingTest < ActionDispatch::IntegrationTest
     assert_equal 3, row_labels.size
   end
 
+  test "applying the filter form keeps the chosen sort and direction" do
+    sign_in_as(@manager)
+
+    get "/forefront/performance", params: { sort: "demos_done", dir: "asc" }
+
+    assert_select "form input[type=hidden][name=sort][value=demos_done]"
+    assert_select "form input[type=hidden][name=dir][value=asc]"
+  end
+
   test "ties fall back to name order in both directions" do
     sign_in_as(@manager)
 

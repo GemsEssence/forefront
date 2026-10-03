@@ -269,7 +269,7 @@ module Forefront
       define :enquiries_handled, title: "Enquiries handled", kind: :tickets, periodic: true do |scope, _|
         finished = StatusHistory.where(trackable_type: Ticket.name, created_at: scope.period.times,
                                        new_status: [ Ticket.statuses.fetch("resolved"), Ticket.statuses.fetch("closed") ]).select(:trackable_id)
-        ever_converted = AuditEvent.where(action: "converted", auditable_type: Ticket.name).select(:auditable_id)
+        ever_converted = AuditEvent.where(action: "converted", auditable_type: Ticket.name).where.not(auditable_id: nil).select(:auditable_id)
         enquiries(scope).where(id: converted_ticket_ids(scope))
                         .or(enquiries(scope).where(id: finished).where.not(id: ever_converted))
       end
@@ -310,7 +310,7 @@ module Forefront
 
       # Only those whose date has come: one due later isn't a miss yet.
       define :instalments_due_in_period, title: "Instalments due", kind: :installments, periodic: true do |scope, _|
-        scope.installments.where(due_on: scope.period.dates).where("due_on <= ?", Date.current)
+        scope.installments.where(due_on: scope.period.dates).where(due_on: ..Date.current)
       end
 
       # Paid by the due date (compared in Ruby: portable SQL).

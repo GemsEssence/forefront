@@ -23,7 +23,7 @@ class Forefront::Performance::TrendTest < ActionDispatch::IntegrationTest
     labels = row_labels
     assert_equal 12, labels.size
     assert_equal Date.current.strftime("%b %Y"), labels.last
-    assert_equal "1", cell(1.month.ago.to_date.strftime("%b %Y"), "demos_done")
+    assert_equal "1", cell(Date.current.prev_month.strftime("%b %Y"), "demos_done")
     assert_equal "0", cell(Date.current.strftime("%b %Y"), "demos_done")
     assert_select "td[data-column='overdue_now']", count: 0
   end
@@ -70,5 +70,15 @@ class Forefront::Performance::TrendTest < ActionDispatch::IntegrationTest
     get "/forefront/performance"
 
     assert_select "tr[data-row='Ravi Rep'] a[href='/forefront/performance/#{@ravi.id}/trend']"
+  end
+
+  test "the name link carries the product filter into the trend" do
+    product = Forefront::Product.create!(name: "Widget")
+    product.admins << @ravi
+    sign_in_as(@manager)
+
+    get "/forefront/performance", params: { product_id: product.id }
+
+    assert_select "tr[data-row='Ravi Rep'] a[href='/forefront/performance/#{@ravi.id}/trend?product_id=#{product.id}']"
   end
 end
