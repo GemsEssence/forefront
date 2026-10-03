@@ -19,7 +19,7 @@ module Forefront
       raise ActiveRecord::RecordNotFound unless Forefront::PerformancePolicy.new(current_admin, @person).trend?
 
       authorize @person, :trend?, policy_class: Forefront::PerformancePolicy
-      @scope = Dashboard::Scope.from_params(current_admin, params.permit(:product_id))
+      @scope = Dashboard::Scope.from_params(current_admin, params.slice(:product_id))
       @performance = Performance.new(@scope)
       @rows = @performance.trend(@person)
     end

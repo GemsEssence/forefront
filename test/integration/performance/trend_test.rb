@@ -28,6 +28,19 @@ class Forefront::Performance::TrendTest < ActionDispatch::IntegrationTest
     assert_select "td[data-column='overdue_now']", count: 0
   end
 
+  test "the trend page works in a host that raises on unpermitted parameters" do
+    sign_in_as(@manager)
+    original = ActionController::Parameters.action_on_unpermitted_parameters
+    ActionController::Parameters.action_on_unpermitted_parameters = :raise
+
+    get "/forefront/performance/#{@ravi.id}/trend", params: { product_id: "", utm: "x" }
+
+    assert_response :success
+    assert_equal 12, row_labels.size
+  ensure
+    ActionController::Parameters.action_on_unpermitted_parameters = original
+  end
+
   test "a sales person sees their own trend, and nobody sees a trend outside their scope" do
     sign_in_as(@ravi)
     get "/forefront/performance/#{@ravi.id}/trend"
