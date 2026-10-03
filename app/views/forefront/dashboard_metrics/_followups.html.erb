@@ -1,7 +1,7 @@
 <table data-records class="min-w-full divide-y divide-gray-200 text-sm">
   <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">On</th><th class="px-4 py-2 text-left">Type</th><th class="px-4 py-2 text-left">Assigned to</th><th class="px-4 py-2 text-left">Scheduled for</th></tr></thead>
   <tbody class="divide-y divide-gray-100">
-    <% records.each do |followup| %>
+    <% records.includes(:followupable, :assigned_to).each do |followup| %>
       <tr><td class="px-4 py-2"><%= subject_link(followup.followupable) %></td><td class="px-4 py-2"><%= followup.followup_type.humanize %></td>
           <td class="px-4 py-2"><%= followup.assigned_to&.name %></td><td class="px-4 py-2"><%= followup.scheduled_for.strftime("%-d %b %H:%M") %></td></tr>
     <% end %>

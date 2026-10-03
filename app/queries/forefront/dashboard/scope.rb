@@ -18,7 +18,7 @@ module Forefront
         @own = own && viewer.manager?
         @product_id = product_id.to_i if product_id.present? && products.exists?(id: product_id)
         @manager_id = manager_id.to_i if manager_id.present? && viewer.admin? && Admin.people.manager.exists?(id: manager_id)
-        @member_id = member_id.to_i if member_id.present? && members.exists?(id: member_id)
+        @member_id = member_id.to_i if member_id.present? && member_ids.include?(member_id.to_i)
       end
 
       def own?
@@ -31,7 +31,12 @@ module Forefront
         return [ member_id ] if member_id
         return nil if viewer.admin? && manager_id.nil?
 
-        members.ids
+        member_ids
+      end
+
+      # The ids of #members, loaded once per Scope.
+      def member_ids
+        @member_ids ||= members.ids
       end
 
       # Who this dashboard can be narrowed to.
@@ -72,8 +77,12 @@ module Forefront
         with(period: period.previous)
       end
 
+      # Per-person tables call this for every cell, so a person already known
+      # to be in view (from #rows) isn't checked against the database again.
       def for_member(admin)
-        with(member_id: admin.id)
+        return with(member_id: admin.id) unless member_ids.include?(admin.id)
+
+        dup.narrow_to_member(admin.id)
       end
 
       def to_params
@@ -135,6 +144,13 @@ module Forefront
 
       def subscriptions
         Subscription.where(lead_id: leads.select(:id))
+      end
+
+      protected
+
+      def narrow_to_member(id)
+        @member_id = id
+        self
       end
 
       private

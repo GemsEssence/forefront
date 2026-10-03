@@ -1,7 +1,7 @@
 <table data-records class="min-w-full divide-y divide-gray-200 text-sm">
   <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">Work</th><th class="px-4 py-2 text-left">Assigned to</th><th class="px-4 py-2 text-left">By</th><th class="px-4 py-2 text-left">When</th></tr></thead>
   <tbody class="divide-y divide-gray-100">
-    <% records.each do |assignment| %>
+    <% records.includes(:assignable, :to_user, :changed_by).each do |assignment| %>
       <tr><td class="px-4 py-2"><%= subject_link(assignment.assignable) %></td><td class="px-4 py-2"><%= assignment.to_user&.name %></td>
           <td class="px-4 py-2"><%= assignment.changed_by&.name %></td><td class="px-4 py-2"><%= assignment.created_at.strftime("%-d %b %H:%M") %></td></tr>
     <% end %>
