@@ -30,5 +30,6 @@ module Forefront
     register "lead_source", "Forefront::Reports::LeadSource"
     register "pipeline_forecast", "Forefront::Reports::PipelineForecast"
     register "conversion_funnel", "Forefront::Reports::ConversionFunnel"
+    register "lost_analysis", "Forefront::Reports::LostAnalysis"
   end
 end
