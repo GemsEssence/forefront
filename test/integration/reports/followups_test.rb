@@ -65,6 +65,38 @@ class Forefront::Reports::FollowupsTest < ActionDispatch::IntegrationTest
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
       assert_includes headers, "Due · 28 Sep – 4 Oct"
       assert_includes headers, "Overdue now"
+      assert_equal 1, headers.count("Overdue now")
+      assert_empty headers.grep(/\AOverdue now ·/)
+
+      cells = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }
+                                                         .find { |row| row[0] == "Ravi Rep" }
+      value = ->(header) { cells[headers.index(header)] }
+      assert_equal "1", value.call("Due · 28 Sep – 4 Oct")
+      assert_equal "1", value.call("Due · 5 Oct – 11 Oct")
+      assert_equal "2", value.call("Due · Total")
+    end
+  end
+
+  test "rescheduled ignores events before the period or by someone else and lands in its bucket" do
+    travel_to Time.zone.local(2026, 10, 20, 12) do
+      change = { "scheduled_for" => [ 1.day.ago, Time.current ] }
+      record = lambda do |actor, at|
+        event = Forefront::AuditEvent.record!(actor: actor, action: "updated_followup", auditable: @lead, audited_changes: change)
+        Forefront::AuditEvent.where(id: event.id).update_all(created_at: at)
+      end
+      record.call(@ravi, Time.zone.local(2026, 9, 30, 12))
+      record.call(@otto, Time.zone.local(2026, 10, 7, 12))
+      record.call(@ravi, Time.zone.local(2026, 10, 7, 12))
+      sign_in_as(@manager)
+
+      get "/forefront/reports/followups", params: { breakdown: "week" }
+
+      headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
+      cells = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }
+                                                         .find { |row| row[0] == "Ravi Rep" }
+      assert_equal "0", cells[headers.index("Rescheduled · 28 Sep – 4 Oct")]
+      assert_equal "1", cells[headers.index("Rescheduled · 5 Oct – 11 Oct")]
+      assert_equal "1", cells[headers.index("Rescheduled · Total")]
     end
   end
 end
