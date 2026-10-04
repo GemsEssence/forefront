@@ -10,7 +10,7 @@ module Forefront
         label_columns + metrics.flat_map do |metric|
           next [ column(metric.key, metric.title, metric.format) ] unless broken_down?(metric)
 
-          buckets.map { |label, _| column(:"#{metric.key}_#{label.parameterize(separator: '_')}", "#{metric.title} · #{label}", metric.format) } +
+          buckets.map { |label, dates| column(:"#{metric.key}_#{dates.begin.iso8601}", "#{metric.title} · #{label}", metric.format) } +
             [ column(:"#{metric.key}_total", "#{metric.title} · Total", metric.format) ]
         end
       end

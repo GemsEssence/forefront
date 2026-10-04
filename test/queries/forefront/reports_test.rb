@@ -51,3 +51,35 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     assert_nil base.send(:mean, [])
   end
 end
+
+class Forefront::MetricReportTest < ActiveSupport::TestCase
+  class Tiny < Forefront::Reports::MetricReport
+    def label_columns = [ column(:name, "Name", :text) ]
+    def row_keys = [ [ [ "A" ], :a ] ]
+
+    def metrics
+      [ Forefront::Reports::Metric.new(key: :per, title: "Per", format: :count, periodic: true, value: ->(_k, ctx) { ctx.period.dates.count }),
+        Forefront::Reports::Metric.new(key: :now, title: "Now", format: :count, periodic: false, value: ->(_k, _c) { 99 }) ]
+    end
+  end
+
+  def context(breakdown)
+    admin = Forefront::Admin.new(role: "admin")
+    scope = Forefront::Dashboard::Scope.new(admin, period: Forefront::Dashboard::Period.for_dates(Date.new(2026, 10, 1)..Date.new(2026, 10, 14)))
+    Forefront::Reports::Context.new(scope: scope, breakdown: breakdown)
+  end
+
+  test "without a breakdown every metric is one column" do
+    report = Tiny.new(context(nil))
+    assert_equal [ "Name", "Per", "Now" ], report.columns.map(&:title)
+    assert_equal [ [ "A", 14, 99 ] ], report.rows
+  end
+
+  test "a breakdown gives a periodic metric bucket columns and a Total, others stay single" do
+    report = Tiny.new(context("week"))
+    assert_equal [ "Name", "Per · 28 Sep – 4 Oct", "Per · 5 Oct – 11 Oct", "Per · 12 Oct – 18 Oct", "Per · Total", "Now" ], report.columns.map(&:title)
+    assert_equal [ [ "A", 4, 7, 3, 14, 99 ] ], report.rows
+    assert_equal report.columns.size, report.rows.first.size
+    assert_equal report.columns.map(&:key).uniq, report.columns.map(&:key)
+  end
+end

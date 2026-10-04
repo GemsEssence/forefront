@@ -86,3 +86,31 @@ class Forefront::Reports::LeadSourceTest < ActionDispatch::IntegrationTest
     assert csv.any? { |row| row.first == "Website" && row.include?("2500.00") }
   end
 end
+
+class Forefront::Reports::LeadSourceQueryCountTest < ActionDispatch::IntegrationTest
+  include DashboardTestHelpers
+
+  def queries_for(path, params)
+    ActiveRecord::Base.connection.clear_query_cache
+    count = 0
+    counter = ->(*, payload) { count += 1 unless payload[:name] == "SCHEMA" || payload[:cached] }
+    ActiveSupport::Notifications.subscribed(counter, "sql.active_record") { get path, params: params }
+    assert_response :success
+    count
+  end
+
+  test "the number of queries does not grow with the rows or the buckets" do
+    manager = dashboard_staff("Mona Manager", "manager")
+    customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
+    make = lambda do |name|
+      Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: manager, assigned_to: manager,
+                              source: forefront_source(name), created_at: 3.days.ago)
+    end
+    make.call("S1")
+    sign_in_as(manager)
+    few = queries_for("/forefront/reports/lead_source", { breakdown: "day", period: "custom", from: 7.days.ago.to_date.iso8601, to: Date.current.iso8601 })
+    5.times { |i| make.call("Extra #{i}") }
+    many = queries_for("/forefront/reports/lead_source", { breakdown: "day", period: "custom", from: 30.days.ago.to_date.iso8601, to: Date.current.iso8601 })
+    assert_operator (many - few).abs, :<=, 2
+  end
+end
