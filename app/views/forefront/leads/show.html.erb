@@ -238,7 +238,9 @@
       <%= render 'forefront/followups/form', followupable: @lead %>
 
       <!-- Activity Form -->
-      <%= render "forefront/activities/form", actable: @lead %>
+      <% if can_create_activity?(@lead) %>
+        <%= render "forefront/activities/form", actable: @lead %>
+      <% end %>
 
       <!-- Activities List -->
       <%= render "forefront/activities/list", activities: @activities, actable: @lead %>

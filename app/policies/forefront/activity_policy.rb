@@ -7,15 +7,13 @@ module Forefront
       @activity = activity
     end
 
+    # A note needs the right to work on the Lead or Ticket it is added to,
+    # the same as a Followup.
     def create?
-      return true unless activity.actable.present?
-      
       actable = activity.actable
-      return true if actable.is_a?(Forefront::Lead) && LeadPolicy.new(current_admin, actable).participant?
+      return true unless actable.present?
 
-      creator? || 
-      (actable.respond_to?(:created_by_id) && actable.created_by_id == current_admin.id) ||
-      (actable.respond_to?(:assigned_to_id) && actable.assigned_to_id == current_admin.id)
+      work_policy_for(actable).work_on?
     end
 
     def update?
@@ -31,6 +29,11 @@ module Forefront
     end
 
     private
+
+    def work_policy_for(actable)
+      policy_class = actable.is_a?(Forefront::Lead) ? LeadPolicy : TicketPolicy
+      policy_class.new(current_admin, actable)
+    end
 
     def creator?
       activity.created_by_id == current_admin.id

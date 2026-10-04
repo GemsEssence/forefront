@@ -176,7 +176,9 @@
       <% end %>
 
       <!-- Activity Form -->
-      <%= render "forefront/activities/form", actable: @ticket %>
+      <% if can_create_activity?(@ticket) %>
+        <%= render "forefront/activities/form", actable: @ticket %>
+      <% end %>
 
       <!-- Activities List -->
       <%= render "forefront/activities/list", activities: @activities, actable: @ticket %>
