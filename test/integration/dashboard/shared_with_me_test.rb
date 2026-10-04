@@ -28,7 +28,7 @@ class Forefront::Dashboard::SharedWithMeTest < ActionDispatch::IntegrationTest
     assert_match "Joint Deal", drill(:shared_with_me).first
   end
 
-  test "a participant who can't open the lead sees its title as plain text, not a link that bounces" do
+  test "a participant can open the lead, so its title links to it" do
     lead = Forefront::Lead.create!(title: "Joint Deal", description: "D", customer: @customer, created_by: @owner, assigned_to: @rep, source: forefront_source)
     lead.assignments.create!(to_user: @rep, changed_by: @owner)
     lead.assignments.create!(to_user: @owner, from_user: @rep, changed_by: @rep)
@@ -38,10 +38,9 @@ class Forefront::Dashboard::SharedWithMeTest < ActionDispatch::IntegrationTest
 
     get "/forefront/"
 
-    assert_match "Joint Deal", widget("shared_with_me").text
-    assert_empty css_select("section[data-widget='shared_with_me'] a[href='/forefront/leads/#{lead.id}']")
-    assert_match "Joint Deal", drill(:shared_with_me).first
-    assert_empty css_select("table[data-records] a[href='/forefront/leads/#{lead.id}']")
+    assert_select "section[data-widget='shared_with_me'] a[href='/forefront/leads/#{lead.id}']", text: "Joint Deal"
+    drill(:shared_with_me)
+    assert_select "table[data-records] a[href='/forefront/leads/#{lead.id}']", text: "Joint Deal"
   end
 
   test "an admin can't open it" do

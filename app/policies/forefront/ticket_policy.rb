@@ -33,6 +33,11 @@ module Forefront
       update?
     end
 
+    # Notes and Followups; the same people who may edit a Ticket.
+    def work_on?
+      update?
+    end
+
     def destroy?
       super_admin?
     end

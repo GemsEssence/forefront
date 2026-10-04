@@ -14,7 +14,7 @@ module Forefront
     end
 
     def show?
-      super_admin? || owner? || assignee? || manages_owner_or_assignee? || pooled_for_me?
+      super_admin? || owner? || assignee? || manages_owner_or_assignee? || pooled_for_me? || participant?
     end
 
     def create?
@@ -33,6 +33,12 @@ module Forefront
       update?
     end
 
+    # Notes and Followups: open to everyone who may edit the Lead, and to the
+    # people it is shared with. Nothing else a participant may do.
+    def work_on?
+      update? || participant?
+    end
+
     def destroy?
       super_admin?
     end
@@ -45,6 +51,14 @@ module Forefront
 
     def change_assignee?
       super_admin? || assignee? || manages_owner_or_assignee? || manages_pool?
+    end
+
+    # Someone the Lead is shared with (a LeadShare participant).
+    def participant?
+      return false unless lead.persisted?
+
+      Forefront::LeadShareParticipant.joins(:lead_share)
+                                     .exists?(admin_id: current_admin.id, forefront_lead_shares: { lead_id: lead.id })
     end
 
     class Scope

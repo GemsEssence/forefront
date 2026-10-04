@@ -4,7 +4,7 @@ module Forefront
     before_action :set_followup, only: [:update]
 
     def create
-      authorize @followupable, :update?
+      authorize @followupable, :work_on?
 
       result = Forefront::FollowupOperations::Create.new(
         followupable: @followupable,
@@ -23,7 +23,7 @@ module Forefront
     end
 
     def update
-      authorize @followup.followupable, :update?
+      authorize @followup.followupable, :work_on?
 
       result = Forefront::FollowupOperations::Update.new(
         followup: @followup,

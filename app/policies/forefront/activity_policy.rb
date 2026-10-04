@@ -11,6 +11,8 @@ module Forefront
       return true unless activity.actable.present?
       
       actable = activity.actable
+      return true if actable.is_a?(Forefront::Lead) && LeadPolicy.new(current_admin, actable).participant?
+
       creator? || 
       (actable.respond_to?(:created_by_id) && actable.created_by_id == current_admin.id) ||
       (actable.respond_to?(:assigned_to_id) && actable.assigned_to_id == current_admin.id)
