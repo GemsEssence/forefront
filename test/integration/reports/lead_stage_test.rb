@@ -46,8 +46,43 @@ class Forefront::Reports::LeadStageTest < ActionDispatch::IntegrationTest
     csv = CSV.parse(response.body)
     assert_equal [ "Stage", "Open leads", "Expected value", "Avg days in stage" ], csv.first
     assert_includes csv, [ "Demo", "1", "1000.00", "4.0" ]
+    assert_equal %w[report filters], Forefront::AuditEvent.where(action: "exported_report").last.audited_changes.keys
     event = Forefront::AuditEvent.where(action: "exported_report").last
     assert_equal @manager.id, event.actor_id
     assert_equal "lead_stage", event.audited_changes["report"].last
+  end
+
+  test "the export records the filters it ran with" do
+    web = forefront_source("Web")
+    sign_in_as(@manager)
+
+    get "/forefront/reports/lead_stage.csv", params: { source_id: web.id }
+
+    event = Forefront::AuditEvent.where(action: "exported_report").last
+    assert_equal web.id, JSON.parse(event.audited_changes["filters"].last)["source_id"]
+  end
+
+  test "source and campaign narrow the table, and an unknown id is ignored" do
+    web = forefront_source("Web")
+    expo = forefront_source("Expo")
+    campaign = Forefront::Campaign.create!(name: "Spring", source: web, created_by: @manager, starts_on: 30.days.ago.to_date, ends_on: 1.day.from_now.to_date)
+    lead(@ravi, "demo", 1_000)
+    Forefront::Lead.create!(title: "W", description: "D", customer: @customer, created_by: @ravi, assigned_to: @ravi, source: web, campaign: campaign, status: "demo", estimated_amount: 200, created_at: 5.days.ago)
+    Forefront::Lead.create!(title: "E", description: "D", customer: @customer, created_by: @ravi, assigned_to: @ravi, source: expo, status: "demo", estimated_amount: 30, created_at: 5.days.ago)
+    sign_in_as(@manager)
+
+    get "/forefront/reports/lead_stage"
+    unfiltered = report_rows
+    assert_equal [ "3", "₹1,230.00" ], unfiltered.find { |r| r[0] == "Demo" }[1..2]
+
+    get "/forefront/reports/lead_stage", params: { source_id: web.id }
+    assert_equal [ "1", "₹200.00" ], report_rows.find { |r| r[0] == "Demo" }[1..2]
+
+    get "/forefront/reports/lead_stage", params: { campaign_id: campaign.id }
+    assert_equal [ "1", "₹200.00" ], report_rows.find { |r| r[0] == "Demo" }[1..2]
+
+    get "/forefront/reports/lead_stage", params: { source_id: 0, campaign_id: 999_999 }
+    assert_response :success
+    assert_equal unfiltered, report_rows
   end
 end

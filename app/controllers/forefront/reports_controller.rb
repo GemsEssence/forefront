@@ -17,9 +17,10 @@ module Forefront
       respond_to do |format|
         format.html
         format.csv do
+          csv = ReportCsv.new(@report).call
           AuditEvent.record!(actor: current_admin, action: "exported_report", auditable: nil,
                              audited_changes: { "report" => [ nil, report_class.key ], "filters" => [ nil, @context.to_params.to_json ] })
-          send_data ReportCsv.new(@report).call, filename: "#{report_class.key}-#{Date.current.iso8601}.csv", type: "text/csv"
+          send_data csv, filename: "#{report_class.key}-#{Date.current.iso8601}.csv", type: "text/csv"
         end
       end
     end

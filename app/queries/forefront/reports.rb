@@ -2,6 +2,10 @@ module Forefront
   # The reports Forefront offers (docs/superpowers/specs/2026-10-04-reports-design.md).
   # Classes are named, not loaded, here so Zeitwerk loads each on first use.
   module Reports
+    ALL_ROLES = %w[sales_person manager admin].freeze
+    TEAM_ROLES = %w[manager admin].freeze
+    BREAKDOWNS = %w[day week month quarter].freeze
+
     @registry = {}
 
     def self.register(key, class_name)

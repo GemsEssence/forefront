@@ -16,14 +16,20 @@ module Forefront
 
     private
 
+    # A cell a spreadsheet would run as a formula gets a leading quote.
+    def safe_text(text)
+      text.match?(/\A[=+\-@]/) ? "'#{text}" : text
+    end
+
     def plain(value, kind)
       return "" if value.nil?
 
       case kind
       when :money, :decimal then Kernel.format("%.2f", value)
-      when :percent, :days, :hours then Kernel.format("%.1f", value)
+      when :percent then Kernel.format("%.0f", value)
+      when :days, :hours then Kernel.format("%.1f", value)
       when :date then value.to_date.iso8601
-      else value.to_s
+      else safe_text(value.to_s)
       end
     end
   end
