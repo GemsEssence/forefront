@@ -51,6 +51,7 @@ module Forefront
         @ticket_rows ||= tickets_by_id.values.select { |row| context.period.times.cover?(row[2]) }
       end
 
+      # A Ticket resolved, reopened and resolved again in the period counts each resolution (every move into Resolved or Closed).
       # [ticket_id, created_at] of every move into Resolved or Closed in the period
       # on an in-scope Ticket.
       def finished_rows
