@@ -29,5 +29,6 @@ module Forefront
     register "lead_stage", "Forefront::Reports::LeadStage"
     register "lead_source", "Forefront::Reports::LeadSource"
     register "pipeline_forecast", "Forefront::Reports::PipelineForecast"
+    register "conversion_funnel", "Forefront::Reports::ConversionFunnel"
   end
 end
