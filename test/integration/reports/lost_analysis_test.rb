@@ -29,7 +29,7 @@ class Forefront::Reports::LostAnalysisTest < ActionDispatch::IntegrationTest
 
     get "/forefront/reports/lost_analysis"
 
-    rows = css_select("table[data-report] tbody tr").to_h { |row| cells = css_select(row, "td").map { |cell| cell.text.squish }; [ cells[0], cells[1..] ] }
+    rows = report_rows
     assert_equal [ "3", "₹3,500.00", "Proposal", "Ravi Rep", "Website" ], rows["Price"]
     assert_equal [ "1", "₹700.00", "Demo", "Sara Seller", "Website" ], rows["Timing"]
   end
@@ -63,6 +63,28 @@ class Forefront::Reports::LostAnalysisTest < ActionDispatch::IntegrationTest
     get "/forefront/reports/lost_analysis"
 
     assert_equal [ "Price" ], report_rows.keys
+  end
+
+  test "a lead lost and then reopened is not counted" do
+    lead = lose(@ravi, @price, from: "demo", amount: 100)
+    lose(@ravi, @timing, from: "demo", amount: 50)
+    lead.trackable.update!(status: "demo")
+    sign_in_as(@manager)
+
+    get "/forefront/reports/lost_analysis"
+
+    assert_equal [ "Timing" ], report_rows.keys
+  end
+
+  test "No reason is always the last row, even with the most leads" do
+    lose(@ravi, @price, from: "demo", amount: 100)
+    2.times { lose(@ravi, @price, from: "demo", amount: 1).trackable.update_columns(lost_reason_id: nil) }
+    sign_in_as(@manager)
+
+    get "/forefront/reports/lost_analysis"
+
+    assert_equal [ "Price", "No reason" ], report_rows.keys
+    assert_equal "2", report_rows["No reason"].first
   end
 
   private

@@ -16,8 +16,8 @@ module Forefront
                                      trackable_id: context.leads.select(:id))
         # Ordered by time, so a Lead lost more than once keeps the stage of its latest loss.
         stage_at_loss = losses.order(:created_at).pluck(:trackable_id, :old_status).to_h
-        leads = Lead.where(id: stage_at_loss.keys).includes(:lost_reason, :assigned_to, :source)
-        leads.group_by(&:lost_reason).sort_by { |reason, group| [ -group.size, reason&.name.to_s ] }.map do |reason, group|
+        leads = Lead.lost.where(id: stage_at_loss.keys).includes(:lost_reason, :assigned_to, :source)
+        leads.group_by(&:lost_reason).sort_by { |reason, group| [ reason.nil? ? 1 : 0, -group.size, reason&.name.to_s ] }.map do |reason, group|
           [ reason&.name || "No reason", group.size, group.sum { |lead| lead.estimated_amount.to_d },
             most_common(group.map { |lead| stage_at_loss[lead.id] }), most_common(group.map { |lead| lead.assigned_to&.name }),
             most_common(group.map { |lead| lead.source&.name }) ]
