@@ -33,5 +33,7 @@ module Forefront
     register "lost_analysis", "Forefront::Reports::LostAnalysis"
     register "followups", "Forefront::Reports::Followups"
     register "tickets", "Forefront::Reports::Tickets"
+    register "workload", "Forefront::Reports::Workload"
+    register "pool", "Forefront::Reports::Pool"
   end
 end
