@@ -31,5 +31,6 @@ module Forefront
     register "pipeline_forecast", "Forefront::Reports::PipelineForecast"
     register "conversion_funnel", "Forefront::Reports::ConversionFunnel"
     register "lost_analysis", "Forefront::Reports::LostAnalysis"
+    register "followups", "Forefront::Reports::Followups"
   end
 end
