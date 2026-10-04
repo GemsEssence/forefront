@@ -16,8 +16,7 @@ module Forefront
 
       def rows
         tickets = context.tickets.where(category: %w[enquiry signup], created_at: context.period.times)
-        converted = tickets.where(id: AuditEvent.where(action: "converted", auditable_type: Ticket.name).select(:auditable_id))
-        leads = context.leads.where(id: converted.where.not(lead_id: nil).select(:lead_id))
+        leads = context.leads.where(id: tickets.where.not(lead_id: nil).select(:lead_id))
         steps = [
           [ "Enquiry or signup tickets", tickets.count ],
           [ "Converted to leads", leads.count ],

@@ -12,15 +12,15 @@ class Forefront::Reports::ConversionFunnelTest < ActionDispatch::IntegrationTest
   end
 
   # An enquiry Ticket converted into a Lead that reaches `status`.
-  def converted(status, history: [], paid: false, owner: @ravi, created_at: nil)
+  def converted(status, history: [], paid: false, owner: @ravi, created_at: nil, audited: true)
     ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: owner, assigned_to: owner,
                                        category: "enquiry", priority: "medium", status: "resolved")
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @ravi, assigned_to: @ravi,
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: owner, assigned_to: owner,
                                    source: forefront_source, status: status, actual_amount: (100 if status == "won"),
                                    lost_reason: (Forefront::LostReason.create!(name: "R#{SecureRandom.hex(2)}") if status == "lost"),
                                    lost_note: ("N" if status == "lost"))
     ticket.update_columns(lead_id: lead.id, **({ created_at: created_at } if created_at).to_h)
-    Forefront::AuditEvent.record!(actor: @ravi, action: "converted", auditable: ticket, audited_changes: {})
+    Forefront::AuditEvent.record!(actor: @ravi, action: "converted", auditable: ticket, audited_changes: {}) if audited
     history.each { |stage| Forefront::StatusHistory.create!(trackable: lead, old_status: "Contacted", new_status: Forefront::Lead.statuses.fetch(stage), changed_by: @ravi) }
     if paid
       payment = Forefront::Payment.create!(lead: lead, total_amount: 100)
@@ -78,5 +78,16 @@ class Forefront::Reports::ConversionFunnelTest < ActionDispatch::IntegrationTest
     assert_equal "1", step_counts["Enquiry or signup tickets"]
     assert_equal "1", step_counts["Converted to leads"]
     assert_equal "0", step_counts["Won"]
+  end
+
+  test "a converted ticket without a converted audit event still counts and follows through" do
+    converted("won", audited: false, paid: true)
+    sign_in_as(@manager)
+
+    get "/forefront/reports/conversion_funnel"
+
+    assert_equal "1", step_counts["Converted to leads"]
+    assert_equal "1", step_counts["Won"]
+    assert_equal "1", step_counts["Paid in full"]
   end
 end
