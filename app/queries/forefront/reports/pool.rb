@@ -7,21 +7,28 @@ module Forefront
 
       def columns
         [ column(:who, "Who", :text), column(:entered, "Entered pool", :count),
-          column(:claims, "Still unclaimed / claims", :count), column(:hours, "Avg hours to claim", :hours) ]
+          column(:still, "Still unclaimed", :count), column(:claims, "Claims", :count), column(:hours, "Avg hours to claim", :hours) ]
       end
 
       def rows
         entered = entered_pool
         still = entered.count { |record| record.assigned_to_id.nil? }
-        [ [ "All", entered.size, still, nil ] ] + context.scope.rows.filter_map do |person|
-          claims = Dashboard::Metrics.claims(context.scope.for_member(person)).includes(:assignable).to_a
+        [ [ "All", entered.size, still, nil, nil ] ] + context.scope.rows.filter_map do |person|
+          claims = claims_for(person)
           next if claims.empty?
 
-          [ person.name, nil, claims.size, mean(claims.map { |claim| (claim.created_at - claim.assignable.created_at) / 1.hour }) ]
+          [ person.name, nil, nil, claims.size, mean(claims.map { |claim| (claim.created_at - claim.assignable.created_at) / 1.hour }) ]
         end
       end
 
       private
+
+      # Claims in the period whose record still exists and, with a Campaign
+      # filter, belongs to that Campaign.
+      def claims_for(person)
+        claims = Dashboard::Metrics.claims(context.scope.for_member(person)).includes(:assignable).to_a.reject { |claim| claim.assignable.nil? }
+        context.campaign_id ? claims.select { |claim| claim.assignable.campaign_id == context.campaign_id } : claims
+      end
 
       # Created in the period with no assignee on the created event (a record
       # created assigned has "assigned_to" => [nil, name]; unassigned has no key).
