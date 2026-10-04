@@ -27,7 +27,7 @@ module Forefront
       case kind
       when :money, :decimal then Kernel.format("%.2f", value)
       when :percent then Kernel.format("%.0f", value)
-      when :days, :hours then Kernel.format("%.1f", value)
+      when :days, :hours, :ratio then Kernel.format("%.1f", value)
       when :date then value.to_date.iso8601
       else value.is_a?(String) ? safe_text(value) : value.to_s
       end

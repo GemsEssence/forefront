@@ -1,4 +1,5 @@
 require "test_helper"
+require "csv"
 
 class Forefront::ReportsTest < ActiveSupport::TestCase
   test "every registered report has a unique key and is found by it" do
@@ -35,6 +36,14 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     view = ActionView::Base.empty
     view.extend(Forefront::ReportsHelper)
     assert_equal "67%", view.report_cell(66.7, :percent)
+  end
+
+  test "ratio is one decimal on the page and in the CSV" do
+    view = ActionView::Base.empty
+    view.extend(Forefront::ReportsHelper)
+    assert_equal "2.0", view.report_cell(2, :ratio)
+    assert_equal "1.5", view.report_cell(1.54, :ratio)
+    assert_equal [ "2.0", "" ], csv_for(%i[ratio ratio], [ 2, nil ])
   end
 
   test "text that a spreadsheet would run as a formula is quoted" do
