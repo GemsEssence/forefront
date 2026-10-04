@@ -1,0 +1,49 @@
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <%= link_to "← Reports", reports_path, class: "text-sm text-indigo-600 hover:underline" %>
+    <h2 class="text-2xl font-bold text-gray-900"><%= @report.class.title %></h2>
+    <p class="text-sm text-gray-500"><%= @context.scope.description %></p>
+  </div>
+  <%= link_to "Export CSV", report_path(@report.class.key, @context.to_params.merge(format: :csv)), class: "bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium" %>
+</div>
+
+<%= form_with url: report_path(@report.class.key), method: :get, local: true, class: "bg-white shadow rounded-lg p-4 mb-6 flex flex-wrap items-end gap-4" do %>
+  <%= render "forefront/dashboard/filter_fields", scope: @context.scope %>
+  <% if @report.class.filters.include?(:source) %>
+    <label class="text-xs font-medium text-gray-500">Source
+      <%= select_tag :source_id, options_from_collection_for_select(Forefront::Source.order(:name), :id, :name, @context.source_id), include_blank: "All sources", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+    </label>
+  <% end %>
+  <% if @report.class.filters.include?(:campaign) %>
+    <label class="text-xs font-medium text-gray-500">Campaign
+      <%= select_tag :campaign_id, options_from_collection_for_select(Forefront::Campaign.recent, :id, :name, @context.campaign_id), include_blank: "All campaigns", class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+    </label>
+  <% end %>
+  <% if @report.class.breakdown? %>
+    <label class="text-xs font-medium text-gray-500">Break down by
+      <%= select_tag :breakdown, options_for_select([ [ "None", "" ], [ "Day", "day" ], [ "Week", "week" ], [ "Month", "month" ], [ "Quarter", "quarter" ] ], @context.breakdown), class: "mt-1 block rounded-md border-gray-300 text-sm" %>
+    </label>
+  <% end %>
+  <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">Apply</button>
+<% end %>
+
+<% rows = @report.rows %>
+<div class="bg-white shadow rounded-lg overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200 text-sm" data-report="<%= @report.class.key %>">
+    <thead class="bg-gray-50"><tr>
+      <% @report.columns.each do |column| %>
+        <th class="px-3 py-2 <%= column.format == :text ? 'text-left' : 'text-right' %>"><%= column.title %></th>
+      <% end %>
+    </tr></thead>
+    <tbody class="divide-y divide-gray-100">
+      <% rows.each do |row| %>
+        <tr>
+          <% row.zip(@report.columns).each do |value, column| %>
+            <td class="px-3 py-2 <%= column.format == :text ? 'text-left' : 'text-right' %>"><%= report_cell(value, column.format) %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if rows.empty? %><p class="p-4 text-sm text-gray-500">Nothing to show for these filters.</p><% end %>
+</div>

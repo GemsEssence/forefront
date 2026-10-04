@@ -349,3 +349,17 @@ class Forefront::AuditLogCsvTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", "/forefront/audit_log.csv?actor_id=#{@rep.id}", text: "Export CSV"
   end
 end
+
+class Forefront::AuditLogWithoutRecordTest < ActionDispatch::IntegrationTest
+  include AuditLogTestSetup
+
+  test "an event about no record shows a dash in the Record column" do
+    Forefront::AuditEvent.record!(actor: @admin, action: "exported_report", auditable: nil, audited_changes: { "report" => [ nil, "lead_stage" ] })
+    sign_in_as(@admin)
+
+    get "/forefront/audit_log"
+
+    assert_response :success
+    assert_select "tr", text: /Asha Admin.*exported report.*—.*Report: — → lead_stage/m
+  end
+end

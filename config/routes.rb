@@ -26,6 +26,7 @@ Forefront::Engine.routes.draw do
   get "my_work", to: "my_work#index", as: :my_work
   get "performance", to: "performance#index", as: :performance
   get "performance/:id/trend", to: "performance#trend", as: :performance_trend
+  resources :reports, only: [ :index, :show ]
 
   resources :tickets do
     resource :take, only: [ :create ]

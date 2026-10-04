@@ -1,0 +1,13 @@
+<h2 class="text-2xl font-bold text-gray-900 mb-4">Reports</h2>
+
+<% { pipeline: "Pipeline", activity: "Activity", money: "Money", admin: "Admin" }.each do |group, heading| %>
+  <% next unless @reports[group]&.any? %>
+  <section class="mb-6">
+    <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-2"><%= heading %></h3>
+    <ul class="bg-white shadow rounded-lg divide-y divide-gray-100">
+      <% @reports[group].each do |report| %>
+        <li class="px-4 py-3"><%= link_to report.title, report_path(report.key), class: "text-indigo-600 hover:underline" %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

@@ -46,7 +46,7 @@
                   <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap"><%= l(event.created_at, format: :short) %></td>
                   <td class="px-4 py-3 text-sm text-gray-900"><%= event.actor.name %></td>
                   <td class="px-4 py-3 text-sm text-gray-900"><%= event.action.humanize(capitalize: false) %></td>
-                  <td class="px-4 py-3 text-sm text-gray-900"><%= event.auditable_kind %> <%= event.auditable_label %></td>
+                  <td class="px-4 py-3 text-sm text-gray-900"><%= event.auditable_type ? "#{event.auditable_kind} #{event.auditable_label}" : "—" %></td>
                   <td class="px-4 py-3 text-sm text-gray-500">
                     <% event.change_lines_for(current_admin).each do |line| %>
                       <div><%= line %></div>

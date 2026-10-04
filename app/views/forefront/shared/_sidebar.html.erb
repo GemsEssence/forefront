@@ -4,6 +4,7 @@
       <%= sidebar_link "Dashboard", root_path %>
       <%= sidebar_link "My work", my_work_path if Forefront::MyWorkPolicy.new(current_admin).index? %>
       <%= sidebar_link "My performance", performance_path if current_admin.sales_person? %>
+      <%= sidebar_link "Reports", reports_path %>
       <% unread = Forefront::Notification.unread.where(recipient: current_admin).count %>
       <div data-notification-bell><%= sidebar_link "Notifications", notifications_path do %><% if unread.positive? %> <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white"><%= unread %></span><% end %><% end %></div>
     </div>

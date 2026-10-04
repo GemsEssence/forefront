@@ -26,15 +26,19 @@ module Forefront
     # deleted.
     def self.record!(actor:, action:, auditable:, audited_changes: nil)
       changes = audited_changes
-      changes ||= action == "created" ? creation_changes(auditable) : auditable.saved_changes.except(*UNAUDITED_ATTRIBUTES)
+      changes ||= auditable.nil? ? {} : default_changes(action, auditable)
 
       create!(
         actor: actor,
         action: action,
         auditable: auditable,
         auditable_label: label_for(auditable),
-        audited_changes: name_foreign_keys(auditable.class, changes)
+        audited_changes: name_foreign_keys(auditable&.class, changes)
       )
+    end
+
+    def self.default_changes(action, auditable)
+      action == "created" ? creation_changes(auditable) : auditable.saved_changes.except(*UNAUDITED_ATTRIBUTES)
     end
 
     # saved_changes leaves out attributes that were saved with their column
