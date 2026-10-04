@@ -41,6 +41,10 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     assert_equal [ "'=1+1", "'+x", "'-x", "'@x", "plain" ], csv_for(%i[text text text text text], [ "=1+1", "+x", "-x", "@x", "plain" ])
   end
 
+  test "a negative count stays a number rather than being quoted" do
+    assert_equal [ "-3" ], csv_for(%i[count], [ -3 ])
+  end
+
   test "mean does not truncate integers" do
     base = Forefront::Reports::Base.new(nil)
     assert_equal 1.5, base.send(:mean, [ 1, 2 ])

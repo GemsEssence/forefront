@@ -29,7 +29,7 @@ module Forefront
       when :percent then Kernel.format("%.0f", value)
       when :days, :hours then Kernel.format("%.1f", value)
       when :date then value.to_date.iso8601
-      else safe_text(value.to_s)
+      else value.is_a?(String) ? safe_text(value) : value.to_s
       end
     end
   end
