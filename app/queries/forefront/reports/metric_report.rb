@@ -47,6 +47,12 @@ module Forefront
         @buckets ||= Buckets.for(context.period.dates, context.breakdown)
       end
 
+      # Memoizes a value per cell, e.g. cell(:due, person.id, ctx.period.dates) { ... },
+      # so metrics sharing a base set compute it once.
+      def cell(*key)
+        (@cells ||= {})[key] ||= yield
+      end
+
       def narrowed(dates)
         context.with_scope(context.scope.with(period: Dashboard::Period.for_dates(dates)))
       end

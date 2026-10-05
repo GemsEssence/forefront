@@ -64,14 +64,23 @@ module Forefront
         end
       end
 
+      def opened_by_category
+        @opened_by_category ||= ticket_rows.group_by { |row| row[1] }
+      end
+
+      def finished_by_category
+        @finished_by_category ||= finished_rows.group_by { |id, _| tickets_by_id[id][1] }
+      end
+
+      # The category's Tickets opened, and resolutions, in the cell's period; computed once per cell.
       def opened(category, ctx)
         times = ctx.period.times
-        ticket_rows.select { |row| row[1] == category && times.cover?(row[2]) }
+        cell(:opened, category, ctx.period.dates) { opened_by_category.fetch(category, []).select { |row| times.cover?(row[2]) } }
       end
 
       def finished(category, ctx)
         times = ctx.period.times
-        finished_rows.select { |id, at| times.cover?(at) && tickets_by_id[id][1] == category }
+        cell(:finished, category, ctx.period.dates) { finished_by_category.fetch(category, []).select { |_, at| times.cover?(at) } }
       end
     end
   end

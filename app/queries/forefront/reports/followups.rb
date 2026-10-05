@@ -23,10 +23,10 @@ module Forefront
           Metric.new(key: :late, title: "Done late", format: :count, periodic: true,
                      value: ->(person, ctx) { due(person, ctx).count { |row| row[4] } - on_time(person, ctx).size }),
           Metric.new(key: :overdue, title: "Overdue now", format: :count, periodic: false,
-                     value: ->(person, _ctx) { overdue_rows.count { |row| row[1] == person.id } }),
+                     value: ->(person, _ctx) { overdue_counts.fetch(person.id, 0) }),
           Metric.new(key: :rescheduled, title: "Rescheduled", format: :count, periodic: true, value: lambda { |person, ctx|
             times = ctx.period.times
-            reschedules.count { |actor_id, created_at| actor_id == person.id && times.cover?(created_at) }
+            reschedules.fetch(person.id, []).count { |created_at| times.cover?(created_at) }
           })
         ]
       end
@@ -39,30 +39,34 @@ module Forefront
                                   .pluck(:id, :assigned_to_id, :scheduled_for, :status, :completed_at)
       end
 
-      def overdue_rows
-        @overdue_rows ||= context.scope.followups.pending.where("scheduled_for < ?", Time.current)
-                                 .pluck(:id, :assigned_to_id, :scheduled_for, :status, :completed_at)
+      # The period's Followups already come due and not cancelled, grouped by person.
+      def due_by_person
+        @due_by_person ||= begin
+          now = Time.current
+          followup_rows.select { |row| row[2] <= now && row[3] != "cancelled" }.group_by { |row| row[1] }
+        end
       end
 
-      # [actor_id, created_at] of every date change in the period, read in Ruby (portable JSON).
+      def overdue_counts
+        @overdue_counts ||= context.scope.followups.pending.where("scheduled_for < ?", Time.current).pluck(:assigned_to_id).tally
+      end
+
+      # created_at of every date change in the period, per actor, read in Ruby (portable JSON).
       def reschedules
         @reschedules ||= AuditEvent.where(action: "updated_followup", created_at: context.period.times)
                                    .pluck(:actor_id, :created_at, :audited_changes)
                                    .select { |_, _, changes| changes.key?("scheduled_for") }
-                                   .map { |actor_id, created_at, _| [ actor_id, created_at ] }
+                                   .group_by(&:first).transform_values { |events| events.map { |event| event[1] } }
       end
 
-      # Scheduled in the period, already come due and not cancelled.
+      # Scheduled in the cell's period, already come due and not cancelled; computed once per cell.
       def due(person, ctx)
         times = ctx.period.times
-        now = Time.current
-        followup_rows.select do |row|
-          row[1] == person.id && times.cover?(row[2]) && row[2] <= now && row[3] != "cancelled"
-        end
+        cell(:due, person.id, ctx.period.dates) { due_by_person.fetch(person.id, []).select { |row| times.cover?(row[2]) } }
       end
 
       def on_time(person, ctx)
-        due(person, ctx).select { |row| row[4] && row[4] <= row[2].end_of_day }
+        cell(:on_time, person.id, ctx.period.dates) { due(person, ctx).select { |row| row[4] && row[4] <= row[2].end_of_day } }
       end
     end
   end

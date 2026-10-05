@@ -42,13 +42,18 @@ module Forefront
                                 .pluck(:source_id, :campaign_id, :created_at, :status, :actual_amount, :won_at)
       end
 
+      def rows_by_key
+        @rows_by_key ||= cohort_rows.group_by { |row| row.values_at(0, 1) }
+      end
+
+      # The row's Leads created in the cell's period, and the won ones; computed once per cell.
       def cohort(key, ctx)
         times = ctx.period.times
-        cohort_rows.select { |row| row[0] == key[0] && row[1] == key[1] && times.cover?(row[2]) }
+        cell(:cohort, key, ctx.period.dates) { rows_by_key.fetch(key, []).select { |row| times.cover?(row[2]) } }
       end
 
       def won_in(key, ctx)
-        cohort(key, ctx).select { |row| row[3] == "won" }
+        cell(:won, key, ctx.period.dates) { cohort(key, ctx).select { |row| row[3] == "won" } }
       end
     end
   end
