@@ -3,7 +3,10 @@ require "test_helper"
 class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
   include DashboardTestHelpers
 
+  # Records here are made days or hours ago and read under the default "This month",
+  # so pin the clock mid-month; on the 1st–3rd they would fall into last month.
   setup do
+    travel_to Time.zone.local(2026, 10, 20, 12)
     @manager = dashboard_staff("Mona Manager", "manager")
     @ravi = dashboard_staff("Ravi Rep", "sales_person", manager: @manager)
     @customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
