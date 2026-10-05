@@ -1,7 +1,7 @@
 module Forefront
   module Reports
     # Splits a date range into calendar buckets (weeks Monday–Sunday), each
-    # clipped to the range, labelled for column headers.
+    # clipped to the range and labelled, for column headers, with the dates it covers.
     module Buckets
       # Most columns a breakdown may make; a longer period is broken down by a coarser unit.
       MAX = 120
@@ -39,8 +39,8 @@ module Forefront
           day = next_start(day, breakdown)
         end
         starts.map do |start|
-          finish = next_start(start, breakdown) - 1
-          [ label(start, finish, breakdown), [ start, dates.begin ].max..[ finish, dates.end ].min ]
+          clipped = [ start, dates.begin ].max..[ next_start(start, breakdown) - 1, dates.end ].min
+          [ label(clipped.begin, clipped.end, breakdown), clipped ]
         end
       end
 

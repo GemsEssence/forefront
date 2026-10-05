@@ -73,9 +73,9 @@ class Forefront::Reports::RevenueTest < ActionDispatch::IntegrationTest
 
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
       widget = [ "Widget", *report_rows["Widget"] ]
-      assert_equal "₹1,000.00", widget[headers.index("Total · 28 Sep – 4 Oct")]
+      assert_equal "₹1,000.00", widget[headers.index("Total · 1 Oct – 4 Oct")]
       assert_equal "₹2,000.00", widget[headers.index("Total · 5 Oct – 11 Oct")]
-      assert_equal "₹0.00", widget[headers.index("Instalments · 28 Sep – 4 Oct")]
+      assert_equal "₹0.00", widget[headers.index("Instalments · 1 Oct – 4 Oct")]
       assert_equal "₹2,000.00", widget[headers.index("Instalments · 5 Oct – 11 Oct")]
       assert_equal "₹3,000.00", widget[headers.index("Total · Total")]
     end

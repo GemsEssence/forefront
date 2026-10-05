@@ -60,7 +60,7 @@ class Forefront::Reports::LeadSourceTest < ActionDispatch::IntegrationTest
 
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
       assert_includes headers, "Leads · Total"
-      assert_includes headers, "Leads · 28 Sep – 4 Oct"
+      assert_includes headers, "Leads · 1 Oct – 4 Oct"
       website = report_rows.find { |row| row[0] == "Website" }
       week_cells = headers.each_index.select { |index| headers[index].start_with?("Leads · ") && headers[index] != "Leads · Total" }
       assert_equal 2, week_cells.sum { |index| website[index].to_i }

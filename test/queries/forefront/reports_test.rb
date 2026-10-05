@@ -96,7 +96,7 @@ class Forefront::MetricReportTest < ActiveSupport::TestCase
 
   test "a breakdown gives a periodic metric bucket columns and a Total, others stay single" do
     report = Tiny.new(context("week"))
-    assert_equal [ "Name", "Per · 28 Sep – 4 Oct", "Per · 5 Oct – 11 Oct", "Per · 12 Oct – 18 Oct", "Per · Total", "Now" ], report.columns.map(&:title)
+    assert_equal [ "Name", "Per · 1 Oct – 4 Oct", "Per · 5 Oct – 11 Oct", "Per · 12 Oct – 14 Oct", "Per · Total", "Now" ], report.columns.map(&:title)
     assert_equal [ [ "A", 4, 7, 3, 14, 99 ] ], report.rows
     assert_equal report.columns.size, report.rows.first.size
     assert_equal report.columns.map(&:key).uniq, report.columns.map(&:key)

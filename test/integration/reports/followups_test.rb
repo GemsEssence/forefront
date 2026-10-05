@@ -63,7 +63,7 @@ class Forefront::Reports::FollowupsTest < ActionDispatch::IntegrationTest
       get "/forefront/reports/followups", params: { breakdown: "week" }
 
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
-      assert_includes headers, "Due · 28 Sep – 4 Oct"
+      assert_includes headers, "Due · 1 Oct – 4 Oct"
       assert_includes headers, "Overdue now"
       assert_equal 1, headers.count("Overdue now")
       assert_empty headers.grep(/\AOverdue now ·/)
@@ -71,7 +71,7 @@ class Forefront::Reports::FollowupsTest < ActionDispatch::IntegrationTest
       cells = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }
                                                          .find { |row| row[0] == "Ravi Rep" }
       value = ->(header) { cells[headers.index(header)] }
-      assert_equal "1", value.call("Due · 28 Sep – 4 Oct")
+      assert_equal "1", value.call("Due · 1 Oct – 4 Oct")
       assert_equal "1", value.call("Due · 5 Oct – 11 Oct")
       assert_equal "2", value.call("Due · Total")
     end
@@ -135,7 +135,7 @@ class Forefront::Reports::FollowupsTest < ActionDispatch::IntegrationTest
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
       cells = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }
                                                          .find { |row| row[0] == "Ravi Rep" }
-      assert_equal "0", cells[headers.index("Rescheduled · 28 Sep – 4 Oct")]
+      assert_equal "0", cells[headers.index("Rescheduled · 1 Oct – 4 Oct")]
       assert_equal "1", cells[headers.index("Rescheduled · 5 Oct – 11 Oct")]
       assert_equal "1", cells[headers.index("Rescheduled · Total")]
     end

@@ -8,6 +8,14 @@ class Forefront::Reports::BucketsTest < ActiveSupport::TestCase
                    Date.new(2026, 10, 12)..Date.new(2026, 10, 14) ], buckets.map(&:last)
   end
 
+  test "a week clipped by the period is labelled with the dates it covers" do
+    dates = Date.new(2026, 10, 1)..Date.new(2026, 10, 31) # Thursday 1st to Saturday 31st
+    labels = Forefront::Reports::Buckets.for(dates, "week").map(&:first)
+    assert_equal "1 Oct – 4 Oct", labels.first
+    assert_equal "5 Oct – 11 Oct", labels.second
+    assert_equal "26 Oct – 31 Oct", labels.last
+  end
+
   test "months and quarters label their unit; no breakdown is one Total bucket" do
     dates = Date.new(2026, 1, 1)..Date.new(2026, 12, 31)
     assert_equal %w[Q1\ 2026 Q2\ 2026 Q3\ 2026 Q4\ 2026], Forefront::Reports::Buckets.for(dates, "quarter").map(&:first)

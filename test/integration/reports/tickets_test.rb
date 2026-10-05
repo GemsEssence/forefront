@@ -121,9 +121,9 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
       demo = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }.find { |row| row[0] == "Demo" }
       cell = ->(title, week) { demo[headers.index("#{title} · #{week}")] }
-      assert_equal "2", cell.call("Opened", "28 Sep – 4 Oct")
-      assert_equal "1", cell.call("Resolved or closed", "28 Sep – 4 Oct")
-      assert_equal "2.0", cell.call("Avg hours to resolve", "28 Sep – 4 Oct")
+      assert_equal "2", cell.call("Opened", "1 Oct – 4 Oct")
+      assert_equal "1", cell.call("Resolved or closed", "1 Oct – 4 Oct")
+      assert_equal "2.0", cell.call("Avg hours to resolve", "1 Oct – 4 Oct")
       assert_equal "0", cell.call("Opened", "5 Oct – 11 Oct")
       assert_equal "1", cell.call("Resolved or closed", "5 Oct – 11 Oct")
       assert_equal "3.0", cell.call("Avg hours to resolve", "5 Oct – 11 Oct")
@@ -142,7 +142,7 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
 
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
       demo = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }.find { |row| row[0] == "Demo" }
-      assert_equal "2", demo[headers.index("Opened · 28 Sep – 4 Oct")]
+      assert_equal "2", demo[headers.index("Opened · 1 Oct – 4 Oct")]
       assert_equal "1", demo[headers.index("Opened · 5 Oct – 11 Oct")]
       assert_equal "3", demo[headers.index("Opened · Total")]
     end
