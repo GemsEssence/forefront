@@ -46,6 +46,16 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     assert_equal [ "2.0", "" ], csv_for(%i[ratio ratio], [ 2, nil ])
   end
 
+  test "the CSV rounds halves up, exactly like the table" do
+    view = ActionView::Base.empty
+    view.extend(Forefront::ReportsHelper)
+    formats = %i[percent days hours ratio money decimal]
+    values = [ 12.5, 0.25, 0.25, 0.25, BigDecimal("0.125"), BigDecimal("0.125") ]
+    assert_equal [ "13%", "0.3", "0.3", "0.3" ], formats.first(4).zip(values).map { |format, value| view.report_cell(value, format) }
+    assert_equal "0.13", view.report_cell(BigDecimal("0.125"), :decimal)
+    assert_equal [ "13", "0.3", "0.3", "0.3", "0.13", "0.13" ], csv_for(formats, values)
+  end
+
   test "text that a spreadsheet would run as a formula is quoted" do
     assert_equal [ "'=1+1", "'+x", "'-x", "'@x", "plain" ], csv_for(%i[text text text text text], [ "=1+1", "+x", "-x", "@x", "plain" ])
   end

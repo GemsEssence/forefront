@@ -21,13 +21,18 @@ module Forefront
       text.match?(/\A[=+\-@]/) ? "'#{text}" : text
     end
 
+    # The same rounding (half up) as the table's number helpers, so 12.5% is 13 in both.
+    def rounded(value, precision)
+      ActiveSupport::NumberHelper.number_to_rounded(value, precision: precision)
+    end
+
     def plain(value, kind)
       return "" if value.nil?
 
       case kind
-      when :money, :decimal then Kernel.format("%.2f", value)
-      when :percent then Kernel.format("%.0f", value)
-      when :days, :hours, :ratio then Kernel.format("%.1f", value)
+      when :money, :decimal then rounded(value, 2)
+      when :percent then rounded(value, 0)
+      when :days, :hours, :ratio then rounded(value, 1)
       when :date then value.to_date.iso8601
       else value.is_a?(String) ? safe_text(value) : value.to_s
       end
