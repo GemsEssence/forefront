@@ -41,5 +41,7 @@ module Forefront
     register "shared_leads", "Forefront::Reports::SharedLeads"
     register "targets", "Forefront::Reports::Targets"
     register "subscriptions", "Forefront::Reports::Subscriptions"
+    register "audit", "Forefront::Reports::Audit"
+    register "data_quality", "Forefront::Reports::DataQuality"
   end
 end
