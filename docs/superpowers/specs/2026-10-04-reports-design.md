@@ -1,6 +1,6 @@
 # Reports (on today's data)
 
-Status: design approved in chat 2026-10-04; spec awaiting review.
+Status: built 2026-10-05.
 
 ## Goal
 
@@ -50,7 +50,12 @@ Each is ignored unless it names an existing record.
 offered only on Lead source, Revenue, Follow-up and Ticket.
 - When set, each numeric column becomes one column per bucket within the
   period, plus a Total column.
-- Buckets are calendar units, and weeks run Monday to Sunday.
+- Buckets are calendar units, and weeks run Monday to Sunday. A bucket cut
+  off by the period is labelled with the dates it covers (October's first
+  week is "1 Oct – 4 Oct").
+- A breakdown may make at most 120 buckets. Above that it falls back to the
+  next coarser unit (day → week → month → quarter); if even quarters exceed
+  120 it is dropped and only totals show. The page says when this happened.
 - Grouping happens in Ruby from plucked dates, so the SQL stays portable.
 - Unknown values mean none.
 
@@ -63,19 +68,25 @@ offered only on Lead source, Revenue, Follow-up and Ticket.
   - `filters` (`[:source, :campaign]`, or a subset);
   - `breakdown?`;
   - `columns`, an Array of `{ key:, title:, format: }` where format is one of
-    `:count :money :percent :days :hours :text :date`;
-  - `rows(context)`, which returns Arrays of values in column order.
+    `:count :money :percent :days :hours :ratio :decimal :text :date`
+    (`:decimal` is two decimals, used for Target goal and achieved; `:ratio`
+    is one decimal, used for Tickets per Lead);
+  - `rows`, which returns Arrays of values in column order.
+  The class declares key, title, group, roles, filters and breakdown with a
+  `report(...)` macro; the instance gets the context in `new(context)`.
 - `context` wraps a `Dashboard::Scope` plus the optional `source_id`,
   `campaign_id` and `breakdown`.
 - `app/queries/forefront/reports.rb`: the registry. `Reports.all`,
-  `Reports.fetch(key)`, and `Reports.visible_to(admin)`. Defining a key
-  twice raises an error.
+  `Reports.find(key)` (nil for an unknown key, which the controller turns
+  into a 404), and `Reports.visible_to(admin)`. Defining a key twice raises
+  an error.
 - `ReportsController#index`, `#show` (HTML and CSV), and
   `Forefront::ReportPolicy` (`index?` for everyone; `show?` when the
   viewer's role is in the report's roles).
 - `app/queries/forefront/report_csv.rb`: writes a report's columns and rows
   as CSV, with the same values as the table. Money is a plain number with
-  two decimals, and percentages are numbers.
+  two decimals, and percentages are numbers. Values are rounded half up
+  with the same number helper as the table (12.5% is 13 in both).
 - Views: `reports/index`, plus one shared `reports/show` that renders any
   report's columns and rows.
 
@@ -92,25 +103,25 @@ rate with a zero denominator shows "—".
 | **Lead source** (`lead_source`) | Manager, Admin | Source, Campaign; breakdown | One per (Source, Campaign) pair among the Leads created in the period; Leads with no Campaign form the Source's "—" row | Leads created in the period · won (of those) · conversion % · revenue (Σ `actual_amount` of those won) · avg days from created to won (of those won) |
 | **Lead stage** (`lead_stage`) | All (scoped) | Source, Campaign | One per active stage (open, contacted, demo, proposal, negotiation) | Open Leads now · expected value (Σ `estimated_amount`) · avg days in the current stage. The stage start is the latest StatusHistory into that stage, or the Lead's `created_at` if there is none. Point-in-time, so the period doesn't apply. |
 | **Pipeline and forecast** (`pipeline_forecast`) | Manager, Admin | Source, Campaign | One per month of `due_at` (active Leads; the earliest row lumps all past-due Leads together as "Overdue"; Leads with no due date form a "No date" row) | One count and one expected-value column per active stage, plus a Total. Point-in-time. |
-| **Conversion funnel** (`conversion_funnel`) | Manager, Admin | Source, Campaign | One per step: Enquiry/Signup Tickets created in the period → Leads converted from them → reached Contacted → reached Demo → reached Proposal → Won → Paid in full | Count · % of the previous step · % of the first step. Each step after "Leads converted" follows the same Leads. "Reached" means the Lead is at that stage or past it, or has a StatusHistory into it. Paid in full means the Lead has a Payment that is `fully_paid?`. |
-| **Lost analysis** (`lost_analysis`) | Manager, Admin | Source, Campaign | One per Lost reason (the last row is "No reason" if any) | Leads lost in the period (a StatusHistory into Lost) · value lost (Σ `estimated_amount`) · most common stage at loss (the `old_status` of that StatusHistory) · top person · top Source |
+| **Conversion funnel** (`conversion_funnel`) | Manager, Admin | Source, Campaign | One per step: Enquiry/Signup Tickets created in the period → Leads converted from them → reached Contacted → reached Demo → reached Proposal → Won → Paid in full | Count · % of the previous step · % of the first step. Each step after "Leads converted" follows the same Leads. "Converted" means an Enquiry/Signup Ticket with a `lead_id` (there is no separate `converted` audit check). Contacted equals the converted count, since converted Leads start at Contacted. "Reached" means the Lead is at that stage or past it, or has a StatusHistory into it. Paid in full means the Lead has a Payment that is `fully_paid?`. |
+| **Lost analysis** (`lost_analysis`) | Manager, Admin | Source, Campaign | One per Lost reason; "No reason" (if any) is always the last row | Leads lost in the period (a StatusHistory into Lost) and still Lost now; a reopened Lead drops out · value lost (Σ `estimated_amount`) · most common stage at loss (the `old_status` of that StatusHistory) · top person · top Source |
 
 ### Activity
 
 | Report (key) | Who | Filters | Rows | Columns |
 |---|---|---|---|---|
-| **Follow-up** (`followups`) | All (scoped) | breakdown | One per person in scope | Due: `scheduled_for` in the period and at or before now, excluding cancelled. Done on time: completed by the end of the scheduled day. Done late: completed after it. Overdue now: pending and past. Rescheduled: Followups due in the period that have an `updated_followup` AuditEvent whose changes include `scheduled_for`. |
-| **Ticket** (`tickets`) | Manager, Admin | Campaign; breakdown | One per Ticket category | Opened in the period · resolved or closed in the period (a StatusHistory into Resolved or Closed) · avg hours to resolve (from created to that StatusHistory) · Tickets with a Lead ÷ distinct Leads (Tickets per Lead) |
+| **Follow-up** (`followups`) | All (scoped) | breakdown | One per person in scope | Due: `scheduled_for` in the period and at or before now, excluding cancelled. Done on time: completed by the end of the scheduled day. Done late: completed after it. Overdue now: pending and past. Rescheduled: `updated_followup` AuditEvents made by the person in the period whose changes include `scheduled_for` (the events are recorded on the Lead or Ticket, not on the Followup). |
+| **Ticket** (`tickets`) | Manager, Admin | Campaign; breakdown | One per Ticket category | Opened in the period · resolved or closed in the period (every StatusHistory into Resolved or Closed counts, so a Ticket resolved, reopened and resolved again counts twice) · avg hours to resolve (from created to that StatusHistory) · Tickets with a Lead ÷ distinct Leads (Tickets per Lead) |
 | **Workload** (`workload`) | Manager, Admin | — | One per person in scope | Open Tickets · open Leads · Followups due today · Followups overdue. Point-in-time. |
-| **Pool** (`pool`) | Manager, Admin | Campaign | One per person who claimed, plus a summary row | Summary row: records that entered the pool in the period (Tickets and Leads created with no assignee) · still unclaimed now. Per person: claims in the period (the Performance `claims` rule) · avg hours to claim. |
+| **Pool** (`pool`) | Manager, Admin | Campaign | One per person who claimed, plus a summary row "All" | Columns: Entered pool · Still unclaimed · Claims · Avg hours to claim. Summary row: Entered pool = records that entered the pool in the period (Tickets and Leads created with no assignee); Still unclaimed = those of this period's entries still unassigned now. Both are narrowed only by Product and Campaign, not by team or person (pooled work has no owner yet). Per person: claims in the period (the Performance `claims` rule) · avg hours to claim. |
 | **Number reveal** (`number_reveals`) | Admin | — | One per person who revealed | Reveals in the period · distinct Customers · reveals with no Action afterwards (`ContactReveal#answered?` false) |
 
 ### Money
 
 | Report (key) | Who | Filters | Rows | Columns |
 |---|---|---|---|---|
-| **Revenue** (`revenue`) | Manager, Admin | Source, Campaign; breakdown | One per Product (plus "No product") | Receipts received in the period: one-off · instalment · total. These are on Leads in scope, counted in full (not by share). |
-| **Instalment** (`instalments`) | All (scoped) | — | One per Lead with Instalments due in the period | Lead · Customer · person · scheduled (Σ due in the period) · paid on time · paid late · overdue (pending and past due) · balance outstanding on the Lead (Σ pending Instalments minus their receipts) |
+| **Revenue** (`revenue`) | Manager, Admin | Source, Campaign; breakdown | One per Product, every Product listed (zero rows where the team has none), plus "No product" | Receipts received in the period: one-off · instalment · total. These are on Leads in scope, counted in full (not by share). |
+| **Instalment** (`instalments`) | All (scoped) | — | One per Lead with Instalments due in the period | Lead · Customer · person · scheduled (Σ due in the period) · paid on time · paid late · overdue (pending and past due); on time, late and overdue are counts of Instalments, not amounts · balance outstanding on the Lead (Σ pending Instalments minus their receipts) |
 | **Shared lead** (`shared_leads`) | All (scoped) | — | One per shared Lead where anyone in scope takes part | Lead · Customer · participants with percentages (as text) · receipts in the period · credited to each in-scope participant (as text: "Ravi ₹600 · Pia ₹400") |
 | **Target vs achievement** (`targets`) | All (scoped) | — | One per Target whose own period overlaps the chosen period, for people in scope | Person · Product · Target period · metric · goal · achieved (`Target#achieved_value`) · gap · % |
 | **Subscription** (`subscriptions`) | All (scoped) | — | One per Product | Active (expires more than 60 days out) · expiring in 0–7 days · 8–30 days · 31–60 days · expired. This counts Subscriptions on Leads in scope, point-in-time. |
