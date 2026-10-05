@@ -3,6 +3,32 @@ module Forefront
     # Splits a date range into calendar buckets (weeks Monday–Sunday), each
     # clipped to the range, labelled for column headers.
     module Buckets
+      # Most columns a breakdown may make; a longer period is broken down by a coarser unit.
+      MAX = 120
+      COARSER = { "day" => "week", "week" => "month", "month" => "quarter", "quarter" => nil }.freeze
+
+      # The breakdown to use for the dates: the one asked for, or the next coarser unit
+      # that fits within MAX buckets, or nil (totals only) if even quarters don't.
+      def self.fit(dates, breakdown)
+        unit = breakdown if BREAKDOWNS.include?(breakdown)
+        unit = COARSER[unit] while unit && count(dates, unit) > MAX
+        unit
+      end
+
+      # How many buckets the dates make, counted without building them.
+      def self.count(dates, breakdown)
+        case breakdown
+        when "day" then (dates.end - dates.begin).to_i + 1
+        when "week" then (start_of(dates.end, "week") - start_of(dates.begin, "week")).to_i / 7 + 1
+        when "month" then month_index(dates.end) - month_index(dates.begin) + 1
+        when "quarter" then month_index(dates.end) / 3 - month_index(dates.begin) / 3 + 1
+        end
+      end
+
+      def self.month_index(date)
+        date.year * 12 + date.month - 1
+      end
+
       def self.for(dates, breakdown)
         return [ [ "Total", dates ] ] unless BREAKDOWNS.include?(breakdown)
 

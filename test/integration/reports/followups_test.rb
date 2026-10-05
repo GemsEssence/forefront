@@ -77,6 +77,47 @@ class Forefront::Reports::FollowupsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a breakdown with too many columns falls back to a coarser unit, and says so" do
+    travel_to Time.zone.local(2026, 10, 20, 12) do
+      followup(Time.zone.local(2026, 2, 3, 10))
+      sign_in_as(@ravi)
+
+      get "/forefront/reports/followups", params: { period: "custom", from: "2026-01-01", to: "2026-12-31", breakdown: "day" }
+
+      assert_response :success
+      headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
+      assert_equal 53, headers.grep(/\ADue · \d/).size
+      assert_includes headers, "Due · 2 Feb – 8 Feb"
+      assert_select "[data-breakdown-notice]", /by week instead/
+      assert_select "select[name=breakdown] option[selected][value=week]"
+    end
+  end
+
+  test "a breakdown too large even by quarter is dropped, and says so" do
+    travel_to Time.zone.local(2026, 10, 20, 12) do
+      followup(Time.zone.local(2026, 10, 2, 10))
+      sign_in_as(@ravi)
+
+      get "/forefront/reports/followups", params: { period: "custom", from: "0001-01-01", to: "9999-12-31", breakdown: "day" }
+
+      assert_response :success
+      headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
+      assert_equal [ "Person", "Due", "Done on time", "Done late", "Overdue now", "Rescheduled" ], headers
+      assert_select "[data-breakdown-notice]", /totals only/
+    end
+  end
+
+  test "a breakdown within the limit shows no notice" do
+    travel_to Time.zone.local(2026, 10, 20, 12) do
+      sign_in_as(@ravi)
+
+      get "/forefront/reports/followups", params: { breakdown: "day" }
+
+      assert_select "table[data-report] thead th", text: "Due · 1 Oct"
+      assert_select "[data-breakdown-notice]", count: 0
+    end
+  end
+
   test "rescheduled ignores events before the period or by someone else and lands in its bucket" do
     travel_to Time.zone.local(2026, 10, 20, 12) do
       change = { "scheduled_for" => [ 1.day.ago, Time.current ] }

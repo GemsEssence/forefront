@@ -27,6 +27,13 @@
   <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">Apply</button>
 <% end %>
 
+<% if @context.breakdown_coarsened? %>
+  <p class="mb-4 rounded-md bg-amber-50 px-4 py-2 text-sm text-amber-800" data-breakdown-notice>
+    This period is too long to break down by <%= @context.requested_breakdown %>;
+    <%= @context.breakdown ? "broken down by #{@context.breakdown} instead." : "showing totals only." %>
+  </p>
+<% end %>
+
 <% rows = @report.rows %>
 <div class="bg-white shadow rounded-lg overflow-x-auto">
   <table class="min-w-full divide-y divide-gray-200 text-sm" data-report="<%= @report.class.key %>">
