@@ -22,9 +22,10 @@ module Forefront
       text.match?(/\A[=+\-@\t\r]/) ? "'#{text}" : text
     end
 
-    # The same rounding (half up) as the table's number helpers, so 12.5% is 13 in both.
+    # The same rounding (half up) as the table's number helpers, so 12.5% is 13 in both,
+    # but always a plain dot and no thousands separator, whatever the host's locale.
     def rounded(value, precision)
-      ActiveSupport::NumberHelper.number_to_rounded(value, precision: precision)
+      ActiveSupport::NumberHelper.number_to_rounded(value, precision: precision, separator: ".", delimiter: "")
     end
 
     def plain(value, kind)

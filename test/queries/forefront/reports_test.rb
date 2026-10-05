@@ -56,6 +56,17 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     assert_equal [ "13", "0.3", "0.3", "0.3", "0.13", "0.13" ], csv_for(formats, values)
   end
 
+  test "CSV numbers use a plain dot whatever the host's locale" do
+    locales = I18n.available_locales
+    I18n.available_locales = locales + [ :de ]
+    I18n.backend.store_translations(:de, number: { format: { separator: ",", delimiter: "." } })
+    I18n.with_locale(:de) do
+      assert_equal [ "1234567.89", "12.5" ], csv_for(%i[money days], [ 1234567.891, 12.5 ])
+    end
+  ensure
+    I18n.available_locales = locales
+  end
+
   test "text that a spreadsheet would run as a formula is quoted" do
     assert_equal [ "'=1+1", "'+x", "'-x", "'@x", "plain" ], csv_for(%i[text text text text text], [ "=1+1", "+x", "-x", "@x", "plain" ])
   end
