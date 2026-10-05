@@ -24,7 +24,7 @@ class Forefront::TicketFormTest < ActionDispatch::IntegrationTest
   test "the assignee list leaves out admins" do
     manager = Forefront::Admin.create!(name: "Max", email: "max-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
     customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: customer, created_by: manager, category: "demo", priority: "medium")
+    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: customer, created_by: manager, category: "new_app_demo", priority: "medium")
 
     [ "/forefront/tickets/new", "/forefront/tickets/#{ticket.id}/edit" ].each do |path|
       get path

@@ -118,7 +118,7 @@ module Forefront
 
       # Renewal Tickets / Renewal risk
       define :renewal_tickets, title: "Renewal tickets", kind: :tickets do |scope, _|
-        scope.tickets.plan_expired.unfinished
+        scope.tickets.renewal.unfinished
       end
 
       # A renewal moves the same Subscription's expires_at (CONTEXT.md), so only
@@ -127,7 +127,7 @@ module Forefront
       define :renewal_risk, title: "Renewals at risk", kind: :subscriptions, roles: TEAM_ROLES do |scope, _|
         acted_on = AuditEvent.actions.where.not(action: "created").where(auditable_type: Ticket.name).select(:auditable_id)
         tickets, subscriptions = Ticket.table_name, Subscription.table_name
-        contacted = Ticket.plan_expired.unfinished.where(id: acted_on)
+        contacted = Ticket.renewal.unfinished.where(id: acted_on)
                           .where("#{tickets}.customer_id = #{subscriptions}.customer_id")
                           .where("#{tickets}.product_id = #{subscriptions}.product_id")
         scope.subscriptions.where(expires_at: Date.current..(Date.current + 30))
@@ -322,7 +322,7 @@ module Forefront
       define :renewals_closed, title: "Renewal tickets closed", kind: :tickets, periodic: true do |scope, _|
         finished = StatusHistory.where(trackable_type: Ticket.name, created_at: scope.period.times,
                                        new_status: [ Ticket.statuses.fetch("resolved"), Ticket.statuses.fetch("closed") ]).select(:trackable_id)
-        scope.tickets.plan_expired.where(id: finished).where.not(renewal_outcome: nil)
+        scope.tickets.renewal.where(id: finished).where.not(renewal_outcome: nil)
       end
 
       define :renewals_renewed, title: "Renewal tickets renewed", kind: :tickets, periodic: true do |scope, _|

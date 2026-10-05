@@ -23,7 +23,7 @@ class Forefront::Performance::CollectionTest < ActionDispatch::IntegrationTest
   def renewal(title, outcome, closed_at, status: "resolved")
     product = Forefront::Product.find_or_create_by!(name: "Widget")
     ticket = Forefront::Ticket.create!(title: title, description: "D", customer: @customer, product: product, created_by: @ravi,
-                                       assigned_to: @ravi, category: "plan_expired", priority: "medium", status: status, renewal_outcome: outcome)
+                                       assigned_to: @ravi, category: "renewal", priority: "medium", status: status, renewal_outcome: outcome)
     Forefront::StatusHistory.create!(trackable: ticket, old_status: "Open", new_status: status.capitalize, changed_by: @ravi, created_at: closed_at)
     ticket
   end

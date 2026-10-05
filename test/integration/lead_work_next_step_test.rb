@@ -15,7 +15,7 @@ class Forefront::LeadWorkNextStepTest < ActionDispatch::IntegrationTest
                                     source: forefront_source, product: @product, status: "contacted")
     sign_in_as(@rep)
     post "/forefront/leads/#{@lead.id}/status_histories", params: { status_history: { status: "demo" } }
-    @demo_ticket = @lead.tickets.demo.sole
+    @demo_ticket = @lead.tickets.new_app_demo.sole
   end
 
   def resolve_demo(**next_step)

@@ -36,7 +36,7 @@ class Forefront::RequiredFieldIndicatorTest < ActionDispatch::IntegrationTest
   end
 
   test "the ticket page's modals and activity form mark their required fields" do
-    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium")
+    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium")
 
     assert_required_fields("/forefront/tickets/#{ticket.id}",
                            %w[status_history_status assignment_to_user_id followup_followup_type followup_scheduled_for])

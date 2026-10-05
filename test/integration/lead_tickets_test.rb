@@ -53,10 +53,20 @@ class Forefront::LeadTicketsTest < ActionDispatch::IntegrationTest
   end
 
   test "a renewal ticket can't belong to a lead" do
-    post "/forefront/tickets", params: { ticket: ticket_params(category: "plan_expired") }
+    post "/forefront/tickets", params: { ticket: ticket_params(category: "renewal") }
 
     assert_response :unprocessable_entity
     assert_match "A renewal ticket can&#39;t belong to a lead", response.body
+  end
+
+  test "support work for an existing customer can't belong to a lead" do
+    post "/forefront/tickets", params: { ticket: ticket_params(category: "support_demo") }
+    assert_response :unprocessable_entity
+    assert_match "A support ticket can&#39;t belong to a lead", response.body
+
+    post "/forefront/tickets", params: { ticket: ticket_params(category: "support_call") }
+    assert_response :unprocessable_entity
+    assert_match "A support ticket can&#39;t belong to a lead", response.body
   end
 
   test "tickets offer a proposal category" do

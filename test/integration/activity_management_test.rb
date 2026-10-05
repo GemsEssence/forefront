@@ -5,7 +5,7 @@ class Forefront::ActivityManagementTest < ActionDispatch::IntegrationTest
     @email = "alice-#{SecureRandom.hex(4)}@example.com"
     @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @ticket = Forefront::Ticket.create!(title: "Demo", description: "Wants a demo", customer: @customer, created_by: @admin, category: "demo", priority: "medium")
+    @ticket = Forefront::Ticket.create!(title: "Demo", description: "Wants a demo", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium")
 
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: @email, password: "password123" } }

@@ -9,7 +9,7 @@ class Forefront::ModalFormErrorsTest < ActionDispatch::IntegrationTest
     @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "admin")
     @rep = Forefront::Admin.create!(name: "Rita", email: "rita-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium", assigned_to: @rep)
+    @ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium", assigned_to: @rep)
     @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, estimated_amount: 500)
 
     get "/forefront/admins/sign_in"

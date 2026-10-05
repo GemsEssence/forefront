@@ -20,7 +20,7 @@ class Forefront::Dashboard::RenewalsTest < ActionDispatch::IntegrationTest
 
   def renewal_ticket(customer)
     Forefront::Ticket.create!(title: "Renew #{customer.name}", description: "D", customer: customer, product: @product, created_by: @rep,
-                              assigned_to: @rep, category: "plan_expired", priority: "medium", status: "open")
+                              assigned_to: @rep, category: "renewal", priority: "medium", status: "open")
   end
 
   test "my renewal tickets show days to expiry" do

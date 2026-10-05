@@ -58,7 +58,7 @@
     <div>
       <%= f.label :renewal_outcome, "Renewal Outcome", class: "block text-sm font-medium text-gray-700" %>
       <%= f.select :renewal_outcome, options_for_select(Forefront::Ticket.renewal_outcomes.keys.map { |k| [k.humanize, k] }, @ticket.renewal_outcome), { include_blank: "Not resolved yet" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
-      <p class="text-xs text-gray-500 mt-1">Only relevant when resolving a "Plan Expired" renewal ticket.</p>
+      <p class="text-xs text-gray-500 mt-1">Only relevant when resolving a Renewal ticket.</p>
     </div>
   </div>
 

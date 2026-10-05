@@ -81,7 +81,7 @@ module Forefront
       !won? && !lost?
     end
 
-    STAGE_WORK_DONE = { "demo" => "Demo done", "proposal" => "Proposal sent" }.freeze
+    STAGE_WORK_DONE = { "new_app_demo" => "Demo done", "proposal" => "Proposal sent" }.freeze
 
     # [["Demo done", time], ...] for the stage work under this Lead that's
     # been finished, so the page shows how far the sale really got.

@@ -28,21 +28,21 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
 
   test "per category: opened, resolved, hours to resolve and tickets per lead" do
     lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @ravi, assigned_to: @ravi, source: forefront_source)
-    ticket("demo", created_at: 3.days.ago, resolved_after: 2.hours, lead: lead)
-    ticket("demo", created_at: 2.days.ago, resolved_after: 4.hours, lead: lead)
+    ticket("new_app_demo", created_at: 3.days.ago, resolved_after: 2.hours, lead: lead)
+    ticket("new_app_demo", created_at: 2.days.ago, resolved_after: 4.hours, lead: lead)
     ticket("request", created_at: 1.day.ago)
     sign_in_as(@manager)
 
     get "/forefront/reports/tickets"
 
     rows = report_rows
-    assert_equal [ "2", "2", "3.0", "2.0" ], rows["Demo"]
+    assert_equal [ "2", "2", "3.0", "2.0" ], rows["New App Demo"]
     assert_equal [ "1", "0", "—", "—" ], rows["Request"]
   end
 
   test "tickets opened or resolved before the period are not counted and quiet categories are not listed" do
     travel_to Time.zone.local(2026, 10, 20, 12) do
-      ticket("demo", created_at: 60.days.ago, resolved_after: 1.hour)
+      ticket("new_app_demo", created_at: 60.days.ago, resolved_after: 1.hour)
       ticket("tech", created_at: 5.days.ago)
       sign_in_as(@manager)
 
@@ -66,7 +66,7 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
 
   test "tickets of another team are excluded" do
     other = dashboard_staff("Olga Other", "manager")
-    ticket("demo", created_at: 1.day.ago, by: other)
+    ticket("new_app_demo", created_at: 1.day.ago, by: other)
     ticket("tech", created_at: 1.day.ago)
     sign_in_as(@manager)
 
@@ -81,22 +81,22 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
     summer = Forefront::Campaign.create!(name: "Summer", source: source, created_by: @manager, starts_on: 30.days.ago.to_date, ends_on: 1.day.from_now.to_date)
     lead_a = Forefront::Lead.create!(title: "A", description: "D", customer: @customer, created_by: @ravi, assigned_to: @ravi, source: source)
     lead_b = Forefront::Lead.create!(title: "B", description: "D", customer: @customer, created_by: @ravi, assigned_to: @ravi, source: source)
-    ticket("demo", created_at: 3.days.ago, resolved_after: 2.hours, lead: lead_a, campaign: spring)
-    ticket("demo", created_at: 2.days.ago, resolved_after: 4.hours, lead: lead_a, campaign: spring)
-    ticket("demo", created_at: 2.days.ago, resolved_after: 10.hours, lead: lead_b, campaign: summer)
+    ticket("new_app_demo", created_at: 3.days.ago, resolved_after: 2.hours, lead: lead_a, campaign: spring)
+    ticket("new_app_demo", created_at: 2.days.ago, resolved_after: 4.hours, lead: lead_a, campaign: spring)
+    ticket("new_app_demo", created_at: 2.days.ago, resolved_after: 10.hours, lead: lead_b, campaign: summer)
     ticket("tech", created_at: 1.day.ago, campaign: summer)
     ticket("request", created_at: 1.day.ago)
     sign_in_as(@manager)
 
     get "/forefront/reports/tickets", params: { campaign_id: spring.id }
 
-    assert_equal [ "Demo" ], report_rows.keys
-    assert_equal [ "2", "2", "3.0", "2.0" ], report_rows["Demo"]
+    assert_equal [ "New App Demo" ], report_rows.keys
+    assert_equal [ "2", "2", "3.0", "2.0" ], report_rows["New App Demo"]
   end
 
   test "a custom period includes its first second and excludes the second before it, for opened and resolved" do
     travel_to Time.zone.local(2026, 10, 15, 12) do
-      ticket("demo", created_at: Time.zone.local(2026, 9, 30, 23, 59, 59))
+      ticket("new_app_demo", created_at: Time.zone.local(2026, 9, 30, 23, 59, 59))
       ticket("tech", created_at: Time.zone.local(2026, 10, 1, 0, 0, 0))
       ticket("issue", created_at: Time.zone.local(2026, 9, 29, 23, 59, 59), resolved_after: 1.second)
       ticket("request", created_at: Time.zone.local(2026, 9, 30, 12), resolved_after: 12.hours)
@@ -112,14 +112,14 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
 
   test "week breakdown puts resolutions and their hours in the right week, with the Sunday 23:59 and Monday 00:00 edge" do
     travel_to Time.zone.local(2026, 10, 20, 12) do
-      ticket("demo", created_at: Time.zone.local(2026, 10, 4, 21, 59), resolved_after: 2.hours)
-      ticket("demo", created_at: Time.zone.local(2026, 10, 4, 21, 0), resolved_after: 3.hours)
+      ticket("new_app_demo", created_at: Time.zone.local(2026, 10, 4, 21, 59), resolved_after: 2.hours)
+      ticket("new_app_demo", created_at: Time.zone.local(2026, 10, 4, 21, 0), resolved_after: 3.hours)
       sign_in_as(@manager)
 
       get "/forefront/reports/tickets", params: { breakdown: "week" }
 
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
-      demo = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }.find { |row| row[0] == "Demo" }
+      demo = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }.find { |row| row[0] == "New App Demo" }
       cell = ->(title, week) { demo[headers.index("#{title} · #{week}")] }
       assert_equal "2", cell.call("Opened", "1 Oct – 4 Oct")
       assert_equal "1", cell.call("Resolved or closed", "1 Oct – 4 Oct")
@@ -133,15 +133,15 @@ class Forefront::Reports::TicketsTest < ActionDispatch::IntegrationTest
 
   test "breakdown by week puts each week's opened tickets in its own column" do
     travel_to Time.zone.local(2026, 10, 20, 12) do
-      ticket("demo", created_at: Time.zone.local(2026, 10, 2, 9))
-      ticket("demo", created_at: Time.zone.local(2026, 10, 3, 9))
-      ticket("demo", created_at: Time.zone.local(2026, 10, 9, 9))
+      ticket("new_app_demo", created_at: Time.zone.local(2026, 10, 2, 9))
+      ticket("new_app_demo", created_at: Time.zone.local(2026, 10, 3, 9))
+      ticket("new_app_demo", created_at: Time.zone.local(2026, 10, 9, 9))
       sign_in_as(@manager)
 
       get "/forefront/reports/tickets", params: { breakdown: "week" }
 
       headers = css_select("table[data-report] thead th").map { |th| th.text.squish }
-      demo = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }.find { |row| row[0] == "Demo" }
+      demo = css_select("table[data-report] tbody tr").map { |row| css_select(row, "td").map { |cell| cell.text.squish } }.find { |row| row[0] == "New App Demo" }
       assert_equal "2", demo[headers.index("Opened · 1 Oct – 4 Oct")]
       assert_equal "1", demo[headers.index("Opened · 5 Oct – 11 Oct")]
       assert_equal "3", demo[headers.index("Opened · Total")]
@@ -168,7 +168,7 @@ class Forefront::Reports::TicketsQueryCountTest < ActionDispatch::IntegrationTes
       Forefront::Ticket.create!(title: "T", description: "D", customer: customer, created_by: manager, assigned_to: manager,
                                 category: category, priority: "medium", status: "open", created_at: 3.days.ago)
     end
-    make.call("demo")
+    make.call("new_app_demo")
     sign_in_as(manager)
     few = queries_for("/forefront/reports/tickets", { breakdown: "day", period: "custom", from: 7.days.ago.to_date.iso8601, to: Date.current.iso8601 })
     %w[tech issue request complaint proposal].each { |category| make.call(category) }

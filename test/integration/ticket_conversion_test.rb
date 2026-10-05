@@ -71,7 +71,7 @@ class Forefront::TicketConversionTest < ActionDispatch::IntegrationTest
 
   test "a renewal ticket can't be converted" do
     renewal = Forefront::Ticket.create!(title: "Renew", description: "D", customer: @customer, product: @product, created_by: @rep,
-                                        assigned_to: @rep, category: "plan_expired", priority: "medium", status: "open")
+                                        assigned_to: @rep, category: "renewal", priority: "medium", status: "open")
 
     convert(renewal)
 

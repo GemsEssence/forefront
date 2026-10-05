@@ -17,15 +17,17 @@ module Forefront
       issue: "Issue",
       request: "Request",
       complaint: "Complaint",
-      demo: "Demo",
+      new_app_demo: "New App Demo",
       proposal: "Proposal",
       signup: "Signup",
       enquiry: "Enquiry",
-      plan_expired: "Plan Expired",
       regular_call: "Regular Call",
       new_requirement: "New Requirement",
       suggestion: "Suggestion",
-      white_label_app: "White Label App"
+      white_label_app: "White Label App",
+      support_call: "Support Call",
+      support_demo: "Support Demo",
+      renewal: "Renewal"
     }
 
     enum :priority, {
@@ -70,13 +72,13 @@ module Forefront
 
     # A demo or Proposal under a Lead: resolving it asks what's next for the Lead.
     def lead_work?
-      lead.present? && (demo? || proposal?)
+      lead.present? && (new_app_demo? || proposal?)
     end
 
     # Work that can become a Lead: not already one's, not a renewal (that's
     # about a Subscription), and not finished.
     def convertible?
-      lead_id.nil? && !plan_expired? && !resolved? && !closed?
+      lead_id.nil? && !renewal? && !resolved? && !closed?
     end
 
     # The Source a Lead converted from this Ticket starts with.
@@ -108,7 +110,7 @@ module Forefront
     end
 
     def renewal_reward_amount
-      return 0 unless plan_expired? && renewed? && product.present?
+      return 0 unless renewal? && renewed? && product.present?
       return 0 if product.renewal_reward_percentage.blank?
 
       subscription = customer.subscriptions.find_by(product_id: product_id)
@@ -123,11 +125,13 @@ module Forefront
     private
 
     # Work under a Lead is about that Lead's sale; a renewal is about a
-    # Subscription instead, so it never sits under a Lead (ADR 0003).
+    # Subscription instead (ADR 0003), and support work is for a Customer who
+    # already has the Product, so neither ever sits under a Lead.
     def matches_its_lead
       errors.add(:customer, "must be the lead's customer") if customer_id != lead.customer_id
       errors.add(:product, "must be the lead's product") if product_id != lead.product_id
-      errors.add(:base, "A renewal ticket can't belong to a lead") if plan_expired?
+      errors.add(:base, "A renewal ticket can't belong to a lead") if renewal?
+      errors.add(:base, "A support ticket can't belong to a lead") if support_demo? || support_call?
     end
 
     def assignee_is_not_an_admin

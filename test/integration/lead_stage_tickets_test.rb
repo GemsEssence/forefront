@@ -26,7 +26,7 @@ class Forefront::LeadStageTicketsTest < ActionDispatch::IntegrationTest
     end
 
     ticket = @lead.tickets.sole
-    assert ticket.demo?
+    assert ticket.new_app_demo?
     assert ticket.open?
     assert_equal "Schedule demo", ticket.title
     assert_equal "Wants to see the reporting module", ticket.description
@@ -49,17 +49,17 @@ class Forefront::LeadStageTicketsTest < ActionDispatch::IntegrationTest
     change_stage("proposal")
     change_stage("demo")
 
-    assert_equal 1, @lead.tickets.demo.count
+    assert_equal 1, @lead.tickets.new_app_demo.count
     assert_equal 1, @lead.tickets.proposal.count
   end
 
   test "a second demo after the first was done opens a new ticket" do
     change_stage("demo")
-    @lead.tickets.demo.sole.update!(status: "resolved")
+    @lead.tickets.new_app_demo.sole.update!(status: "resolved")
     change_stage("contacted")
     change_stage("demo")
 
-    assert_equal 2, @lead.tickets.demo.count
+    assert_equal 2, @lead.tickets.new_app_demo.count
   end
 
   test "other stages open no ticket" do

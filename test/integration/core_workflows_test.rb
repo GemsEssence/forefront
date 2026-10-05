@@ -13,7 +13,7 @@ class Forefront::CoreWorkflowsTest < ActionDispatch::IntegrationTest
   end
 
   test "creating, viewing, and listing a ticket works end to end" do
-    post "/forefront/tickets", params: { ticket: { title: "Schedule demo", description: "Wants a demo", customer_id: @customer.id, category: "demo", priority: "medium" } }
+    post "/forefront/tickets", params: { ticket: { title: "Schedule demo", description: "Wants a demo", customer_id: @customer.id, category: "new_app_demo", priority: "medium" } }
     ticket = Forefront::Ticket.last
 
     assert_redirected_to "/forefront/tickets/#{ticket.id}"
@@ -58,7 +58,7 @@ class Forefront::CoreWorkflowsTest < ActionDispatch::IntegrationTest
 
   test "reassigning a ticket works end to end" do
     other_admin = Forefront::Admin.create!(name: "Bob", email: "bob-#{SecureRandom.hex(4)}@example.com", password: "password123")
-    post "/forefront/tickets", params: { ticket: { title: "T", description: "D", customer_id: @customer.id, category: "demo", priority: "medium" } }
+    post "/forefront/tickets", params: { ticket: { title: "T", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "medium" } }
     ticket = Forefront::Ticket.last
 
     post "/forefront/tickets/#{ticket.id}/assignments", params: { assignment: { to_user_id: other_admin.id } }

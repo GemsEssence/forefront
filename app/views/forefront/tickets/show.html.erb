@@ -69,7 +69,7 @@
                 <dt class="text-sm font-medium text-gray-500">Product</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   <%= @ticket.product.name %>
-                  <% if @ticket.plan_expired? %>
+                  <% if @ticket.renewal? %>
                     <% if @ticket.renewal_outcome.present? %>
                       <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= @ticket.renewed? ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
                         <%= @ticket.renewal_outcome.humanize %>

@@ -17,7 +17,7 @@ class Forefront::IndexAfterTurboRedirectTest < ActionDispatch::IntegrationTest
   end
 
   test "deleting a ticket from its page lands on the tickets page with the notice" do
-    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "demo", priority: "medium")
+    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium")
 
     delete "/forefront/tickets/#{ticket.id}", headers: { "Accept" => TURBO_ACCEPT }
     follow_redirect!(headers: { "Accept" => TURBO_ACCEPT })

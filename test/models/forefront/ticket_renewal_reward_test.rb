@@ -11,7 +11,7 @@ class Forefront::TicketRenewalRewardTest < ActiveSupport::TestCase
   end
 
   def build_renewal_ticket
-    Forefront::Ticket.create!(title: "Renew?", description: "D", customer: @customer, created_by: @admin, category: "plan_expired", priority: "medium", status: "open", product: @product)
+    Forefront::Ticket.create!(title: "Renew?", description: "D", customer: @customer, created_by: @admin, category: "renewal", priority: "medium", status: "open", product: @product)
   end
 
   test "no reward while the renewal ticket is still open" do
@@ -42,7 +42,7 @@ class Forefront::TicketRenewalRewardTest < ActiveSupport::TestCase
 
   test "no reward when there is no matching subscription for this customer and product" do
     other_product = Forefront::Product.create!(name: "Other", renewal_reward_percentage: 10)
-    ticket = Forefront::Ticket.create!(title: "Renew?", description: "D", customer: @customer, created_by: @admin, category: "plan_expired", priority: "medium", status: "open", product: other_product)
+    ticket = Forefront::Ticket.create!(title: "Renew?", description: "D", customer: @customer, created_by: @admin, category: "renewal", priority: "medium", status: "open", product: other_product)
     ticket.update!(status: "resolved", renewal_outcome: "renewed")
 
     assert_equal 0, ticket.renewal_reward_amount

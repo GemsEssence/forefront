@@ -3,7 +3,7 @@ module Forefront
     class Create
       # Moving a Lead into one of these stages opens the Ticket for that work.
       STAGE_TICKETS = {
-        "demo" => { category: "demo", title: "Schedule demo" },
+        "demo" => { category: "new_app_demo", title: "Schedule demo" },
         "proposal" => { category: "proposal", title: "Send proposal" }
       }.freeze
       DEFAULT_TICKET_DAYS = 2
