@@ -64,6 +64,15 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     assert_equal [ "'\t=1+1", "'\r=1+1" ], csv_for(%i[text text], [ "\t=1+1", "\r=1+1" ])
   end
 
+  test "the CSV asks the report for its columns once, not once per row" do
+    calls = 0
+    cols = [ Forefront::Reports::Column.new(key: "a", title: "A", format: :count) ]
+    report = Report.new(nil, [ [ 1 ], [ 2 ], [ 3 ] ])
+    report.define_singleton_method(:columns) { calls += 1; cols }
+    Forefront::ReportCsv.new(report).call
+    assert_equal 1, calls
+  end
+
   test "a negative count stays a number rather than being quoted" do
     assert_equal [ "-3" ], csv_for(%i[count], [ -3 ])
   end

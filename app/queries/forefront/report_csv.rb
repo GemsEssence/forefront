@@ -8,9 +8,10 @@ module Forefront
     end
 
     def call
+      columns = @report.columns
       CSV.generate do |csv|
-        csv << @report.columns.map(&:title)
-        @report.rows.each { |row| csv << row.zip(@report.columns).map { |value, column| plain(value, column.format) } }
+        csv << columns.map(&:title)
+        @report.rows.each { |row| csv << row.zip(columns).map { |value, column| plain(value, column.format) } }
       end
     end
 

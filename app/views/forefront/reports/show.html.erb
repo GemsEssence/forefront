@@ -35,17 +35,18 @@
 <% end %>
 
 <% rows = @report.rows %>
+<% columns = @report.columns %>
 <div class="bg-white shadow rounded-lg overflow-x-auto">
   <table class="min-w-full divide-y divide-gray-200 text-sm" data-report="<%= @report.class.key %>">
     <thead class="bg-gray-50"><tr>
-      <% @report.columns.each do |column| %>
+      <% columns.each do |column| %>
         <th class="px-3 py-2 <%= column.format == :text ? 'text-left' : 'text-right' %>"><%= column.title %></th>
       <% end %>
     </tr></thead>
     <tbody class="divide-y divide-gray-100">
       <% rows.each do |row| %>
         <tr>
-          <% row.zip(@report.columns).each do |value, column| %>
+          <% row.zip(columns).each do |value, column| %>
             <td class="px-3 py-2 <%= column.format == :text ? 'text-left' : 'text-right' %>"><%= report_cell(value, column.format) %></td>
           <% end %>
         </tr>
