@@ -39,5 +39,7 @@ module Forefront
     register "revenue", "Forefront::Reports::Revenue"
     register "instalments", "Forefront::Reports::Instalments"
     register "shared_leads", "Forefront::Reports::SharedLeads"
+    register "targets", "Forefront::Reports::Targets"
+    register "subscriptions", "Forefront::Reports::Subscriptions"
   end
 end
