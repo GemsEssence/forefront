@@ -183,6 +183,17 @@ person their own row. Click a name for that person's last 12 months.
 Filter by period (with a comparison to the period before), product, and, for
 Managers and Admins, team or person. Every number opens the list behind it.
 
+## Reports
+
+Reports (`/forefront/reports`) show what happened over a period, as tables
+you can export to CSV. Every report shares the dashboard filters (period,
+product, team, person) and stays within what the viewer may see; some add
+Source, Campaign or a breakdown by day, week, month or quarter. Managers and
+Admins get the pipeline, team and money reports; everyone gets their own
+lead stage, follow-ups, instalments, shared leads, targets and subscriptions;
+Admins also get the number reveal, audit and data quality reports. Every
+CSV export is recorded in the audit log. The Pool report's "Still unclaimed" counts work that entered the pool in the chosen period and is still unassigned.
+
 ## Signup API
 
 When a customer signs up in one of your products' own applications, that
