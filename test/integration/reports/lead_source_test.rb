@@ -39,6 +39,17 @@ class Forefront::Reports::LeadSourceTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a won lead without won_at still counts as won but is left out of the days to win" do
+    lead(@web, created_at: 10.days.ago, won: true, amount: 4_000)
+    lead(@web, created_at: 5.days.ago, won: true, amount: 1_000).update_column(:won_at, nil)
+    sign_in_as(@manager)
+
+    get "/forefront/reports/lead_source"
+
+    assert_response :success
+    assert_equal [ "2", "2", "100%", "₹5,000.00", "10.0" ], report_rows.to_h { |row| [ row[0], row[2..] ] }["Website"]
+  end
+
   test "breakdown by week adds a column per week and a total that adds up" do
     travel_to Time.zone.local(2026, 10, 20, 12) do
       lead(@web, created_at: Time.zone.local(2026, 10, 2, 9))

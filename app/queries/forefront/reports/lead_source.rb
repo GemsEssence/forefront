@@ -28,7 +28,8 @@ module Forefront
           }),
           Metric.new(key: :revenue, title: "Revenue", format: :money, periodic: true, value: ->(key, ctx) { won_in(key, ctx).sum { |row| row[4].to_d } }),
           Metric.new(key: :days, title: "Avg days to win", format: :days, periodic: true, value: lambda { |key, ctx|
-            mean(won_in(key, ctx).map { |row| (row[5] - row[2]) / 1.day })
+            # A Lead won before won_at was recorded has no date to measure from; it still counts as won.
+            mean(won_in(key, ctx).filter_map { |row| (row[5] - row[2]) / 1.day if row[5] })
           })
         ]
       end
