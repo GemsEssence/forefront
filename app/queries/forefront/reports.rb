@@ -36,5 +36,6 @@ module Forefront
     register "workload", "Forefront::Reports::Workload"
     register "pool", "Forefront::Reports::Pool"
     register "number_reveals", "Forefront::Reports::NumberReveals"
+    register "revenue", "Forefront::Reports::Revenue"
   end
 end
