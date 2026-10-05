@@ -37,5 +37,7 @@ module Forefront
     register "pool", "Forefront::Reports::Pool"
     register "number_reveals", "Forefront::Reports::NumberReveals"
     register "revenue", "Forefront::Reports::Revenue"
+    register "instalments", "Forefront::Reports::Instalments"
+    register "shared_leads", "Forefront::Reports::SharedLeads"
   end
 end
