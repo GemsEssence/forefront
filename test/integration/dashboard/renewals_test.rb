@@ -12,7 +12,7 @@ class Forefront::Dashboard::RenewalsTest < ActionDispatch::IntegrationTest
 
   # A won lead whose Subscription expires `in_days` from today.
   def subscriber(name, in_days)
-    customer = Forefront::Customer.create!(name: name, phone: "555-#{rand(1000..9999)}")
+    customer = Forefront::Customer.create!(name: name, phone: unique_phone)
     Forefront::Lead.create!(title: "#{name} deal", description: "D", customer: customer, created_by: @rep, assigned_to: @rep, source: forefront_source,
                             product: @product, status: "won", actual_amount: 1000, expires_at: in_days.days.from_now.to_date)
     customer

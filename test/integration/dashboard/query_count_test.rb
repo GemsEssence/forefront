@@ -19,7 +19,7 @@ class Forefront::Dashboard::QueryCountTest < ActionDispatch::IntegrationTest
     count.times do
       rep = dashboard_staff("Rep #{SecureRandom.hex(3)}", "sales_person", manager: @manager)
       @product.admins << rep
-      customer = Forefront::Customer.create!(name: "C #{rep.name}", phone: "555-#{rand(1000..9999)}")
+      customer = Forefront::Customer.create!(name: "C #{rep.name}", phone: unique_phone)
       lead = Forefront::Lead.create!(title: "L #{rep.name}", description: "D", customer: customer, created_by: rep, assigned_to: rep,
                                      source: forefront_source, product: @product)
       lead.assignments.create!(to_user: rep, changed_by: @manager)

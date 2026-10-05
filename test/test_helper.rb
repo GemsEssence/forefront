@@ -38,6 +38,12 @@ module DashboardTestHelpers
                              password: "password123", role: role, manager: manager)
   end
 
+  # A phone number no other Customer in this test has (Customer phones are unique).
+  def unique_phone
+    @unique_phone = (@unique_phone || 0) + 1
+    "555-#{2000 + @unique_phone}"
+  end
+
   # The number a metric shows on the page just fetched (outside per-person rows unless member: is given).
   def metric(key, slice: nil, member: nil)
     selector = +"[data-metric='#{key}']"
