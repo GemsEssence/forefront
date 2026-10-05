@@ -18,7 +18,7 @@ module Forefront
 
     # A cell a spreadsheet would run as a formula gets a leading quote.
     def safe_text(text)
-      text.match?(/\A[=+\-@]/) ? "'#{text}" : text
+      text.match?(/\A[=+\-@\t\r]/) ? "'#{text}" : text
     end
 
     # The same rounding (half up) as the table's number helpers, so 12.5% is 13 in both.

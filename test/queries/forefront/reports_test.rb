@@ -60,6 +60,10 @@ class Forefront::ReportsFrameworkUnitTest < ActiveSupport::TestCase
     assert_equal [ "'=1+1", "'+x", "'-x", "'@x", "plain" ], csv_for(%i[text text text text text], [ "=1+1", "+x", "-x", "@x", "plain" ])
   end
 
+  test "text starting with a tab or carriage return is quoted too" do
+    assert_equal [ "'\t=1+1", "'\r=1+1" ], csv_for(%i[text text], [ "\t=1+1", "\r=1+1" ])
+  end
+
   test "a negative count stays a number rather than being quoted" do
     assert_equal [ "-3" ], csv_for(%i[count], [ -3 ])
   end
