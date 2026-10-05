@@ -1,0 +1,7 @@
+# Subscription expiry is pulled from each Product's application, not pushed to Forefront
+
+The reference CRM design has an "Expiry API" that *receives* subscription end dates. We decided the other way round: each Product records the URL and token of an endpoint in its own application, and a daily job (`forefront:pull_expiries`) calls it, pages through every active subscription, moves the matching Subscription's `expires_at`, and opens or resolves Renewal Tickets from that. Forefront defines the contract (`GET <url>?page=N` with a Bearer token, returning `{ subscriptions: [{ phone, expires_on }], next_page }`), so a product application only has to expose a read-only list.
+
+Pulling was chosen because the product applications are ours and already know their subscription state, a snapshot each day also corrects dates when a Customer renews inside the app (the one case a push would have to be built separately for), and an inbound webhook would need retries, ordering and a second authentication scheme on top of the Signup one. The cost is that Forefront learns of a change up to a day late, which is fine for a reminder that fires a month ahead.
+
+Rows whose phone number matches no Customer, or no Subscription for that Product, are counted and skipped. Forefront never creates a Customer or a Subscription from the pull, because a Subscription without a won Lead has no Payment to compute rewards from.
