@@ -17,7 +17,9 @@ module Forefront
         @lead.created_by = current_admin
         @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
 
-        if @lead.save
+        # A Lead is a journey with exactly one Product (CONTEXT.md). The rule
+        # lives here, not on the model, so Leads created before it stay valid.
+        if @lead.product_id.present? && @lead.save
           AuditEvent.record!(actor: current_admin, action: "created", auditable: @lead)
           NotificationOperations::AnnounceUnassigned.new(record: @lead, created_by: current_admin).call
 
@@ -32,6 +34,8 @@ module Forefront
 
           { success: true, lead: @lead }
         else
+          @lead.validate
+          @lead.errors.add(:product, :blank) if @lead.product_id.blank?
           @errors = @lead.errors.full_messages
           { success: false, errors: @errors, lead: @lead }
         end
@@ -75,6 +79,8 @@ module Forefront
 
           { success: true, lead: @lead }
         else
+          @lead.validate
+          @lead.errors.add(:product, :blank) if @lead.product_id.blank?
           @errors = @lead.errors.full_messages
           { success: false, errors: @errors, lead: @lead }
         end

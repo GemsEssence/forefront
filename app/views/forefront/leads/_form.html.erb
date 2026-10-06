@@ -29,7 +29,7 @@
 
     <div>
       <%= f.label :product_id, "Product", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.select :product_id, options_from_collection_for_select(@products, :id, :name, @lead.product_id), { include_blank: "No product" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" } %>
+      <%= f.select :product_id, options_from_collection_for_select(@products, :id, :name, @lead.product_id), { prompt: "Select a product" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500", required: true } %>
     </div>
   </div>
 

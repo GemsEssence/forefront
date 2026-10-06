@@ -8,7 +8,7 @@ class Forefront::LeadOperationsTest < ActiveSupport::TestCase
 
   test "creating a lead returns success with the created, persisted lead" do
     params = ActionController::Parameters.new(
-      title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id
+      title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @admin).id
     ).permit!
 
     result = Forefront::LeadOperations::Create.new(params: params, current_admin: @admin).call

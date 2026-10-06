@@ -23,7 +23,7 @@ class Forefront::RequiredFieldIndicatorTest < ActionDispatch::IntegrationTest
 
   {
     "/forefront/tickets/new" => %w[ticket_title ticket_description ticket_customer_id ticket_category ticket_priority],
-    "/forefront/leads/new" => %w[lead_title lead_description lead_customer_id lead_source_id],
+    "/forefront/leads/new" => %w[lead_title lead_description lead_customer_id lead_source_id lead_product_id],
     "/forefront/customers/new" => %w[customer_name],
     "/forefront/products/new" => %w[product_name],
     "/forefront/targets/new" => %w[target_admin_id target_product_id target_metric target_goal_value target_period target_starts_on],

@@ -26,7 +26,7 @@ class Forefront::LeadSourceTest < ActionDispatch::IntegrationTest
   end
 
   test "a lead is created with a source and shows its name" do
-    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source_id: @linkedin.id, status: "open" } }
+    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source_id: @linkedin.id, product_id: forefront_product.id, status: "open" } }
     lead = Forefront::Lead.find_by!(title: "Big Deal")
 
     get "/forefront/leads/#{lead.id}"
@@ -34,7 +34,7 @@ class Forefront::LeadSourceTest < ActionDispatch::IntegrationTest
   end
 
   test "a new lead can't be given an inactive source" do
-    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source_id: @gitex.id, status: "open" } }
+    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source_id: @gitex.id, product_id: forefront_product.id, status: "open" } }
 
     assert_response :unprocessable_entity
     assert_match "Source is no longer in use", response.body

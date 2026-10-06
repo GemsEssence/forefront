@@ -22,6 +22,14 @@ class ActiveSupport::TestCase
   def forefront_source(name = "Website")
     Forefront::Source.find_or_create_by!(name: name)
   end
+
+  # Every new Lead needs a Product; allocate it to any Sales persons who
+  # will hold the Lead.
+  def forefront_product(name = "Widget", allocated_to: [])
+    Forefront::Product.find_or_create_by!(name: name).tap do |product|
+      Array(allocated_to).each { |admin| product.admins << admin unless product.admins.include?(admin) }
+    end
+  end
 end
 
 # For the role dashboards: read the numbers off the page and the records
