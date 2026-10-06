@@ -6,10 +6,10 @@ require "test_helper"
 class Forefront::TicketModalActionsTest < ActionDispatch::IntegrationTest
   setup do
     @email = "alice-#{SecureRandom.hex(4)}@example.com"
-    @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "admin")
+    @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "sales_person")
     @rep = Forefront::Admin.create!(name: "Rita", email: "rita-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @ticket = Forefront::Ticket.create!(title: "Demo", description: "Wants a demo", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium")
+    @ticket = Forefront::Ticket.create!(title: "Demo", description: "Wants a demo", customer: @customer, created_by: @admin, assigned_to: @admin, category: "new_app_demo", priority: "medium")
 
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: @email, password: "password123" } }

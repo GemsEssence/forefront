@@ -50,7 +50,7 @@
 
   </div>
 
-  <% unless @lead.won? || @lead.lost? %>
+  <% unless @lead.won? || @lead.lost? || current_admin.admin? %>
     <div class="flex items-center">
       <%= f.check_box :private, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
       <%= f.label :private, "Private", class: "ml-2 text-sm font-medium text-gray-700" %>

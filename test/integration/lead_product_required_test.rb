@@ -5,6 +5,7 @@ require "test_helper"
 # without a Product are left alone.
 class Forefront::LeadProductRequiredTest < ActionDispatch::IntegrationTest
   def sign_in_as(admin, password: "password123")
+    delete "/forefront/admins/sign_out"
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: admin.email, password: password } }
   end
@@ -25,7 +26,9 @@ class Forefront::LeadProductRequiredTest < ActionDispatch::IntegrationTest
   end
 
   test "a ticket without a product can't be converted into a lead" do
-    ticket = Forefront::Ticket.create!(title: "Call", description: "D", customer: @customer, created_by: @admin, category: "enquiry", priority: "medium", status: "open")
+    rep = Forefront::Admin.create!(name: "Ravi Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    ticket = Forefront::Ticket.create!(title: "Call", description: "D", customer: @customer, created_by: @admin, assigned_to: rep, category: "enquiry", priority: "medium", status: "open")
+    sign_in_as(rep)
 
     post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Big Deal", source_id: forefront_source.id } }
 

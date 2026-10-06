@@ -3,7 +3,7 @@ module Forefront
     before_action :set_lead
 
     def create
-      authorize @lead, :update?
+      authorize @lead, :work?
       result = LeadOperations::AwaitCustomer.new(lead: @lead, params: followup_params, current_admin: current_admin).call
 
       if result[:success]
@@ -14,7 +14,7 @@ module Forefront
     end
 
     def destroy
-      authorize @lead, :update?
+      authorize @lead, :work?
       result = LeadOperations::CustomerResponded.new(lead: @lead, current_admin: current_admin).call
 
       if result[:success]

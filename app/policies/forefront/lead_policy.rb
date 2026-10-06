@@ -25,8 +25,38 @@ module Forefront
       create?
     end
 
+    # The edit form: the assignee, their Manager, or an Admin.
     def update?
-      (super_admin? || owner? || assignee? || manages_owner_or_assignee?) && !locked?
+      (super_admin? || assignee? || manages_owner_or_assignee?) && !locked?
+    end
+
+    # The day-to-day work (CONTEXT.md: only the assignee works a Lead).
+    def work?
+      assignee? && !locked?
+    end
+
+    # Notes: the assignee, share participants, and the Manager overseeing.
+    def note?
+      work? || (participant? && !locked?) || manages_owner_or_assignee?
+    end
+
+    # Moving the stage: the assignee through the stage actions, or a Manager
+    # correcting it. Never an Admin.
+    def move_stage?
+      work? || manages_owner_or_assignee?
+    end
+
+    # Payments, Installments and Receipts: the assignee only.
+    def record_money?
+      work?
+    end
+
+    def attach_receipt?
+      work? || manages_owner_or_assignee?
+    end
+
+    def share?
+      work? || manages_owner_or_assignee?
     end
 
     # A passed Deadline (CONTEXT.md) stops the assignee; a Manager or Admin
@@ -39,10 +69,9 @@ module Forefront
       update?
     end
 
-    # Notes and Followups: open to everyone who may edit the Lead, and to the
-    # people it is shared with. Nothing else a participant may do.
+    # Followups: the assignee and the people the Lead is shared with.
     def work_on?
-      update? || (participant? && !locked?)
+      work? || (participant? && !locked?)
     end
 
     def destroy?

@@ -7,10 +7,11 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   end
 
   setup do
-    @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+    @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @product = Forefront::Product.create!(name: "Widget", renewal_reward_percentage: 10, reclaim_reward_percentage: 20)
-    @lead = Forefront::Lead.create!(title: "Original", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "open", product: @product)
+    @product.admins << @admin
+    @lead = Forefront::Lead.create!(title: "Original", description: "D", customer: @customer, created_by: @admin, assigned_to: @admin, source: forefront_source, status: "open", product: @product)
     sign_in_as(@admin)
   end
 

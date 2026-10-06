@@ -28,7 +28,7 @@ module Forefront
     end
 
     def authorize_lead
-      authorize @lead, :update?
+      authorize @lead, :share?
     end
 
     def lead_share_params

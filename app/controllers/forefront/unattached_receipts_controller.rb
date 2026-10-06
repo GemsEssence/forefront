@@ -10,7 +10,7 @@ module Forefront
     def attach
       receipt = policy_scope(Receipt).unattached.find(params[:id])
       target = ReceiptOperations::Attach.resolve(params[:target])
-      authorize target.is_a?(Installment) ? target.payment.lead : target.lead, :update? if target
+      authorize target.is_a?(Installment) ? target.payment.lead : target.lead, :attach_receipt? if target
 
       result = ReceiptOperations::Attach.new(receipt: receipt, target: target, current_admin: current_admin).call
       finish(result, "Receipt attached.")

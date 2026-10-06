@@ -5,7 +5,7 @@
 
   <div class="mt-2 bg-white shadow overflow-hidden sm:rounded-lg p-4">
     <% if lead.payment.nil? %>
-      <% if policy(lead).update? %>
+      <% if policy(lead).record_money? %>
         <%= link_to "Record Payment", new_lead_payment_path(lead), class: "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" %>
       <% else %>
         <p class="text-sm text-gray-500">No payment recorded yet.</p>
@@ -62,7 +62,7 @@
         <% end %>
       </div>
 
-      <% if !payment.fully_paid? && policy(lead).update? %>
+      <% if !payment.fully_paid? && policy(lead).record_money? %>
         <%= form_with url: lead_payment_receipts_path(lead), method: :post, scope: :receipt, local: true, class: "flex flex-wrap items-end gap-2 mb-4" do |f| %>
           <% if payment.installments.any? %>
             <div>
@@ -90,7 +90,7 @@
         <% end %>
       <% end %>
 
-      <% if !payment.fully_paid? && policy(lead).update? %>
+      <% if !payment.fully_paid? && policy(lead).record_money? %>
         <%= form_with url: lead_payment_installments_path(lead), method: :post, scope: :installment, local: true, class: "flex items-end space-x-2 mt-2" do |f| %>
           <div>
             <%= f.label :amount, "Installment Amount (#{currency_symbol})", class: "block text-xs font-medium text-gray-700" %>

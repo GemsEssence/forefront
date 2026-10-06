@@ -2,7 +2,7 @@ module Forefront
   class ReceiptsController < ApplicationController
     def create
       lead = Lead.find(params[:lead_id])
-      authorize lead, :update?
+      authorize lead, :record_money?
       return redirect_to lead_path(lead), alert: "Record the payment first." unless lead.payment
 
       result = ReceiptOperations::Create.new(payment: lead.payment, params: receipt_params, current_admin: current_admin).call

@@ -27,7 +27,7 @@ module Forefront
     end
 
     def authorize_lead
-      authorize @lead, :update?
+      authorize @lead, :record_money?
     end
 
     def payment_params

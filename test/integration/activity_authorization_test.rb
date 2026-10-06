@@ -48,13 +48,18 @@ class Forefront::ActivityAuthorizationTest < ActionDispatch::IntegrationTest
     assert_equal NOT_AUTHORIZED, flash[:alert]
   end
 
-  test "people who work on a lead can add a note" do
-    [ @owner, @manager, @admin, @participant ].each do |person|
+  test "people who work on a lead can add a note; an admin can't" do
+    [ @owner, @manager, @participant ].each do |person|
       sign_in_as(person)
       assert_difference -> { @lead.activities.count }, 1, "#{person.name} should be able to note" do
         note "/forefront/leads/#{@lead.id}/activities"
       end
       assert_redirected_to "/forefront/leads/#{@lead.id}"
+    end
+
+    sign_in_as(@admin)
+    assert_no_difference -> { @lead.activities.count } do
+      note "/forefront/leads/#{@lead.id}/activities"
     end
   end
 
@@ -65,12 +70,15 @@ class Forefront::ActivityAuthorizationTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a ticket's owner and assignee can add a note" do
-    [ @owner, @assignee ].each do |person|
-      sign_in_as(person)
-      assert_difference -> { @ticket.activities.count }, 1, "#{person.name} should be able to note" do
-        note "/forefront/tickets/#{@ticket.id}/activities"
-      end
+  test "a ticket's assignee can add a note; the creator who handed it on can't" do
+    sign_in_as(@assignee)
+    assert_difference -> { @ticket.activities.count }, 1 do
+      note "/forefront/tickets/#{@ticket.id}/activities"
+    end
+
+    sign_in_as(@owner)
+    assert_no_difference -> { @ticket.activities.count } do
+      note "/forefront/tickets/#{@ticket.id}/activities"
     end
   end
 

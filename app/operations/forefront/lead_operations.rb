@@ -61,6 +61,8 @@ module Forefront
         # A new Lead starts with its creator, unless that's an Admin, who
         # never carries Leads: it goes to the pool instead.
         @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank? && !current_admin.admin?
+        # An Admin never creates a Private Lead (CONTEXT.md).
+        @lead.private = false if current_admin.admin?
 
         # A Lead is a journey with exactly one Product (CONTEXT.md). The rule
         # lives here, not on the model, so Leads created before it stay valid.

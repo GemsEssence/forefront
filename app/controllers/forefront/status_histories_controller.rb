@@ -3,11 +3,14 @@ module Forefront
     before_action :find_trackable
 
     def create
-      authorize @trackable, :update?
-      authorize @trackable, :reopen? if reopening_lead?
+      if reopening_lead?
+        authorize @trackable, :reopen?
+      else
+        authorize @trackable, @trackable.is_a?(Lead) ? :move_stage? : :change_status?
+      end
 
       result = if resolving_lead_work?
-        authorize @trackable.lead, :update?
+        authorize @trackable.lead, :move_stage?
         TicketOperations::ResolveLeadWork.new(ticket: @trackable, params: status_history_params, current_admin: current_admin).call
       else
         Forefront::StatusHistoryOperations::Create.new(trackable: @trackable, params: status_history_params, current_admin: current_admin).call

@@ -25,8 +25,24 @@ module Forefront
       create?
     end
 
+    # The edit form: the assignee, their Manager, or an Admin.
     def update?
-      (super_admin? || owner? || assignee? || manages_owner_or_assignee?) && !locked?
+      (super_admin? || assignee? || manages_owner_or_assignee?) && !locked?
+    end
+
+    # The day-to-day work (CONTEXT.md: only the assignee works a Ticket).
+    def work?
+      assignee? && !locked?
+    end
+
+    # Notes: the assignee, and the Manager overseeing.
+    def note?
+      work? || manages_owner_or_assignee?
+    end
+
+    # Changing status: the assignee, or a Manager correcting it. Never an Admin.
+    def change_status?
+      work? || manages_owner_or_assignee?
     end
 
     # A passed Deadline (CONTEXT.md) stops the assignee; a Manager or Admin
@@ -44,9 +60,9 @@ module Forefront
       update?
     end
 
-    # Notes and Followups; the same people who may edit a Ticket.
+    # Followups: the assignee.
     def work_on?
-      update?
+      work?
     end
 
     def destroy?
@@ -54,7 +70,7 @@ module Forefront
     end
 
     def convert?
-      update? && ticket.convertible?
+      work? && ticket.convertible?
     end
 
     def change_assignee?

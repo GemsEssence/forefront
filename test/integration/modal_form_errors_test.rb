@@ -5,12 +5,12 @@ require "test_helper"
 # flashing the error on the page behind it.
 class Forefront::ModalFormErrorsTest < ActionDispatch::IntegrationTest
   setup do
-    @email = "alice-#{SecureRandom.hex(4)}@example.com"
-    @admin = Forefront::Admin.create!(name: "Alice", email: @email, password: "password123", role: "admin")
-    @rep = Forefront::Admin.create!(name: "Rita", email: "rita-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    @email = "rita-#{SecureRandom.hex(4)}@example.com"
+    @admin = Forefront::Admin.create!(name: "Alice", email: "alice-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+    @rep = Forefront::Admin.create!(name: "Rita", email: @email, password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
     @ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium", assigned_to: @rep)
-    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source, estimated_amount: 500)
+    @lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @rep, source: forefront_source, estimated_amount: 500)
 
     get "/forefront/admins/sign_in"
     post "/forefront/admins/sign_in", params: { admin: { email: @email, password: "password123" } }

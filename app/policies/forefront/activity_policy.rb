@@ -13,7 +13,7 @@ module Forefront
       actable = activity.actable
       return true unless actable.present?
 
-      work_policy_for(actable).work_on?
+      work_policy_for(actable).note?
     end
 
     def update?

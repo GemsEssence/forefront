@@ -35,15 +35,25 @@ class Forefront::RequiredFieldIndicatorTest < ActionDispatch::IntegrationTest
     end
   end
 
+  def as_assignee
+    rep = Forefront::Admin.create!(name: "Ravi Rep", email: "rep-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    delete "/forefront/admins/sign_out"
+    get "/forefront/admins/sign_in"
+    post "/forefront/admins/sign_in", params: { admin: { email: rep.email, password: "password123" } }
+    rep
+  end
+
   test "the ticket page's modals and activity form mark their required fields" do
-    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium")
+    rep = as_assignee
+    ticket = Forefront::Ticket.create!(title: "T", description: "D", customer: @customer, created_by: @admin, assigned_to: rep, category: "new_app_demo", priority: "medium")
 
     assert_required_fields("/forefront/tickets/#{ticket.id}",
                            %w[status_history_status assignment_to_user_id followup_followup_type followup_scheduled_for])
   end
 
   test "the payment form marks its required fields" do
-    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, source: forefront_source)
+    rep = as_assignee
+    lead = Forefront::Lead.create!(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: rep, source: forefront_source)
     lead.update!(status: "won", actual_amount: 100)
 
     assert_required_fields("/forefront/leads/#{lead.id}/payment/new", %w[payment_total_amount])

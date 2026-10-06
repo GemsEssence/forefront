@@ -7,10 +7,10 @@ class Forefront::LeadShareManagementTest < ActionDispatch::IntegrationTest
   end
 
   setup do
-    @admin = Forefront::Admin.create!(name: "Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+    @admin = Forefront::Admin.create!(name: "Mona Manager", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
     @customer = Forefront::Customer.create!(name: "Acme", email: "acme-#{SecureRandom.hex(4)}@example.com", phone: "555-0100")
-    @alice = Forefront::Admin.create!(name: "Alice", email: "alice-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
-    @bob = Forefront::Admin.create!(name: "Bob", email: "bob-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
+    @alice = Forefront::Admin.create!(name: "Alice", email: "alice-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person", manager: @admin)
+    @bob = Forefront::Admin.create!(name: "Bob", email: "bob-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person", manager: @admin)
 
     sign_in_as(@admin)
     post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "L", description: "D", customer_id: @customer.id, assigned_to_id: @alice.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: [ @alice, @bob ]).id } }

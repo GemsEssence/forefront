@@ -1,7 +1,10 @@
 <div id="<%= "followups_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>" class="mt-6">
   <div class="flex items-center justify-between mb-4">
     <h3 class="text-lg font-medium text-gray-900">Upcoming Followups</h3>
-    <button type="button" onclick="forefrontOpenModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">+ Add Followup</button>
+    <% may_work = policy(followupable).work_on? %>
+    <% if may_work %>
+      <button type="button" onclick="forefrontOpenModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">+ Add Followup</button>
+    <% end %>
   </div>
 
   <% if followupable.followups.upcoming.any? %>
@@ -23,17 +26,21 @@
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<%= f.status == 'completed' ? 'green' : f.status == 'pending' ? 'blue' : 'gray' %>-100 text-<%= f.status == 'completed' ? 'green' : f.status == 'pending' ? 'blue' : 'gray' %>-800">
               <%= f.status.humanize %>
             </span>
-            <button type="button" onclick="forefrontOpenModal('<%= "followup_edit_modal_#{f.id}" %>')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded text-xs">Edit</button>
+            <% if may_work %>
+              <button type="button" onclick="forefrontOpenModal('<%= "followup_edit_modal_#{f.id}" %>')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded text-xs">Edit</button>
+            <% end %>
           </div>
         </div>
 
-        <%= render 'forefront/followups/edit_form', followup: f, followupable: followupable %>
+        <%= render 'forefront/followups/edit_form', followup: f, followupable: followupable if may_work %>
       <% end %>
     </div>
   <% else %>
     <div class="text-center py-8 border rounded-lg bg-gray-50">
       <p class="text-gray-500 text-sm">No upcoming followups scheduled.</p>
-      <button type="button" onclick="forefrontOpenModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="mt-2 text-indigo-600 hover:text-indigo-500 text-sm font-medium">Schedule your first followup</button>
+      <% if may_work %>
+        <button type="button" onclick="forefrontOpenModal('<%= "followup_modal_#{followupable.class.name.demodulize.underscore}_#{followupable.id}" %>')" class="mt-2 text-indigo-600 hover:text-indigo-500 text-sm font-medium">Schedule your first followup</button>
+      <% end %>
     </div>
   <% end %>
 

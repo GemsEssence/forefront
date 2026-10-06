@@ -7,9 +7,9 @@ class Forefront::LeadLostTest < ActionDispatch::IntegrationTest
   end
 
   setup do
-    @admin = Forefront::Admin.create!(name: "Asha Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+    @admin = Forefront::Admin.create!(name: "Asha Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
-    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @admin, source: forefront_source, status: "proposal")
+    @lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @admin, assigned_to: @admin, source: forefront_source, status: "proposal")
     @price = Forefront::LostReason.create!(name: "Price")
     @retired = Forefront::LostReason.create!(name: "Retired reason", active: false)
     sign_in_as(@admin)

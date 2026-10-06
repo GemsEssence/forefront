@@ -53,7 +53,7 @@ class Forefront::PrivateLeadsTest < ActionDispatch::IntegrationTest
   test "an admin's new lead isn't private, and a lead converted from a ticket never is" do
     sign_in_as(@admin)
     get "/forefront/leads/new"
-    assert_select "input[type=checkbox][name='lead[private]']:not([checked])"
+    assert_select "input[name='lead[private]']", count: 0
 
     ticket = Forefront::Ticket.create!(title: "Call", description: "D", customer: @customer, product: @product, created_by: @rep,
                                        assigned_to: @rep, category: "enquiry", priority: "medium", status: "open")
@@ -92,9 +92,10 @@ class Forefront::PrivateLeadsTest < ActionDispatch::IntegrationTest
   end
 
   test "a private lead is always assigned, and changes hands only through an admin" do
-    create_lead(as: @admin, title: "Nobody's", private: "1", assigned_to_id: "")
-    assert_response :unprocessable_entity
-    assert_match "A private lead must be assigned", response.body
+    unassigned = Forefront::Lead.new(title: "Nobody's", description: "D", customer: @customer, created_by: @rep, source: forefront_source,
+                                     product: @product, status: "open", private: true)
+    assert_not unassigned.valid?
+    assert_includes unassigned.errors[:base], "A private lead must be assigned"
 
     lead = private_lead
     sign_in_as(@manager)
