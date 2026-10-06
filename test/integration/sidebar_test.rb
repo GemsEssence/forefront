@@ -24,7 +24,7 @@ class Forefront::SidebarTest < ActionDispatch::IntegrationTest
     get "/forefront/"
 
     assert_equal({ "main" => [ "Dashboard", "My work", "My performance", "Reports", "Notifications" ],
-                   "Sales" => [ "Leads", "Tickets", "Unassigned", "Customers" ],
+                   "Sales" => [ "Leads", "Tickets", "Unassigned", "Receipts", "Customers" ],
                    "Marketing" => [ "Campaigns", "Products", "Targets" ] }, sidebar_groups)
   end
 

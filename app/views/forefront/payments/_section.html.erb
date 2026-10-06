@@ -52,7 +52,7 @@
             <% receipts.each do |receipt| %>
               <li class="py-1 text-sm text-gray-900">
                 <%= receipt.received_on.strftime("%-d %b %Y") %> · <%= format_money(receipt.amount) %> ·
-                <%= receipt.payment_method_name %><%= " · #{receipt.reference}" if receipt.reference.present? %>
+                <%= receipt.payment_method_name %><% reference = receipt.reference.presence || receipt.external_reference %><%= " · #{reference}" if reference.present? %>
                 <% if receipt.installment %><span class="text-gray-500">(installment due <%= receipt.installment.due_on.strftime("%-d %b") %>)</span><% end %>
               </li>
             <% end %>

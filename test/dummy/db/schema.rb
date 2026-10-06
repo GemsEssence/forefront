@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -255,16 +255,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000002) do
 
   create_table "forefront_receipts", force: :cascade do |t|
     t.decimal "amount", precision: 12, scale: 2, null: false
+    t.string "country_code"
     t.datetime "created_at", null: false
+    t.bigint "customer_id"
+    t.text "discard_note"
+    t.datetime "discarded_at", precision: nil
+    t.bigint "discarded_by_id"
+    t.string "external_reference"
     t.bigint "installment_id"
-    t.bigint "payment_id", null: false
+    t.bigint "payment_id"
     t.string "payment_method", null: false
+    t.string "phone"
+    t.bigint "product_id"
     t.date "received_on", null: false
     t.bigint "recorded_by_id", null: false
     t.string "reference"
     t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_forefront_receipts_on_customer_id"
+    t.index ["discarded_by_id"], name: "index_forefront_receipts_on_discarded_by_id"
     t.index ["installment_id"], name: "index_forefront_receipts_on_installment_id"
     t.index ["payment_id"], name: "index_forefront_receipts_on_payment_id"
+    t.index ["product_id", "external_reference"], name: "index_forefront_receipts_on_product_id_and_external_reference", unique: true
+    t.index ["product_id"], name: "index_forefront_receipts_on_product_id"
     t.index ["recorded_by_id"], name: "index_forefront_receipts_on_recorded_by_id"
   end
 
@@ -385,9 +397,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000002) do
   add_foreign_key "forefront_payments", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_product_allocations", "forefront_admins", column: "admin_id"
   add_foreign_key "forefront_product_allocations", "forefront_products", column: "product_id"
+  add_foreign_key "forefront_receipts", "forefront_admins", column: "discarded_by_id"
   add_foreign_key "forefront_receipts", "forefront_admins", column: "recorded_by_id"
+  add_foreign_key "forefront_receipts", "forefront_customers", column: "customer_id"
   add_foreign_key "forefront_receipts", "forefront_installments", column: "installment_id"
   add_foreign_key "forefront_receipts", "forefront_payments", column: "payment_id"
+  add_foreign_key "forefront_receipts", "forefront_products", column: "product_id"
   add_foreign_key "forefront_status_histories", "forefront_admins", column: "changed_by_id"
   add_foreign_key "forefront_subscriptions", "forefront_customers", column: "customer_id"
   add_foreign_key "forefront_subscriptions", "forefront_leads", column: "lead_id"

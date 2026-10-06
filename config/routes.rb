@@ -59,9 +59,17 @@ Forefront::Engine.routes.draw do
     resources :enquiries, only: [ :create ]
   end
 
+  resources :unattached_receipts, only: [ :index ] do
+    member do
+      post :attach
+      post :discard
+    end
+  end
+
   namespace :api do
     namespace :v1 do
       post "signup", to: "signups#create"
+      post "receipts", to: "receipts#create"
     end
   end
 end

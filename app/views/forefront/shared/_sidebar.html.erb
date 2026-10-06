@@ -9,7 +9,7 @@
       <div data-notification-bell><%= sidebar_link "Notifications", notifications_path do %><% if unread.positive? %> <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white"><%= unread %></span><% end %><% end %></div>
     </div>
 
-    <% groups = { "Sales" => [ [ "Leads", leads_path ], [ "Tickets", tickets_path ], [ "Unassigned", unassigned_path ], [ "Customers", customers_path ] ],
+    <% groups = { "Sales" => [ [ "Leads", leads_path ], [ "Tickets", tickets_path ], [ "Unassigned", unassigned_path ], [ "Receipts", unattached_receipts_path ], [ "Customers", customers_path ] ],
                   "Marketing" => [ [ "Campaigns", campaigns_path ], [ "Products", products_path ], [ "Targets", targets_path ] ] } %>
     <% groups["Team"] = [ [ "Staff", admins_path ], [ "Performance", performance_path ], [ "Audit log", audit_events_path ] ] if current_admin.admin? || current_admin.manager? %>
     <% groups["Admin"] = [ [ "Sources", sources_path ], [ "Lost reasons", lost_reasons_path ], [ "Settings", settings_path ] ] if current_admin.admin? %>
