@@ -18,20 +18,26 @@ class Forefront::LeadShareTest < ActiveSupport::TestCase
     assert_equal [ @alice, @bob ].sort_by(&:id), @lead.past_assignees.sort_by(&:id)
   end
 
-  test "a lead share must include every past assignee, no more, no fewer" do
-    missing_someone = Forefront::LeadShare.new(lead: @lead, recorded_by: @admin)
-    missing_someone.lead_share_participants.build(admin: @alice, percentage: 100)
+  test "a lead share must include the current assignee, and only people who could hold the lead" do
+    missing_the_assignee = Forefront::LeadShare.new(lead: @lead, recorded_by: @admin)
+    missing_the_assignee.lead_share_participants.build(admin: @alice, percentage: 100)
 
-    assert_not missing_someone.valid?
-    assert_includes missing_someone.errors[:base], "must include every sales person the lead was ever assigned to, and no one else"
+    assert_not missing_the_assignee.valid?
+    assert_includes missing_the_assignee.errors[:base], "must include the current assignee, Bob"
 
+    # The lead has no Product, so besides past assignees only Managers qualify.
     includes_a_stranger = Forefront::LeadShare.new(lead: @lead, recorded_by: @admin)
     includes_a_stranger.lead_share_participants.build(admin: @alice, percentage: 50)
     includes_a_stranger.lead_share_participants.build(admin: @bob, percentage: 25)
     includes_a_stranger.lead_share_participants.build(admin: @carol, percentage: 25)
 
     assert_not includes_a_stranger.valid?
-    assert_includes includes_a_stranger.errors[:base], "must include every sales person the lead was ever assigned to, and no one else"
+    assert_includes includes_a_stranger.errors[:base], "can only be shared with managers"
+
+    past_assignee_only = Forefront::LeadShare.new(lead: @lead, recorded_by: @admin)
+    past_assignee_only.lead_share_participants.build(admin: @bob, percentage: 100)
+
+    assert past_assignee_only.valid?
   end
 
   test "percentages across participants must sum to exactly 100" do

@@ -95,12 +95,19 @@ module Forefront
     end
 
     # Who may be handed this Lead: Sales persons allocated its Product, and
-    # Managers. Admins oversee rather than carry Leads (CONTEXT.md).
+    # Managers. Admins oversee rather than carry Leads (CONTEXT.md). A Lead
+    # from before Products were required has no allocation to go by, so only
+    # Managers qualify.
     def eligible_assignees
       people = Admin.people.where.not(system: true)
-      sales = people.where(role: "sales_person")
-      sales = sales.where(id: product.admin_ids) if product
+      sales = product ? people.where(role: "sales_person", id: product.admin_ids) : people.none
       people.where(role: "manager").or(sales).order(:name)
+    end
+
+    # Who may be named in this Lead's share: anyone who could hold it, plus
+    # anyone who ever did.
+    def share_candidates
+      Admin.where(id: eligible_assignees.select(:id)).or(Admin.where(id: past_assignees.select(:id))).where.not(role: "admin").order(:name)
     end
 
     # The Customer's other Leads for this Product, newest first.

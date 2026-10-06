@@ -1,20 +1,26 @@
 <%# locals: lead; on a failed submit also errors:, open: true, values: (the submitted percentages, keyed by admin id) %>
 <% values = local_assigns[:values] %>
 <% id = modal_id(:lead_share, lead) %>
-<% even_split = (100.0 / lead.past_assignees.count).round(2) %>
+<% past_assignee_ids = lead.past_assignees.map(&:id) %>
+<% even_split = (100.0 / past_assignee_ids.count).round(2) %>
 <%= render layout: "forefront/shared/modal", locals: { id: id, title: "Share Credit for \"#{lead.title}\"", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
   <p class="text-sm text-gray-600 mb-4">
-    This Lead has been assigned to more than one Sales person. Only record this once everyone below has actually agreed, offline, to split credit for the win.
+    Split credit for the win with anyone who holds this Product, or any Manager. Only record this once everyone below has actually agreed, offline. Leave a person blank to leave them out.
   </p>
 
   <%= form_with url: lead_lead_share_path(lead), method: :post, data: { turbo_frame: "_top" }, class: "space-y-4" do %>
-    <% lead.past_assignees.each do |past_assignee| %>
-      <% existing = lead.lead_share&.lead_share_participants&.find { |p| p.admin_id == past_assignee.id } %>
-      <% value = values ? values[past_assignee.id.to_s] : (existing&.percentage || even_split) %>
+    <% lead.share_candidates.each do |candidate| %>
+      <% existing = lead.lead_share&.lead_share_participants&.find { |p| p.admin_id == candidate.id } %>
+      <% default = if existing then existing.percentage
+                   elsif lead.lead_share.present? then nil
+                   elsif past_assignee_ids.count > 1 then (even_split if past_assignee_ids.include?(candidate.id))
+                   elsif candidate.id == lead.assigned_to_id then 100
+                   end %>
+      <% value = values ? values[candidate.id.to_s] : default %>
       <div class="flex items-center justify-between">
-        <label for="lead_share_percentage_<%= past_assignee.id %>" class="text-sm font-medium text-gray-700"><%= past_assignee.name %></label>
+        <label for="lead_share_percentage_<%= candidate.id %>" class="text-sm font-medium text-gray-700"><%= candidate.name %><%= " (assignee)" if candidate.id == lead.assigned_to_id %></label>
         <div class="flex items-center">
-          <input type="number" step="0.01" min="0" max="100" id="lead_share_percentage_<%= past_assignee.id %>" name="lead_share[percentages][<%= past_assignee.id %>]" value="<%= value %>" class="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+          <input type="number" step="0.01" min="0" max="100" id="lead_share_percentage_<%= candidate.id %>" name="lead_share[percentages][<%= candidate.id %>]" value="<%= value %>" class="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"<%= " required" if candidate.id == lead.assigned_to_id %>>
           <span class="ml-2 text-sm text-gray-500">%</span>
         </div>
       </div>

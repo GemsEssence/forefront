@@ -4,18 +4,29 @@ module Forefront
     belongs_to :recorded_by, class_name: "Forefront::Admin"
     has_many :lead_share_participants, class_name: "Forefront::LeadShareParticipant", dependent: :destroy, inverse_of: :lead_share
 
-    validate :participants_match_past_assignees_exactly
+    validate :includes_the_current_assignee
+    validate :participants_may_hold_the_lead
     validate :percentages_sum_to_100
 
     private
 
-    def participants_match_past_assignees_exactly
-      participant_ids = lead_share_participants.reject(&:marked_for_destruction?).map(&:admin_id).sort
-      past_assignee_ids = lead.past_assignees.map(&:id).sort
+    def participant_ids
+      lead_share_participants.reject(&:marked_for_destruction?).map(&:admin_id)
+    end
 
-      return if participant_ids == past_assignee_ids
+    # The person holding the Lead is always part of its split.
+    def includes_the_current_assignee
+      return if lead.assigned_to_id.nil? || participant_ids.include?(lead.assigned_to_id)
 
-      errors.add(:base, "must include every sales person the lead was ever assigned to, and no one else")
+      errors.add(:base, "must include the current assignee, #{lead.assigned_to.name}")
+    end
+
+    # Anyone who could hold the Lead (CONTEXT.md: Shared Lead), or ever did.
+    def participants_may_hold_the_lead
+      return if (participant_ids - lead.share_candidates.map(&:id)).empty?
+
+      who = lead.product ? "sales people allocated #{lead.product.name}, and managers" : "managers"
+      errors.add(:base, "can only be shared with #{who}")
     end
 
     def percentages_sum_to_100

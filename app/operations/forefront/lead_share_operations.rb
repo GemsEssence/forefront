@@ -44,8 +44,9 @@ module Forefront
         @lead_share.lead_share_participants.map { |participant| "#{participant.admin.name} #{format("%g", participant.percentage)}%" }.join(", ")
       end
 
+      # A candidate left blank isn't part of the share.
       def percentages
-        params[:percentages] || {}
+        (params[:percentages] || {}).to_h.select { |_, percentage| percentage.present? }
       end
     end
   end

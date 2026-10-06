@@ -131,7 +131,7 @@
         <%= render 'forefront/assignments/form', assignable: @lead, admins: @admins %>
       </div>
 
-      <% if @lead.past_assignees.count > 1 && policy(@lead).update? %>
+      <% if @lead.assigned_to.present? && policy(@lead).update? %>
         <div class="mt-6 flex items-center justify-between">
           <h2 class="text-lg font-medium text-gray-900">Shared Credit</h2>
           <button type="button" onclick="forefrontOpenModal('<%= modal_id(:lead_share, @lead) %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm"><%= @lead.lead_share.present? ? "Edit Share" : "Record Share" %></button>

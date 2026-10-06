@@ -17,9 +17,9 @@ class Forefront::LeadShareManagementTest < ActionDispatch::IntegrationTest
     @lead = Forefront::Lead.order(:created_at).last
   end
 
-  test "recording a share shows the split on the lead page and no share prompt when there's only ever been one assignee" do
+  test "recording a share shows the split on the lead page; past assignees are offered an even split" do
     get "/forefront/leads/#{@lead.id}"
-    assert_no_match "Shared Credit", response.body
+    assert_match "Shared Credit", response.body
 
     patch "/forefront/leads/#{@lead.id}", params: { lead: { assigned_to_id: @bob.id } }
 
