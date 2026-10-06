@@ -1,5 +1,7 @@
 module Forefront
   class Lead < ApplicationRecord
+    include Deadline
+
     belongs_to :customer
     belongs_to :created_by, class_name: "Forefront::Admin"
     belongs_to :assigned_to, class_name: "Forefront::Admin", optional: true

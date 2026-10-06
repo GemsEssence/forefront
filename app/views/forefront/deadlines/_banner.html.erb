@@ -1,0 +1,19 @@
+<%# locals: record (a Lead or Ticket). The Deadline (CONTEXT.md) and, once passed, who can move it. %>
+<% finished = record.is_a?(Forefront::Lead) ? !record.active? : (record.resolved? || record.closed?) %>
+<% if record.due_at.present? && !finished %>
+  <% passed = record.deadline_passed? %>
+  <div class="mt-4 flex items-center justify-between rounded-md px-4 py-3 <%= passed ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-white border border-gray-200 text-gray-700' %>" data-deadline>
+    <p class="text-sm">
+      <% if passed %>
+        <span class="font-semibold">Deadline passed</span> on <%= record.due_at.strftime("%-d %b %Y") %>.
+        <%= policy(record).extend_deadline? ? "Extend it, reassign it, or close it." : "Ask your Manager to extend it; until then you can only look." %>
+      <% else %>
+        <span class="font-medium">Deadline</span> <%= record.due_at.strftime("%-d %b %Y") %> (<%= pluralize((record.due_at - Date.current).to_i, "day") %> left)
+      <% end %>
+    </p>
+    <% if policy(record).extend_deadline? %>
+      <button type="button" onclick="forefrontOpenModal('<%= modal_id(:deadline, record) %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Extend deadline</button>
+    <% end %>
+  </div>
+  <%= render "forefront/deadlines/form", record: record if policy(record).extend_deadline? %>
+<% end %>

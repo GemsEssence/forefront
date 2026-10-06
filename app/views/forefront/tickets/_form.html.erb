@@ -39,8 +39,9 @@
 
   <div class="grid grid-cols-2 gap-4">
     <div>
-      <%= f.label :due_at, "Due Date", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.date_field :due_at, value: @ticket.due_at&.strftime("%Y-%m-%d"), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <%= f.label :due_at, "Deadline", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.date_field :due_at, value: (@ticket.due_at || Forefront::Ticket.latest_deadline).strftime("%Y-%m-%d"), max: Forefront::Ticket.latest_deadline.strftime("%Y-%m-%d"), required: true, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      <p class="text-xs text-gray-500 mt-1">Resolve it by then: at most <%= Forefront::Ticket.deadline_limit_days %> days from today.</p>
     </div>
 
   </div>

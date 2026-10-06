@@ -17,7 +17,7 @@ class Forefront::PrivateLeadsTest < ActionDispatch::IntegrationTest
 
   def create_lead(as:, title: "Secret deal", **attrs)
     sign_in_as(as)
-    post "/forefront/leads", params: { lead: { title: title, description: "D", customer_id: @customer.id, source_id: forefront_source.id,
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: title, description: "D", customer_id: @customer.id, source_id: forefront_source.id,
                                                product_id: @product.id, **attrs } }
     Forefront::Lead.find_by(title: title)
   end

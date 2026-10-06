@@ -21,10 +21,15 @@ module Forefront
     # How far ahead of a Subscription's expiry the Expiry pull opens a
     # Renewal Ticket (CONTEXT.md: Renewal).
     attribute :renewal_window_days, :integer, default: 30
+    # Deadlines (CONTEXT.md): how far ahead a Lead's or a Ticket's due date
+    # may be set, counted from today.
+    attribute :lead_close_within_days, :integer, default: 30
+    attribute :ticket_close_within_days, :integer, default: 7
     # Starts as the host's initializer value (Forefront.default_country_code).
     attribute :default_country_code, :string, default: -> { Forefront.default_country_code }
 
     validates :unassigned_alert_after_hours, :stale_after_hours, :reveal_action_within_minutes, :installment_overdue_after_days, :lead_cap, :renewal_window_days,
+              :lead_close_within_days, :ticket_close_within_days,
               numericality: { only_integer: true, greater_than: 0 }
     validates :default_country_code, format: { with: Customer::COUNTRY_CODE_FORMAT, message: "must be a + followed by 1 to 4 digits" }
 

@@ -12,6 +12,8 @@ module Forefront
       def call
         @ticket = Ticket.new(ticket_params)
         @ticket.created_by = current_admin
+        # A Ticket always has a Deadline (CONTEXT.md); left blank, it gets the limit.
+        @ticket.due_at ||= Ticket.latest_deadline
         @ticket.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank? && !current_admin.admin?
 
         if @ticket.save
@@ -166,7 +168,8 @@ module Forefront
         {
           title: params[:title], description: ticket.description, estimated_amount: params[:estimated_amount],
           source_id: params[:source_id], customer_id: ticket.customer_id, product_id: ticket.product_id,
-          assigned_to_id: ticket.assigned_to_id || (current_admin.id unless current_admin.admin?), campaign_id: ticket.campaign_id
+          assigned_to_id: ticket.assigned_to_id || (current_admin.id unless current_admin.admin?), campaign_id: ticket.campaign_id,
+          due_at: params[:due_at].presence || Lead.latest_deadline
         }
       end
 

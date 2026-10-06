@@ -43,7 +43,7 @@ class Forefront::LeadStageTest < ActionDispatch::IntegrationTest
   end
 
   test "a new lead starts at Open" do
-    post "/forefront/leads", params: { lead: { title: "Fresh", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product.id, status: "negotiation" } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Fresh", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product.id, status: "negotiation" } }
 
     assert Forefront::Lead.find_by!(title: "Fresh").open?
   end

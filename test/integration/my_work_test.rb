@@ -30,7 +30,7 @@ class Forefront::MyWorkTest < ActionDispatch::IntegrationTest
     ticket("Today's ticket", due_at: Date.current)
     ticket("Friday's ticket", due_at: 3.days.from_now.to_date)
     ticket("Someday ticket")
-    ticket("Next month's ticket", due_at: 30.days.from_now.to_date)
+    ticket("Next month's ticket").update_columns(due_at: 30.days.from_now.to_date)
     ticket("Done ticket", due_at: 2.days.ago.to_date, status: "resolved")
     lead = Forefront::Lead.create!(title: "Big Deal", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep,
                                    source: forefront_source, product: @product, status: "demo")

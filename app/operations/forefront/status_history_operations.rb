@@ -81,7 +81,7 @@ module Forefront
           product_id: trackable.product_id,
           lead_id: trackable.id,
           assigned_to_id: (trackable.assigned_to_id unless trackable.assigned_to&.admin?),
-          due_at: params[:ticket_due_at].presence || DEFAULT_TICKET_DAYS.days.from_now.to_date
+          due_at: [ params[:ticket_due_at].presence&.to_date || DEFAULT_TICKET_DAYS.days.from_now.to_date, Ticket.latest_deadline ].min
         )
       end
 

@@ -26,7 +26,13 @@ module Forefront
     end
 
     def update?
-      super_admin? || owner? || assignee? || manages_owner_or_assignee?
+      (super_admin? || owner? || assignee? || manages_owner_or_assignee?) && !locked?
+    end
+
+    # A passed Deadline (CONTEXT.md) stops the assignee; a Manager or Admin
+    # extends it, within the limit, with a note.
+    def extend_deadline?
+      super_admin? || manages_owner_or_assignee?
     end
 
     def edit?
@@ -36,7 +42,7 @@ module Forefront
     # Notes and Followups: open to everyone who may edit the Lead, and to the
     # people it is shared with. Nothing else a participant may do.
     def work_on?
-      update? || participant?
+      update? || (participant? && !locked?)
     end
 
     def destroy?
@@ -96,6 +102,11 @@ module Forefront
 
     def super_admin?
       current_admin.super_admin?
+    end
+
+    # Once the deadline has passed, only a Manager or Admin may act.
+    def locked?
+      lead.deadline_passed? && !extend_deadline?
     end
 
     def record_in_pool

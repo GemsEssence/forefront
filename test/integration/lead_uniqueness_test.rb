@@ -23,7 +23,7 @@ class Forefront::LeadUniquenessTest < ActionDispatch::IntegrationTest
   end
 
   def create_lead(product: @product)
-    post "/forefront/leads", params: { lead: { title: "Second", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: product.id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Second", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: product.id } }
   end
 
   test "a second lead can't be opened while the customer's lead for that product is unfinished" do

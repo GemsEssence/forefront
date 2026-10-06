@@ -26,7 +26,18 @@ module Forefront
     end
 
     def update?
-      super_admin? || owner? || assignee? || manages_owner_or_assignee?
+      (super_admin? || owner? || assignee? || manages_owner_or_assignee?) && !locked?
+    end
+
+    # A passed Deadline (CONTEXT.md) stops the assignee; a Manager or Admin
+    # extends it, within the limit, with a note.
+    def extend_deadline?
+      super_admin? || manages_owner_or_assignee?
+    end
+
+    # Once the deadline has passed, only a Manager or Admin may act.
+    def locked?
+      ticket.deadline_passed? && !extend_deadline?
     end
 
     def edit?

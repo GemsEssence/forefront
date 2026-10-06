@@ -66,7 +66,7 @@ module Forefront
         # lives here, not on the model, so Leads created before it stay valid.
         # A Lost Lead for the pair is reopened, never duplicated.
         blocking = blocking_lead
-        if blocking.nil? && @lead.product_id.present? && @lead.save
+        if blocking.nil? && @lead.product_id.present? && @lead.due_at.present? && @lead.save
           AuditEvent.record!(actor: current_admin, action: "created", auditable: @lead)
           NotificationOperations::AnnounceUnassigned.new(record: @lead, created_by: current_admin).call
 
@@ -83,6 +83,7 @@ module Forefront
         else
           @lead.validate
           @lead.errors.add(:product, :blank) if @lead.product_id.blank?
+          @lead.errors.add(:due_at, :blank) if @lead.due_at.blank?
           @lead.errors.add(:base, @lead.blocking_message_for(blocking)) if blocking && !blocking.active?
           @errors = @lead.errors.full_messages
           { success: false, errors: @errors, lead: @lead, existing_lead: blocking }

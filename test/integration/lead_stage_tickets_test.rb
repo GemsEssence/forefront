@@ -35,13 +35,16 @@ class Forefront::LeadStageTicketsTest < ActionDispatch::IntegrationTest
     assert_equal Date.new(2026, 10, 7), ticket.due_at
   end
 
-  test "the dialog's due date is used for the new ticket" do
-    change_stage("proposal", ticket_due_at: "2026-10-20")
+  test "the dialog's due date is used for the new ticket, capped by the ticket deadline limit" do
+    change_stage("proposal", ticket_due_at: (Date.current + 5).iso8601)
 
     ticket = @lead.tickets.sole
     assert ticket.proposal?
     assert_equal "Send proposal", ticket.title
-    assert_equal Date.new(2026, 10, 20), ticket.due_at
+    assert_equal Date.current + 5, ticket.due_at
+
+    change_stage("demo", ticket_due_at: (Date.current + 20).iso8601)
+    assert_equal Date.current + 7, @lead.tickets.new_app_demo.sole.due_at
   end
 
   test "an open ticket of that kind is reused instead of opening a second one" do

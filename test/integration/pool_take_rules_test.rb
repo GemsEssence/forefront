@@ -68,7 +68,7 @@ class Forefront::PoolTakeRulesTest < ActionDispatch::IntegrationTest
   test "a lead an admin creates without an assignee goes to the pool rather than to the admin" do
     sign_in_as(@admin)
 
-    post "/forefront/leads", params: { lead: { title: "Fresh", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: @widget.id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Fresh", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: @widget.id } }
 
     assert_nil Forefront::Lead.find_by!(title: "Fresh").assigned_to
   end

@@ -17,7 +17,7 @@ class Forefront::LeadProductRequiredTest < ActionDispatch::IntegrationTest
   end
 
   test "a lead can't be created without a product" do
-    post "/forefront/leads", params: { lead: { title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: "" } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: "" } }
 
     assert_response :unprocessable_entity
     assert_match "Product can&#39;t be blank", response.body

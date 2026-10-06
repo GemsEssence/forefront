@@ -34,6 +34,18 @@
         </div>
 
         <div class="bg-white shadow sm:rounded-lg p-6">
+          <h2 class="text-lg font-medium text-gray-900">Deadlines</h2>
+          <p class="text-sm text-gray-500 mb-4">How far ahead a due date may be set. Once a deadline passes, only a Manager or Admin can extend it.</p>
+          <% [ [ :lead_close_within_days, "A lead must be won or lost within" ], [ :ticket_close_within_days, "A ticket must be resolved within" ] ].each do |limit, label| %>
+            <div class="grid grid-cols-6 gap-3 items-center py-2">
+              <%= f.label limit, label, class: "col-span-3 text-sm text-gray-700" %>
+              <%= f.number_field limit, min: 1, step: 1, required: true, class: "col-span-1 rounded-md border-gray-300 shadow-sm text-sm" %>
+              <span class="text-sm text-gray-500">days</span>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="bg-white shadow sm:rounded-lg p-6">
           <h2 class="text-lg font-medium text-gray-900">Renewals</h2>
           <div class="mt-3 grid grid-cols-6 gap-3 items-center">
             <%= f.label :renewal_window_days, "Open a renewal ticket this long before a subscription expires", class: "col-span-3 text-sm text-gray-700" %>
