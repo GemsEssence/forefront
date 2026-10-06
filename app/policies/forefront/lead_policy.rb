@@ -49,8 +49,9 @@ module Forefront
       super_admin? || (current_admin.manager? && (owner? || assignee? || manages_owner_or_assignee?))
     end
 
+    # A Private Lead changes hands only through sharing, or an Admin.
     def change_assignee?
-      super_admin? || assignee? || manages_owner_or_assignee? || manages_pool?
+      super_admin? || (!lead.private? && (assignee? || manages_owner_or_assignee? || manages_pool?))
     end
 
     # Someone the Lead is shared with (a LeadShare participant).
@@ -74,6 +75,7 @@ module Forefront
           ids = @current_admin.direct_report_ids << @current_admin.id
           @scope.where("created_by_id IN (:ids) OR assigned_to_id IN (:ids)", ids: ids)
                 .or(UnassignedPool.visible_to(@current_admin, @scope))
+                .merge(Lead.visible_to(@current_admin))
         else
           @scope.where(
             "created_by_id = ? OR assigned_to_id = ?",
@@ -108,8 +110,9 @@ module Forefront
       lead.assigned_to_id == current_admin.id
     end
 
+    # A Manager's reach stops at a report's Private Lead (CONTEXT.md).
     def manages_owner_or_assignee?
-      current_admin.manager? && (
+      current_admin.manager? && !lead.private? && (
         current_admin.direct_report_ids.include?(lead.created_by_id) ||
         current_admin.direct_report_ids.include?(lead.assigned_to_id)
       )

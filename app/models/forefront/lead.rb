@@ -42,15 +42,26 @@ module Forefront
     validate :paid_win_is_final, if: -> { will_save_change_to_status? && status_in_database == "won" }
     validates :status, presence: true
     validate :assignee_is_not_an_admin, if: :will_save_change_to_assigned_to_id?
+    validate :private_lead_is_assigned, if: :private?
     validate :product_allocated_to_sales_person
     validate :only_unfinished_lead_for_its_product, if: -> { product_id.present? && active? && (new_record? || will_save_change_to_status? || will_save_change_to_customer_id? || will_save_change_to_product_id?) }
 
     before_save :set_won_at, if: :status_changed?
+    # A Private Lead (CONTEXT.md) stays private only while it's being worked.
+    before_save -> { self.private = false }, if: -> { private? && (won? || lost?) }
     before_save :forget_lost_reason, unless: :lost?
     # A stage change means the sale moved on, so it's no longer waiting.
     before_save -> { self.awaiting_customer_since = nil }, if: :will_save_change_to_status?
     after_save :ensure_subscription
     after_save :drop_subscription, if: -> { saved_change_to_status? && status_before_last_save == "won" }
+
+    # The Leads this person may know about: everything for an Admin; for
+    # anyone else, all but the Private Leads of other people (CONTEXT.md).
+    scope :visible_to, lambda { |admin|
+      next all if admin.admin?
+
+      where(private: false).or(where(created_by_id: admin.id)).or(where(assigned_to_id: admin.id))
+    }
 
     # Scopes for filtering
     scope :by_source, ->(source_id) { where(source_id: source_id) }
@@ -226,6 +237,11 @@ module Forefront
     def only_unfinished_lead_for_its_product
       other = sibling_leads.find(&:active?)
       errors.add(:base, blocking_message_for(other)) if other
+    end
+
+    # A Private Lead is never in the pool: nobody could find it there.
+    def private_lead_is_assigned
+      errors.add(:base, "A private lead must be assigned") if assigned_to_id.nil?
     end
 
     # Admins oversee rather than carry Leads (CONTEXT.md).

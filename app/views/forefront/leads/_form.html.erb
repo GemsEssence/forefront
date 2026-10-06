@@ -53,6 +53,14 @@
     </div>
   </div>
 
+  <% unless @lead.won? || @lead.lost? %>
+    <div class="flex items-center">
+      <%= f.check_box :private, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+      <%= f.label :private, "Private", class: "ml-2 text-sm font-medium text-gray-700" %>
+      <span class="ml-2 text-xs text-gray-500">Only you, your assignee and Admins see it until it's won, lost or shared.</span>
+    </div>
+  <% end %>
+
   <div class="grid grid-cols-2 gap-4">
     <div class="flex items-center mt-6">
       <%= f.check_box :white_label, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>

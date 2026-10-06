@@ -112,8 +112,9 @@ module Forefront
         parts.join(" · ")
       end
 
+      # Other people's Private Leads are left out for anyone but an Admin.
       def leads
-        narrow(Lead.all)
+        narrow(Lead.visible_to(viewer))
       end
 
       def tickets

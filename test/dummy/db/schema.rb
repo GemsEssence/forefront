@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -176,6 +176,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000001) do
     t.text "lost_note"
     t.bigint "lost_reason_id"
     t.datetime "next_followup_at", precision: nil
+    t.boolean "private", default: false, null: false
     t.bigint "product_id"
     t.bigint "source_id", null: false
     t.string "status", default: "Open", null: false

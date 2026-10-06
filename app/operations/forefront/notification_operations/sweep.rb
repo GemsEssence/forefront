@@ -64,9 +64,12 @@ module Forefront
         record.assignments.where(to_user_id: record.assigned_to_id).maximum(:created_at) || record.created_at
       end
 
+      # The Manager isn't told about a report's Private Lead (CONTEXT.md).
       def notify_stale(record, key, message)
         assignee = record.assigned_to
-        Notify.new(kind: "stale", subject: record, recipients: [ assignee, assignee.manager ].compact, key: key, message: message).call
+        recipients = [ assignee ]
+        recipients << assignee.manager unless record.is_a?(Lead) && record.private?
+        Notify.new(kind: "stale", subject: record, recipients: recipients.compact, key: key, message: message).call
       end
 
       # Admins, and the revealer's Manager; a Manager's own reveal goes to Admins.

@@ -23,6 +23,8 @@ module Forefront
           end
 
           if @lead_share.save
+            # Sharing a Private Lead ends its privacy (CONTEXT.md).
+            lead.update!(private: false) if lead.private?
             AuditEvent.record!(actor: current_admin, action: "recorded_lead_share", auditable: lead,
                                audited_changes: { "shares" => [ nil, shares_summary ] })
             result = { success: true, lead_share: @lead_share }

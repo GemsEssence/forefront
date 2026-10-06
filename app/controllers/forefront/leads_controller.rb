@@ -27,6 +27,9 @@ module Forefront
     def new
       @lead = Lead.new
       @lead.customer_id = params[:customer_id] if params[:customer_id].present?
+      # A hand-created Lead starts private (CONTEXT.md); an Admin's goes to
+      # the pool, where a private one can't be.
+      @lead.private = !current_admin.admin?
       authorize @lead
       @customers = Customer.all.order(:name)
       @admins = Admin.assignable
@@ -105,7 +108,7 @@ module Forefront
       params.require(:lead).permit(
         :title, :description, :customer_id, :assigned_to_id,
         :source_id, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount,
-          :white_label, :agreement_signed_on
+          :white_label, :agreement_signed_on, :private
       )
     end
 
