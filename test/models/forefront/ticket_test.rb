@@ -29,15 +29,8 @@ class Forefront::TicketTest < ActiveSupport::TestCase
     assert ticket.valid?
   end
 
-  test "needs_followup scope excludes resolved and closed tickets" do
-    resolved = Forefront::Ticket.create!(title: "Resolved", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium", status: "resolved", next_followup_at: 1.day.ago)
-    closed = Forefront::Ticket.create!(title: "Closed", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium", status: "closed", next_followup_at: 1.day.ago)
-    open_ticket = Forefront::Ticket.create!(title: "Open", description: "D", customer: @customer, created_by: @admin, category: "new_app_demo", priority: "medium", status: "open", next_followup_at: 1.day.ago)
-
-    result = Forefront::Ticket.needs_followup
-
-    assert_includes result, open_ticket
-    assert_not_includes result, resolved
-    assert_not_includes result, closed
+  test "a ticket has no next_followup_at of its own: Followups are the only follow-up" do
+    assert_not Forefront::Ticket.column_names.include?("next_followup_at")
+    assert_not Forefront::Ticket.respond_to?(:needs_followup)
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -175,7 +175,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000004) do
     t.date "expires_at"
     t.text "lost_note"
     t.bigint "lost_reason_id"
-    t.datetime "next_followup_at", precision: nil
     t.boolean "private", default: false, null: false
     t.bigint "product_id"
     t.bigint "source_id", null: false
@@ -190,7 +189,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000004) do
     t.index ["customer_id"], name: "index_forefront_leads_on_customer_id"
     t.index ["due_at"], name: "index_forefront_leads_on_due_at"
     t.index ["lost_reason_id"], name: "index_forefront_leads_on_lost_reason_id"
-    t.index ["next_followup_at"], name: "index_forefront_leads_on_next_followup_at"
     t.index ["product_id"], name: "index_forefront_leads_on_product_id"
     t.index ["source_id"], name: "index_forefront_leads_on_source_id"
     t.index ["status"], name: "index_forefront_leads_on_status"
@@ -351,7 +349,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000004) do
     t.text "description"
     t.date "due_at"
     t.bigint "lead_id"
-    t.datetime "next_followup_at", precision: nil
     t.string "priority", default: "medium", null: false
     t.bigint "product_id"
     t.string "renewal_outcome"
@@ -365,7 +362,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000004) do
     t.index ["customer_id"], name: "index_forefront_tickets_on_customer_id"
     t.index ["due_at"], name: "index_forefront_tickets_on_due_at"
     t.index ["lead_id"], name: "index_forefront_tickets_on_lead_id"
-    t.index ["next_followup_at"], name: "index_forefront_tickets_on_next_followup_at"
     t.index ["priority"], name: "index_forefront_tickets_on_priority"
     t.index ["product_id"], name: "index_forefront_tickets_on_product_id"
     t.index ["status"], name: "index_forefront_tickets_on_status"

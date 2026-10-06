@@ -101,17 +101,6 @@
                 </dd>
               </div>
             <% end %>
-            <% if @ticket.next_followup_at.present? %>
-              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">Next Follow-up</dt>
-                <dd class="mt-1 text-sm <%= @ticket.needs_followup? ? 'text-orange-600 font-semibold' : 'text-gray-900' %> sm:mt-0 sm:col-span-2">
-                  <%= @ticket.next_followup_at.strftime("%B %d, %Y at %I:%M %p") %>
-                  <% if @ticket.needs_followup? %>
-                    <span class="ml-2 text-orange-600">(Needs Follow-up)</span>
-                  <% end %>
-                </dd>
-              </div>
-            <% end %>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Created At</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @ticket.created_at.strftime("%B %d, %Y at %I:%M %p") %></dd>

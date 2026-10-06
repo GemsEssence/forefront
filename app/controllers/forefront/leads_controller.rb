@@ -107,7 +107,7 @@ module Forefront
     def lead_params
       params.require(:lead).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :source_id, :due_at, :next_followup_at, :product_id, :expires_at, :estimated_amount, :actual_amount,
+        :source_id, :due_at, :product_id, :expires_at, :estimated_amount, :actual_amount,
           :white_label, :agreement_signed_on, :private
       )
     end
@@ -119,8 +119,7 @@ module Forefront
     def filter_params
       params.permit(
         :search, :source_id, :status, :customer_id,
-        :created_by_id, :assigned_to_id, :overdue, :due_soon,
-        :needs_followup, :active, :won, :lost, :due_from, :due_to, :sort_by
+        :created_by_id, :assigned_to_id, :active, :won, :lost, :sort_by
       )
     end
   end

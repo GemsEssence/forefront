@@ -63,9 +63,6 @@ module Forefront
     scope :by_customer, ->(customer_id) { where(customer_id: customer_id) }
     scope :by_created_by, ->(admin_id) { where(created_by_id: admin_id) }
     scope :by_assigned_to, ->(admin_id) { where(assigned_to_id: admin_id) }
-    scope :overdue, -> { where("due_at < ? AND status NOT IN (?)", Date.current, ['Resolved', 'Closed']) }
-    scope :due_soon, -> { where("due_at BETWEEN ? AND ? AND status NOT IN (?)", Date.current, 1.day.from_now, ['Resolved', 'Closed']) }
-    scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['Resolved', 'Closed']) }
     scope :recent, -> { order(created_at: :desc) }
     scope :by_due_date, -> { order(due_at: :asc) }
     scope :unfinished, -> { where.not(status: %w[resolved closed]) }
@@ -96,10 +93,6 @@ module Forefront
 
     def due_soon?
       due_at.present? && due_at.between?(Date.current, 1.day.from_now) && !resolved? && !closed?
-    end
-
-    def needs_followup?
-      next_followup_at.present? && next_followup_at <= Time.current && !resolved? && !closed?
     end
 
     # For a renewal Ticket: when the Customer's Subscription to this Product runs out.

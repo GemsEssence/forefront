@@ -113,15 +113,14 @@ module Forefront
     def ticket_params
       params.require(:ticket).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :category, :priority, :status, :due_at, :next_followup_at, :product_id, :renewal_outcome, :lead_id
+        :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id
       )
     end
 
     def filter_params
       params.permit(
         :search, :category, :priority, :status, :customer_id,
-        :created_by_id, :assigned_to_id, :overdue, :due_soon,
-        :needs_followup, :due_from, :due_to, :sort_by
+        :created_by_id, :assigned_to_id, :sort_by
       )
     end
   end

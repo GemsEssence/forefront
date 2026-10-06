@@ -69,9 +69,6 @@ module Forefront
     scope :by_customer, ->(customer_id) { where(customer_id: customer_id) }
     scope :by_created_by, ->(admin_id) { where(created_by_id: admin_id) }
     scope :by_assigned_to, ->(admin_id) { where(assigned_to_id: admin_id) }
-    scope :overdue, -> { where("due_at < ? AND status NOT IN (?)", Date.current, ['Won', 'Lost']) }
-    scope :due_soon, -> { where("due_at BETWEEN ? AND ? AND status NOT IN (?)", Date.current, 1.day.from_now, ['Won', 'Lost']) }
-    scope :needs_followup, -> { where("next_followup_at <= ? AND status NOT IN (?)", Time.current, ['Won', 'Lost']) }
     scope :active, -> { where.not(status: ['won', 'lost']) }
     scope :won, -> { where(status: 'won') }
     scope :lost, -> { where(status: 'lost') }
@@ -84,10 +81,6 @@ module Forefront
 
     def due_soon?
       due_at.present? && due_at.between?(Date.current, 1.day.from_now) && !won? && !lost?
-    end
-
-    def needs_followup?
-      next_followup_at.present? && next_followup_at <= Time.current && !won? && !lost?
     end
 
     def active?
