@@ -19,7 +19,9 @@ module Forefront
 
         # A Lead is a journey with exactly one Product (CONTEXT.md). The rule
         # lives here, not on the model, so Leads created before it stay valid.
-        if @lead.product_id.present? && @lead.save
+        # A Lost Lead for the pair is reopened, never duplicated.
+        blocking = blocking_lead
+        if blocking.nil? && @lead.product_id.present? && @lead.save
           AuditEvent.record!(actor: current_admin, action: "created", auditable: @lead)
           NotificationOperations::AnnounceUnassigned.new(record: @lead, created_by: current_admin).call
 
@@ -36,12 +38,23 @@ module Forefront
         else
           @lead.validate
           @lead.errors.add(:product, :blank) if @lead.product_id.blank?
+          @lead.errors.add(:base, @lead.blocking_message_for(blocking)) if blocking && !blocking.active?
           @errors = @lead.errors.full_messages
-          { success: false, errors: @errors, lead: @lead }
+          { success: false, errors: @errors, lead: @lead, existing_lead: blocking }
         end
       end
 
       private
+
+      # The unfinished Lead the model refuses to duplicate, or else the Lost
+      # one that should be reopened instead. A Won Lead blocks nothing: a
+      # lapsed Customer gets a fresh Lead (a Reclaim).
+      def blocking_lead
+        return if @lead.customer_id.blank? || @lead.product_id.blank?
+
+        siblings = @lead.sibling_leads.to_a
+        siblings.find(&:active?) || siblings.find(&:lost?)
+      end
 
       def lead_params
         params.permit(

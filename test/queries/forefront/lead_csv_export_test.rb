@@ -26,7 +26,8 @@ class Forefront::LeadCsvExportTest < ActiveSupport::TestCase
 
   test "only includes leads from the given scope" do
     included = Forefront::Lead.create!(title: "In", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
-    Forefront::Lead.create!(title: "Out", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
+    globex = Forefront::Customer.create!(name: "Globex", phone: "555-0199")
+    Forefront::Lead.create!(title: "Out", description: "D", customer: globex, created_by: @rep, assigned_to: @rep, source: forefront_source, status: "open", product: @product)
 
     csv = Forefront::LeadCsvExport.new(Forefront::Lead.where(id: included.id)).call
     rows = CSV.parse(csv, headers: true)

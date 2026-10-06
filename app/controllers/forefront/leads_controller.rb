@@ -47,6 +47,7 @@ module Forefront
         redirect_to lead_path(result[:lead]), notice: 'Lead was successfully created.'
       else
         @lead = result[:lead]
+        @existing_lead = result[:existing_lead]
         @customers = Customer.all.order(:name)
         @admins = Admin.people.order(:name)
         @products = products_for_form

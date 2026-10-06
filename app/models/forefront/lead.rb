@@ -42,6 +42,7 @@ module Forefront
     validate :paid_win_is_final, if: -> { will_save_change_to_status? && status_in_database == "won" }
     validates :status, presence: true
     validate :product_allocated_to_sales_person
+    validate :only_unfinished_lead_for_its_product, if: -> { product_id.present? && active? && (new_record? || will_save_change_to_status? || will_save_change_to_customer_id? || will_save_change_to_product_id?) }
 
     before_save :set_won_at, if: :status_changed?
     before_save :forget_lost_reason, unless: :lost?
@@ -79,6 +80,19 @@ module Forefront
 
     def active?
       !won? && !lost?
+    end
+
+    # The Customer's other Leads for this Product, newest first.
+    def sibling_leads
+      Lead.where(customer_id: customer_id, product_id: product_id).where.not(id: id).order(created_at: :desc)
+    end
+
+    def blocking_message_for(other)
+      if other.active?
+        "#{customer.name} already has an unfinished lead for #{product.name}: #{other.title}"
+      else
+        "#{customer.name}'s lead for #{product.name} was lost: #{other.title}. Ask a Manager to reopen it"
+      end
     end
 
     STAGE_WORK_DONE = { "new_app_demo" => "Demo done", "proposal" => "Proposal sent" }.freeze
@@ -196,6 +210,12 @@ module Forefront
     # be picked for a new Lead or switched to.
     def source_is_active
       errors.add(:source, "is no longer in use") if source && !source.active?
+    end
+
+    # A Customer has at most one unfinished Lead per Product (CONTEXT.md).
+    def only_unfinished_lead_for_its_product
+      other = sibling_leads.find(&:active?)
+      errors.add(:base, blocking_message_for(other)) if other
     end
 
     def product_allocated_to_sales_person

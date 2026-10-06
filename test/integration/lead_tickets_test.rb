@@ -78,10 +78,11 @@ class Forefront::LeadTicketsTest < ActionDispatch::IntegrationTest
   test "a ticket can't be put under a lead the sales person can't see" do
     other_rep = Forefront::Admin.create!(name: "Meera Rep", email: "meera-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person")
     @product.admins << other_rep
-    others_lead = Forefront::Lead.create!(title: "Meera's Deal", description: "D", customer: @customer, created_by: other_rep, assigned_to: other_rep,
+    globex = Forefront::Customer.create!(name: "Globex", phone: "555-0199")
+    others_lead = Forefront::Lead.create!(title: "Meera's Deal", description: "D", customer: globex, created_by: other_rep, assigned_to: other_rep,
                                           source: forefront_source, product: @product, status: "contacted")
 
-    post "/forefront/tickets", params: { ticket: ticket_params(lead_id: others_lead.id) }
+    post "/forefront/tickets", params: { ticket: ticket_params(lead_id: others_lead.id, customer_id: globex.id) }
 
     assert_response :unprocessable_entity
     assert_empty others_lead.tickets
