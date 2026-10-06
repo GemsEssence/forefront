@@ -92,12 +92,17 @@ class Forefront::UnassignedPoolTest < ActionDispatch::IntegrationTest
     assert_equal @rep, @gadget_ticket.reload.assigned_to
   end
 
-  test "the page offers Take to a sales person and Assign to a manager" do
+  test "the page offers Take to a sales person and a manager, and Assign to an admin" do
     sign_in_as(@rep)
     get "/forefront/unassigned"
     assert_select "form[action='/forefront/tickets/#{@widget_ticket.id}/take'] button", text: "Take"
 
     sign_in_as(@manager)
+    get "/forefront/unassigned"
+    assert_select "form[action='/forefront/tickets/#{@gadget_ticket.id}/take'] button", text: "Take"
+
+    admin = Forefront::Admin.create!(name: "Asha Admin", email: "admin-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
+    sign_in_as(admin)
     get "/forefront/unassigned"
     assert_select "a[href='/forefront/tickets/#{@widget_ticket.id}']", text: "Assign"
   end

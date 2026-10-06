@@ -41,6 +41,7 @@ module Forefront
     validate :awaiting_only_while_worked, if: -> { awaiting_customer? && will_save_change_to_awaiting_customer_since? }
     validate :paid_win_is_final, if: -> { will_save_change_to_status? && status_in_database == "won" }
     validates :status, presence: true
+    validate :assignee_is_not_an_admin, if: :will_save_change_to_assigned_to_id?
     validate :product_allocated_to_sales_person
     validate :only_unfinished_lead_for_its_product, if: -> { product_id.present? && active? && (new_record? || will_save_change_to_status? || will_save_change_to_customer_id? || will_save_change_to_product_id?) }
 
@@ -225,6 +226,11 @@ module Forefront
     def only_unfinished_lead_for_its_product
       other = sibling_leads.find(&:active?)
       errors.add(:base, blocking_message_for(other)) if other
+    end
+
+    # Admins oversee rather than carry Leads (CONTEXT.md).
+    def assignee_is_not_an_admin
+      errors.add(:assigned_to, "can't be an admin") if assigned_to&.admin?
     end
 
     def product_allocated_to_sales_person

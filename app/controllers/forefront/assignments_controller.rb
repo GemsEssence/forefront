@@ -33,9 +33,9 @@ module Forefront
       end
     end
 
-    # Same choices the Ticket/Lead page offers.
+    # Same choices the Ticket/Lead page offers: Admins never hold work.
     def assignee_options
-      @assignable.is_a?(Ticket) ? Admin.assignable : Admin.people.order(:name)
+      Admin.assignable
     end
 
     def assignable_params

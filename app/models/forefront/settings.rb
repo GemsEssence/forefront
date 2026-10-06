@@ -15,10 +15,13 @@ module Forefront
     attribute :email_stale, :boolean, default: true
     attribute :email_unanswered_reveal, :boolean, default: true
     attribute :email_installment_overdue, :boolean, default: true
+    # How many unfinished Leads one person may hold before they can't take
+    # more from the pool (CONTEXT.md: Unassigned pool).
+    attribute :lead_cap, :integer, default: 10
     # Starts as the host's initializer value (Forefront.default_country_code).
     attribute :default_country_code, :string, default: -> { Forefront.default_country_code }
 
-    validates :unassigned_alert_after_hours, :stale_after_hours, :reveal_action_within_minutes, :installment_overdue_after_days,
+    validates :unassigned_alert_after_hours, :stale_after_hours, :reveal_action_within_minutes, :installment_overdue_after_days, :lead_cap,
               numericality: { only_integer: true, greater_than: 0 }
     validates :default_country_code, format: { with: Customer::COUNTRY_CODE_FORMAT, message: "must be a + followed by 1 to 4 digits" }
 

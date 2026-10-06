@@ -58,7 +58,9 @@ module Forefront
         @lead = Lead.new(lead_params)
         @lead.status = @initial_status
         @lead.created_by = current_admin
-        @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank?
+        # A new Lead starts with its creator, unless that's an Admin, who
+        # never carries Leads: it goes to the pool instead.
+        @lead.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank? && !current_admin.admin?
 
         # A Lead is a journey with exactly one Product (CONTEXT.md). The rule
         # lives here, not on the model, so Leads created before it stay valid.

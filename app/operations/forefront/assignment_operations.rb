@@ -1,5 +1,30 @@
 module Forefront
   module AssignmentOperations
+    # Taking a Ticket or Lead from the Unassigned pool. Taking a Lead stops
+    # at the cap (Settings#lead_cap) on unfinished Leads one person may hold;
+    # a Manager or Admin assigning past the cap goes through Create as usual.
+    class Take
+      attr_reader :assignable, :current_admin, :errors
+
+      def initialize(assignable:, current_admin:)
+        @assignable = assignable
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def call
+        if assignable.is_a?(Lead)
+          held = current_admin.unfinished_leads_count
+          if held >= Settings.current.lead_cap
+            @errors = [ "You already hold #{held} unfinished #{'lead'.pluralize(held)}, which is the cap." ]
+            return { success: false, errors: @errors, assignable: assignable }
+          end
+        end
+
+        Create.new(assignable: assignable, params: { to_user_id: current_admin.id, from_user_id: nil }, current_admin: current_admin).call
+      end
+    end
+
     class Create
       attr_reader :assignable, :params, :current_admin, :errors
 

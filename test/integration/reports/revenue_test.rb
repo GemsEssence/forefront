@@ -125,7 +125,7 @@ class Forefront::Reports::RevenueQueryCountTest < ActionDispatch::IntegrationTes
     admin = dashboard_staff("Asha Admin", "admin")
     customer = Forefront::Customer.create!(name: "Acme", phone: "555-0100")
     make = lambda do |name|
-      lead = Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: admin, assigned_to: admin, source: forefront_source,
+      lead = Forefront::Lead.create!(title: "L", description: "D", customer: customer, created_by: admin, source: forefront_source,
                                      product: Forefront::Product.create!(name: name), status: "won", actual_amount: 100)
       payment = Forefront::Payment.create!(lead: lead, total_amount: 100)
       Forefront::Receipt.create!(payment: payment, amount: 100, received_on: 3.days.ago.to_date, payment_method: "cash", recorded_by: admin)

@@ -1,7 +1,8 @@
 module Forefront
   # The Unassigned pool (CONTEXT.md): Tickets and Leads nobody is assigned to.
   # A Sales person sees the part whose Product is allocated to them and may
-  # take from it; Managers and Admins see all of it and assign from it.
+  # take from it; a Manager sees all of it and may take anything; an Admin
+  # sees all of it but only assigns, never takes.
   # Included by TicketPolicy and LeadPolicy.
   module UnassignedPool
     def self.visible_to(admin, scope)
@@ -12,7 +13,7 @@ module Forefront
     end
 
     def take?
-      current_admin.sales_person? && pooled_for_me?
+      (current_admin.sales_person? || current_admin.manager?) && pooled_for_me?
     end
 
     private

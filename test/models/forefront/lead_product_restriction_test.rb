@@ -21,9 +21,16 @@ class Forefront::LeadProductRestrictionTest < ActiveSupport::TestCase
     assert_includes lead.errors[:product], "is not assigned to this sales person"
   end
 
-  test "an admin can be assigned a lead for any product" do
-    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @admin, source: forefront_source, status: "open", product: @other_product)
+  test "a manager can be assigned a lead for any product" do
+    manager = Forefront::Admin.create!(name: "Manager", email: "manager-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
+    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: manager, source: forefront_source, status: "open", product: @other_product)
     assert lead.valid?
+  end
+
+  test "an admin is never assigned a lead" do
+    lead = Forefront::Lead.new(title: "L", description: "D", customer: @customer, created_by: @admin, assigned_to: @admin, source: forefront_source, status: "open", product: @other_product)
+    assert_not lead.valid?
+    assert_includes lead.errors[:assigned_to], "can't be an admin"
   end
 
   test "a lead with no product is still valid" do

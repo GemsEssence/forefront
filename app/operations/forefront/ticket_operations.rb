@@ -166,7 +166,7 @@ module Forefront
         {
           title: params[:title], description: ticket.description, estimated_amount: params[:estimated_amount],
           source_id: params[:source_id], customer_id: ticket.customer_id, product_id: ticket.product_id,
-          assigned_to_id: ticket.assigned_to_id || current_admin.id, campaign_id: ticket.campaign_id
+          assigned_to_id: ticket.assigned_to_id || (current_admin.id unless current_admin.admin?), campaign_id: ticket.campaign_id
         }
       end
 

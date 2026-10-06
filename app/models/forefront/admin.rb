@@ -57,6 +57,12 @@ module Forefront
       direct_reports.pluck(:id)
     end
 
+    # Leads this person holds that are neither Won nor Lost, which the cap
+    # on taking from the pool counts.
+    def unfinished_leads_count
+      assigned_leads.where.not(status: %w[won lost]).count
+    end
+
     private
 
     def manager_is_not_self

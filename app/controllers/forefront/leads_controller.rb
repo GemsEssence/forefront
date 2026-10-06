@@ -9,7 +9,7 @@ module Forefront
         filters: filter_params
       ).call
       @customers = Customer.all.order(:name)
-      @admins = Admin.people.order(:name)
+      @admins = Admin.assignable
 
       respond_to do |format|
         format.html { @leads = filtered_leads.includes(:source).page(params[:page]) }
@@ -21,7 +21,7 @@ module Forefront
       @activities = @lead.activities.recent
       @assignments = @lead.assignments.order(created_at: :desc)
       @lead_tickets = @lead.tickets.includes(:assigned_to).order(:created_at)
-      @admins = Admin.people.order(:name)
+      @admins = Admin.assignable
     end
 
     def new
@@ -29,7 +29,7 @@ module Forefront
       @lead.customer_id = params[:customer_id] if params[:customer_id].present?
       authorize @lead
       @customers = Customer.all.order(:name)
-      @admins = Admin.people.order(:name)
+      @admins = Admin.assignable
       @products = products_for_form
     end
 
@@ -49,7 +49,7 @@ module Forefront
         @lead = result[:lead]
         @existing_lead = result[:existing_lead]
         @customers = Customer.all.order(:name)
-        @admins = Admin.people.order(:name)
+        @admins = Admin.assignable
         @products = products_for_form
         flash.now[:alert] = result[:errors].join(', ')
         render :new, status: :unprocessable_entity
@@ -58,7 +58,7 @@ module Forefront
 
     def edit
       @customers = Customer.all.order(:name)
-      @admins = Admin.people.order(:name)
+      @admins = Admin.assignable
       @products = products_for_form
     end
 
@@ -74,7 +74,7 @@ module Forefront
       else
         @lead = result[:lead]
         @customers = Customer.all.order(:name)
-        @admins = Admin.people.order(:name)
+        @admins = Admin.assignable
         @products = products_for_form
         flash.now[:alert] = result[:errors].join(', ')
         render :edit, status: :unprocessable_entity
