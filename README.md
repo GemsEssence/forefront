@@ -224,6 +224,69 @@ Content-Type: application/json
 | `422 {"status":"error","errors":[...]}` | Something's missing or invalid |
 | `401 {"status":"error","errors":["Invalid API key"]}` | The key is missing, wrong or was regenerated |
 
+## Payments API
+
+When a customer pays inside one of your products' own applications, that
+application can report it, with the same per-product key:
+
+```
+POST /forefront/api/v1/receipts
+Authorization: Bearer <the product's key>
+Content-Type: application/json
+
+{ "phone": "+91 98765 43210", "amount": "4999.00", "paid_at": "2026-10-05",
+  "reference": "txn-881", "method": "upi" }
+```
+
+`phone`, `amount`, `paid_at` and `reference` are required; `reference` is your
+own id for the transaction and makes a repeated report harmless. `method` is one
+of `upi`, `bank_transfer`, `card`, `cash`, `cheque` or `other` (the default for
+anything else). The money lands on the Receipts page as an *unattached
+receipt*, matched to the customer by phone when one exists, and a sales person
+attaches it to the payment or installment it pays. Nothing is attached
+automatically.
+
+| Response | When |
+|---|---|
+| `201 {"status":"ok","id":12}` | The receipt was recorded |
+| `200 {"status":"ok","id":12}` | That reference was reported before; this is the earlier receipt |
+| `422 {"status":"error","errors":[...]}` | Something's missing or invalid |
+| `401 {"status":"error","errors":["Invalid API key"]}` | The key is missing, wrong or was regenerated |
+
+## Expiry pull
+
+Forefront asks each product's application, once a day, for its active
+subscriptions and their end dates. It moves the matching subscriptions' expiry,
+opens a renewal ticket (for the lead's assignee, or the pool) once an expiry is
+within the renewal window set on the Settings page, and resolves an open
+renewal ticket as *renewed* when the expiry moves beyond it.
+
+An Admin enters the endpoint URL and a token on the product's edit page. Your
+application serves:
+
+```
+GET <url>?page=1
+Authorization: Bearer <token>
+
+200 { "subscriptions": [ { "phone": "+91 98765 43210", "expires_on": "2027-03-31" } ],
+      "next_page": 2 }
+```
+
+List every active subscription, paging with `next_page` (`null` on the last
+page). A `country_code` per row is optional and defaults to the setting above.
+Rows whose phone matches no customer, or no subscription for that product, are
+skipped. Schedule the pull daily:
+
+```ruby
+Forefront::ExpiryPullJob.perform_later
+```
+
+or from cron:
+
+```
+0 6 * * * cd /path/to/app && bin/rails forefront:pull_expiries
+```
+
 ## Usage
 
 Once installed, visit:

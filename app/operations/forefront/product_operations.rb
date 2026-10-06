@@ -92,8 +92,11 @@ module Forefront
         AuditEvent.record!(actor: current_admin, action: "updated", auditable: product, audited_changes: changes)
       end
 
+      # A blank token means "keep the one you have": it is never shown back.
       def attributes
-        params.slice(:name, :description)
+        attributes = params.slice(:name, :description, :expiry_endpoint_url, :expiry_endpoint_token).to_h
+        attributes.delete("expiry_endpoint_token") if attributes["expiry_endpoint_token"].blank?
+        attributes
       end
     end
   end

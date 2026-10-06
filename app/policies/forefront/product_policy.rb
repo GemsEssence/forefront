@@ -28,6 +28,11 @@ module Forefront
       pundit_user.admin?
     end
 
+    # Where the Product's application lists its subscriptions (ADR 0007).
+    def configure_expiry_endpoint?
+      pundit_user.admin?
+    end
+
     class Scope < Scope
       def resolve
         scope.all

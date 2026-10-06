@@ -187,11 +187,13 @@ module Forefront
       self.won_at = won? ? (won_at || Time.current) : nil
     end
 
+    # The Subscription's expires_at is the one that moves (CONTEXT.md), by
+    # the Expiry pull; the Lead's only sets it, or resets it when edited.
     def ensure_subscription
       return unless won? && product.present? && expires_at.present?
 
       if subscription.present?
-        subscription.update!(expires_at: expires_at) if subscription.expires_at != expires_at
+        subscription.update!(expires_at: expires_at) if saved_change_to_expires_at? && subscription.expires_at != expires_at
       else
         create_subscription!(customer: customer, product: product, expires_at: expires_at)
       end

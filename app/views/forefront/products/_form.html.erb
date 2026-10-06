@@ -25,6 +25,20 @@
     <% end %>
   </div>
 
+  <% if policy(@product).configure_expiry_endpoint? %>
+    <div class="border-t pt-4">
+      <p class="block text-sm font-medium text-gray-700">Expiry endpoint</p>
+      <p class="text-xs text-gray-500 mb-2">Where this product's application lists its active subscriptions. Forefront reads it once a day to open renewal tickets.</p>
+      <%= f.label :expiry_endpoint_url, "URL", class: "block text-xs font-medium text-gray-700" %>
+      <%= f.url_field :expiry_endpoint_url, placeholder: "https://app.example.com/api/subscriptions", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+      <%= f.label :expiry_endpoint_token, "Token", class: "block text-xs font-medium text-gray-700 mt-2" %>
+      <% if @product.expiry_endpoint_token.present? %>
+        <p class="text-xs text-gray-700">Token ending <span class="font-mono">…<%= @product.expiry_endpoint_token.last(4) %></span>. Leave blank to keep it.</p>
+      <% end %>
+      <%= f.password_field :expiry_endpoint_token, value: nil, autocomplete: "off", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+    </div>
+  <% end %>
+
   <div class="flex justify-end space-x-3">
     <%= link_to "Cancel", products_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium" %>
     <%= f.submit class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>

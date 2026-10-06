@@ -58,7 +58,9 @@ module Forefront
     end
 
     def product_params
-      params.require(:product).permit(:name, :description, admin_ids: [])
+      permitted = [ :name, :description, { admin_ids: [] } ]
+      permitted += [ :expiry_endpoint_url, :expiry_endpoint_token ] if policy(@product || Product).configure_expiry_endpoint?
+      params.require(:product).permit(*permitted)
     end
   end
 end
