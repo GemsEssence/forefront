@@ -1,5 +1,48 @@
 module Forefront
   module LeadOperations
+    # Bringing a Lost Lead back (CONTEXT.md: a Lost Lead is reopened, never
+    # duplicated). It lands on Open and the Manager or Admin picks who holds
+    # it next, or sends it to the pool.
+    class Reopen
+      attr_reader :lead, :params, :current_admin, :errors
+
+      def initialize(lead:, params:, current_admin:)
+        @lead = lead
+        @params = params
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def call
+        return failure("Only a lost lead can be reopened") unless lead.lost?
+
+        Lead.transaction do
+          from_id = lead.assigned_to_id
+          lead.update!(status: "open", assigned_to_id: params[:assigned_to_id].presence)
+          lead.status_histories.create!(old_status: "Lost", new_status: "Open", note: params[:note].presence, changed_by: current_admin)
+          AuditEvent.record!(actor: current_admin, action: "reopened", auditable: lead,
+                             audited_changes: { "status" => [ "Lost", "Open" ], "assigned_to" => [ Admin.find_by(id: from_id)&.name, lead.assigned_to&.name ] })
+          if lead.assigned_to_id.present?
+            lead.assignments.create!(to_user_id: lead.assigned_to_id, from_user_id: from_id, changed_by: current_admin, note: params[:note].presence)
+          else
+            NotificationOperations::AnnounceUnassigned.new(record: lead, created_by: current_admin).call
+          end
+        end
+
+        { success: true, lead: lead }
+      rescue ActiveRecord::RecordInvalid => e
+        lead.restore_attributes
+        failure(*e.record.errors.full_messages)
+      end
+
+      private
+
+      def failure(*messages)
+        @errors = messages
+        { success: false, errors: @errors, lead: lead }
+      end
+    end
+
     class Create
       attr_reader :params, :current_admin, :lead, :errors
 

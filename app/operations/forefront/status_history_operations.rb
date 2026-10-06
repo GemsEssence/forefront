@@ -19,6 +19,10 @@ module Forefront
 
       def call
         old_status = trackable.status_before_type_cast
+        if trackable.is_a?(Lead) && trackable.lost? && params[:status].present? && params[:status] != "lost"
+          @errors = [ "A lost lead is brought back with Reopen, which also picks who holds it" ]
+          return { success: false, errors: @errors, trackable: trackable }
+        end
 
         ActiveRecord::Base.transaction do
           trackable.update!(trackable_attributes)

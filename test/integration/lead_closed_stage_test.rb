@@ -46,9 +46,9 @@ class Forefront::LeadClosedStageTest < ActionDispatch::IntegrationTest
     lose_lead
     sign_in_as(@manager)
 
-    change_stage("contacted", note: "They called back")
+    post "/forefront/leads/#{@lead.id}/reopen", params: { reopen: { assigned_to_id: @rep.id, note: "They called back" } }
 
-    assert @lead.reload.contacted?
+    assert @lead.reload.open?
     assert_nil @lead.lost_reason
   end
 

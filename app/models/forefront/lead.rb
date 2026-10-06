@@ -82,6 +82,15 @@ module Forefront
       !won? && !lost?
     end
 
+    # Who may be handed this Lead: Sales persons allocated its Product, and
+    # Managers. Admins oversee rather than carry Leads (CONTEXT.md).
+    def eligible_assignees
+      people = Admin.people.where.not(system: true)
+      sales = people.where(role: "sales_person")
+      sales = sales.where(id: product.admin_ids) if product
+      people.where(role: "manager").or(sales).order(:name)
+    end
+
     # The Customer's other Leads for this Product, newest first.
     def sibling_leads
       Lead.where(customer_id: customer_id, product_id: product_id).where.not(id: id).order(created_at: :desc)
