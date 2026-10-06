@@ -33,6 +33,11 @@ module Forefront
       pundit_user.admin?
     end
 
+    # What a Renewal or Reclaim pays the Sales person (CONTEXT.md).
+    def set_rewards?
+      pundit_user.admin?
+    end
+
     class Scope < Scope
       def resolve
         scope.all

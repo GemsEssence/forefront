@@ -33,6 +33,9 @@
                 <%= @lead.agreement_signed_on ? "Agreement signed #{@lead.agreement_signed_on.strftime("%-d %b %Y")}" : "Agreement not signed yet" %>
               </span>
             <% end %>
+            <% if @lead.private? %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-800 text-white" title="Only you, your assignee and Admins see this lead until it's won, lost or shared">Private</span>
+            <% end %>
             <% if @lead.reclaim? %>
               <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
                 Reclaim
@@ -57,6 +60,24 @@
                   <%= simple_format(@lead.lost_note, class: "mt-1") %>
                 </dd>
               </div>
+            <% end %>
+            <% if @lead.product %>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Product</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @lead.product.name %></dd>
+              </div>
+            <% end %>
+            <% if @lead.won? && @lead.expires_at.present? %>
+              <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Expiry at sale</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @lead.expires_at.strftime("%-d %b %Y") %></dd>
+              </div>
+              <% if @lead.subscription %>
+                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">Subscription expires</dt>
+                  <dd class="mt-1 text-sm <%= @lead.subscription.expired? ? 'text-red-600' : 'text-gray-900' %> sm:mt-0 sm:col-span-2"><%= @lead.subscription.expires_at.strftime("%-d %b %Y") %></dd>
+                </div>
+              <% end %>
             <% end %>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Customer</dt>

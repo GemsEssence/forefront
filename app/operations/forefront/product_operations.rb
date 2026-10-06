@@ -84,7 +84,7 @@ module Forefront
       private
 
       def record_update(allocated_before)
-        changes = product.saved_changes.slice("name", "description")
+        changes = product.saved_changes.slice("name", "description", "renewal_reward_percentage", "reclaim_reward_percentage", "expiry_endpoint_url")
         allocated_after = allocated_names(product)
         changes["allocated_to"] = [ allocated_before, allocated_after ] if allocated_before != allocated_after
         return if changes.empty?
@@ -94,7 +94,7 @@ module Forefront
 
       # A blank token means "keep the one you have": it is never shown back.
       def attributes
-        attributes = params.slice(:name, :description, :expiry_endpoint_url, :expiry_endpoint_token).to_h
+        attributes = params.slice(:name, :description, :expiry_endpoint_url, :expiry_endpoint_token, :renewal_reward_percentage, :reclaim_reward_percentage).to_h
         attributes.delete("expiry_endpoint_token") if attributes["expiry_endpoint_token"].blank?
         attributes
       end

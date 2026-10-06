@@ -60,6 +60,7 @@ module Forefront
     def product_params
       permitted = [ :name, :description, { admin_ids: [] } ]
       permitted += [ :expiry_endpoint_url, :expiry_endpoint_token ] if policy(@product || Product).configure_expiry_endpoint?
+      permitted += [ :renewal_reward_percentage, :reclaim_reward_percentage ] if policy(@product || Product).set_rewards?
       params.require(:product).permit(*permitted)
     end
   end

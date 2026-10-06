@@ -6,6 +6,9 @@ module Forefront
     has_many :targets, class_name: "Forefront::Target", dependent: :destroy
 
     validates :name, presence: true
+    # Renewal and Reclaim rewards (CONTEXT.md) are a share of the money paid.
+    validates :renewal_reward_percentage, :reclaim_reward_percentage,
+              numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
 
     # The key the Product's own application sends to the Signup API.
     def self.find_by_api_key(key)

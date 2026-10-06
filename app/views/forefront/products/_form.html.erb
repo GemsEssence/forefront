@@ -25,6 +25,21 @@
     <% end %>
   </div>
 
+  <% if policy(@product).set_rewards? %>
+    <div class="border-t pt-4 grid grid-cols-2 gap-4">
+      <div>
+        <%= f.label :renewal_reward_percentage, "Renewal reward (%)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :renewal_reward_percentage, step: "0.01", min: 0, max: 100, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+        <p class="text-xs text-gray-500 mt-1">Of the original sale's payment, paid when a renewal ticket is resolved as renewed.</p>
+      </div>
+      <div>
+        <%= f.label :reclaim_reward_percentage, "Reclaim reward (%)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :reclaim_reward_percentage, step: "0.01", min: 0, max: 100, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+        <p class="text-xs text-gray-500 mt-1">Of a reclaimed lead's own payment, once it is won and paid.</p>
+      </div>
+    </div>
+  <% end %>
+
   <% if policy(@product).configure_expiry_endpoint? %>
     <div class="border-t pt-4">
       <p class="block text-sm font-medium text-gray-700">Expiry endpoint</p>
