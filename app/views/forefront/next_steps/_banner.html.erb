@@ -1,0 +1,21 @@
+<%# locals: record (a Lead or Ticket). Its Next step (CONTEXT.md), or that it needs one. %>
+<% if record.open_for_work? %>
+  <% step = record.next_step %>
+  <% if step %>
+    <div class="mt-4 rounded-md px-4 py-3 bg-indigo-50 border border-indigo-200 text-indigo-900 text-sm" data-next-step>
+      <span class="font-medium">Next:</span>
+      <% if step.kind == :ticket %>
+        <%= link_to step.label, ticket_path(step.record), class: "underline" %>
+      <% else %>
+        <%= step.label %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mt-4 flex items-center justify-between rounded-md px-4 py-3 bg-amber-50 border border-amber-200 text-amber-900 text-sm" data-next-step>
+      <span><span class="font-semibold">Needs a next step.</span> Schedule a followup so it's clear what happens next.</span>
+      <% if policy(record).work_on? %>
+        <button type="button" onclick="forefrontOpenModal('<%= modal_id(:followup, record) %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Schedule it</button>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

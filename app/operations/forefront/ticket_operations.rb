@@ -3,9 +3,11 @@ module Forefront
     class Create
       attr_reader :params, :current_admin, :ticket, :errors
 
-      def initialize(params:, current_admin:)
+      # first_step: an optional first Followup (type, time) for the assignee.
+      def initialize(params:, current_admin:, first_step: nil)
         @params = params
         @current_admin = current_admin
+        @first_step = first_step.presence || {}
         @errors = []
       end
 
@@ -27,6 +29,10 @@ module Forefront
               params: { to_user_id: @ticket.assigned_to_id, from_user_id: nil },
               current_admin: current_admin
             ).call
+          end
+          if @first_step[:scheduled_for].present? && @ticket.assigned_to_id.present?
+            FollowupOperations::Create.new(followupable: @ticket, params: @first_step.to_h.merge(assigned_to_id: @ticket.assigned_to_id),
+                                           current_admin: current_admin).call
           end
           { success: true, ticket: @ticket }
         else
@@ -142,17 +148,18 @@ module Forefront
     class ConvertToLead
       attr_reader :ticket, :params, :current_admin, :errors, :lead
 
-      def initialize(ticket:, params:, current_admin:)
+      def initialize(ticket:, params:, current_admin:, first_step: nil)
         @ticket = ticket
         @params = params
         @current_admin = current_admin
+        @first_step = first_step
         @errors = []
       end
 
       def call
         Ticket.transaction do
           created = LeadOperations::Create.new(params: ActionController::Parameters.new(lead_attributes), current_admin: current_admin,
-                                               initial_status: "contacted").call
+                                               initial_status: "contacted", first_step: @first_step).call
           @lead = created[:lead]
           @errors = created[:errors] unless created[:success]
           resolve_ticket if errors.empty?

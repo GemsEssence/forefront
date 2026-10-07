@@ -33,8 +33,9 @@ module Forefront
       @ticket.created_by = current_admin
       authorize @ticket
 
+      @first_step = params.fetch(:first_step, {}).permit(:followup_type, :scheduled_for)
       result = if lead_visible?
-        TicketOperations::Create.new(params: ticket_params, current_admin: current_admin).call
+        TicketOperations::Create.new(params: ticket_params, current_admin: current_admin, first_step: @first_step).call
       else
         { success: false, ticket: @ticket, errors: [ "Lead not found" ] }
       end

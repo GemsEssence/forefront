@@ -48,7 +48,7 @@ class Forefront::Dashboard::PipelineTest < ActionDispatch::IntegrationTest
 
     get "/forefront/"
 
-    assert_equal "1", metric(:orphan_leads)
-    assert_match "Forgotten", drill(:orphan_leads).first
+    assert_equal "1", metric(:needs_next_step)
+    assert_match "Forgotten", drill(:needs_next_step).first
   end
 end

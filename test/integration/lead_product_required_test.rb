@@ -18,7 +18,7 @@ class Forefront::LeadProductRequiredTest < ActionDispatch::IntegrationTest
   end
 
   test "a lead can't be created without a product" do
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: "" } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: "" }, first_step: forefront_first_step }
 
     assert_response :unprocessable_entity
     assert_match "Product can&#39;t be blank", response.body
@@ -30,7 +30,7 @@ class Forefront::LeadProductRequiredTest < ActionDispatch::IntegrationTest
     ticket = Forefront::Ticket.create!(title: "Call", description: "D", customer: @customer, created_by: @admin, assigned_to: rep, category: "enquiry", priority: "medium", status: "open")
     sign_in_as(rep)
 
-    post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Big Deal", source_id: forefront_source.id } }
+    post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Big Deal", source_id: forefront_source.id }, first_step: forefront_first_step }
 
     assert_redirected_to "/forefront/tickets/#{ticket.id}"
     assert_equal "Product can't be blank", flash[:alert]

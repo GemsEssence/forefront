@@ -80,7 +80,7 @@ class Forefront::Reports::AdminReportsTest < ActionDispatch::IntegrationTest
       get "/forefront/reports/data_quality"
 
       assert_equal [
-        [ "Open leads with no followup", "1" ],
+        [ "Leads needing a next step", "1" ],
         [ "Rejected Signup API calls", "1" ],
         [ "Customers with no email", "2" ],
         [ "Leads with no product", "1" ],

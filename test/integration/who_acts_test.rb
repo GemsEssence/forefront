@@ -123,7 +123,7 @@ class Forefront::WhoActsTest < ActionDispatch::IntegrationTest
 
     globex = Forefront::Customer.create!(name: "Globex", phone: "555-0199")
     post "/forefront/leads", params: { lead: { title: "Handed out", description: "D", customer_id: globex.id, source_id: forefront_source.id,
-                                               product_id: @product.id, due_at: (Date.current + 7).iso8601, assigned_to_id: @rep.id, private: "1" } }
+                                               product_id: @product.id, due_at: (Date.current + 7).iso8601, assigned_to_id: @rep.id, private: "1" }, first_step: forefront_first_step }
 
     assert_not Forefront::Lead.find_by!(title: "Handed out").private?
   end

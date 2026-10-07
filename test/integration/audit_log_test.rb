@@ -24,7 +24,7 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
 
   test "creating a lead shows up in the audit log for an admin" do
     sign_in_as(@rep)
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @rep).id, status: "open" } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Big Deal", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @rep).id, status: "open" }, first_step: forefront_first_step }
 
     sign_in_as(@admin)
     get "/forefront/audit_log"

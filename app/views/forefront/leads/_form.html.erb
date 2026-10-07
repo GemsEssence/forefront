@@ -50,6 +50,10 @@
 
   </div>
 
+  <% if @lead.new_record? %>
+    <%= render "forefront/followups/first_step_fields", required: !current_admin.admin?, values: @first_step %>
+  <% end %>
+
   <% unless @lead.won? || @lead.lost? || current_admin.admin? %>
     <div class="flex items-center">
       <%= f.check_box :private, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>

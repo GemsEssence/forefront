@@ -27,6 +27,25 @@
         </div>
       <% end %>
 
+      <% needing = @my_work.needing_next_step %>
+      <div class="mb-6" data-section="needs_next_step">
+        <h2 class="text-lg font-medium <%= needing.any? ? 'text-amber-700' : 'text-gray-900' %> mb-2">Needs a next step (<%= needing.size %>)</h2>
+        <div class="bg-white shadow sm:rounded-md">
+          <% if needing.any? %>
+            <ul class="divide-y divide-gray-200">
+              <% needing.each do |lead| %>
+                <li class="px-4 py-2 flex items-center justify-between text-sm">
+                  <span><%= link_to lead.title, lead_path(lead), class: "text-indigo-600 hover:text-indigo-500 font-medium" %> <span class="text-gray-500">· <%= lead.customer.name %> · <%= lead.status.humanize %></span></span>
+                  <span class="text-gray-500 whitespace-nowrap ml-4">no followup scheduled<%= " · #{lead.assigned_to.name}" if @my_work.team? && lead.assigned_to %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="px-4 py-2 text-sm text-gray-500">Every open lead has a next step.</p>
+          <% end %>
+        </div>
+      </div>
+
       <div class="mb-6" data-section="available">
         <h2 class="text-lg font-medium text-gray-900 mb-2">Available to take</h2>
         <div class="bg-white shadow sm:rounded-md">

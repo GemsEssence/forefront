@@ -70,8 +70,10 @@ module Forefront
 
       private
 
+      # Called with form params, or with a plain Hash when an Assignment
+      # moves the Followups along with the record.
       def update_params
-        params.permit(:assigned_to_id, :followup_type, :scheduled_for, :status, :outcome)
+        ActionController::Parameters.new(params.to_h).permit(:assigned_to_id, :followup_type, :scheduled_for, :status, :outcome)
       end
     end
   end

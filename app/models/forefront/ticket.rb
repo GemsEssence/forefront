@@ -1,6 +1,7 @@
 module Forefront
   class Ticket < ApplicationRecord
     include Deadline
+    include HasNextStep
 
     belongs_to :customer
     belongs_to :created_by, class_name: "Forefront::Admin"
@@ -68,6 +69,19 @@ module Forefront
     scope :recent, -> { order(created_at: :desc) }
     scope :by_due_date, -> { order(due_at: :asc) }
     scope :unfinished, -> { where.not(status: %w[resolved closed]) }
+
+    def open_for_work?
+      !resolved? && !closed?
+    end
+
+    # A pending Followup, or else the Ticket's own due date.
+    def next_step
+      if (followup = pending_followup)
+        followup_step(followup)
+      elsif due_at
+        HasNextStep::Step.new(kind: :deadline, label: "resolve by #{due_at.strftime("%-d %b")}", at: due_at, record: self)
+      end
+    end
 
     # A demo or Proposal under a Lead: resolving it asks what's next for the Lead.
     def lead_work?

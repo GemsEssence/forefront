@@ -23,7 +23,7 @@ class Forefront::LeadUniquenessTest < ActionDispatch::IntegrationTest
   end
 
   def create_lead(product: @product)
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Second", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: product.id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Second", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: product.id }, first_step: forefront_first_step }
   end
 
   test "a second lead can't be opened while the customer's lead for that product is unfinished" do
@@ -69,7 +69,7 @@ class Forefront::LeadUniquenessTest < ActionDispatch::IntegrationTest
     ticket = Forefront::Ticket.create!(title: "Call", description: "D", customer: @customer, product: @product, created_by: @rep,
                                        assigned_to: @rep, category: "enquiry", priority: "medium", status: "open")
 
-    post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Second", source_id: forefront_source.id } }
+    post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Second", source_id: forefront_source.id }, first_step: forefront_first_step }
 
     assert_redirected_to "/forefront/tickets/#{ticket.id}"
     assert_equal "Acme already has an unfinished lead for Widget: Big Deal", flash[:alert]

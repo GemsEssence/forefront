@@ -41,9 +41,11 @@ module Forefront
       @lead.created_by = current_admin
       authorize @lead
 
+      @first_step = first_step_params
       result = LeadOperations::Create.new(
         params: lead_params,
-        current_admin: current_admin
+        current_admin: current_admin,
+        first_step: @first_step
       ).call
 
       if result[:success]
@@ -98,6 +100,11 @@ module Forefront
 
     def set_lead
       @lead = Lead.find(params[:id])
+    end
+
+    # The first Followup on a new Lead (CONTEXT.md: Next step).
+    def first_step_params
+      params.fetch(:first_step, {}).permit(:followup_type, :scheduled_for)
     end
 
     def authorize_lead

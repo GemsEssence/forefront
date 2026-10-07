@@ -23,7 +23,7 @@ class Forefront::TicketConversionTest < ActionDispatch::IntegrationTest
   # As the form sends it, with the Source it pre-selects.
   def convert(ticket = @ticket, **lead)
     post "/forefront/tickets/#{ticket.id}/conversion",
-         params: { lead: { title: "Acme Widget rollout", estimated_amount: "50000", source_id: @campaign.source_id }.merge(lead) }
+         params: { lead: { title: "Acme Widget rollout", estimated_amount: "50000", source_id: @campaign.source_id }.merge(lead), first_step: forefront_first_step }
   end
 
   test "converting a ticket opens a lead from it, at Contacted, and the ticket becomes its first ticket" do

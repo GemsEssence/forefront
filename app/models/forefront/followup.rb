@@ -21,6 +21,13 @@ module Forefront
     validates :assigned_to, :followup_type, :scheduled_for, :status, presence: true
 
     scope :upcoming, -> { where(status: 'pending').where('scheduled_for >= ?', Time.current).order(:scheduled_for) }
+
+    # The default time for a first step: the next working day at `hour`.
+    def self.next_working_day_at(hour = 10)
+      day = Date.current + 1
+      day += 1 while day.saturday? || day.sunday?
+      day.in_time_zone.change(hour: hour)
+    end
     scope :pending, -> { where(status: 'pending') }
   end
 end

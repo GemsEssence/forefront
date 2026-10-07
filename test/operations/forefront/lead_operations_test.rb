@@ -11,7 +11,7 @@ class Forefront::LeadOperationsTest < ActiveSupport::TestCase
       title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @admin).id, due_at: (Date.current + 7).iso8601
     ).permit!
 
-    result = Forefront::LeadOperations::Create.new(params: params, current_admin: @admin).call
+    result = Forefront::LeadOperations::Create.new(params: params, current_admin: @admin, first_step: forefront_first_step).call
 
     assert result[:success]
     assert_instance_of Forefront::Lead, result[:lead]

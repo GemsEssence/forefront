@@ -47,15 +47,15 @@ class Forefront::DeadlinesTest < ActionDispatch::IntegrationTest
     get "/forefront/leads/new"
     assert_select "input[name='lead[due_at]'][required][value='2026-11-05'][max='2026-11-05']"
 
-    post "/forefront/leads", params: { lead: lead_params(due_at: "") }
+    post "/forefront/leads", params: { lead: lead_params(due_at: ""), first_step: forefront_first_step }
     assert_response :unprocessable_entity
     assert_match "Due at can&#39;t be blank", response.body
 
-    post "/forefront/leads", params: { lead: lead_params(due_at: "2026-11-06") }
+    post "/forefront/leads", params: { lead: lead_params(due_at: "2026-11-06"), first_step: forefront_first_step }
     assert_response :unprocessable_entity
     assert_match "Due at can&#39;t be more than 30 days ahead", response.body
 
-    post "/forefront/leads", params: { lead: lead_params(due_at: "2026-11-05") }
+    post "/forefront/leads", params: { lead: lead_params(due_at: "2026-11-05"), first_step: forefront_first_step }
     assert_equal Date.new(2026, 11, 5), Forefront::Lead.find_by!(title: "Big Deal").due_at
   end
 

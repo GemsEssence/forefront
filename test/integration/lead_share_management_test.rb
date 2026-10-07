@@ -13,7 +13,7 @@ class Forefront::LeadShareManagementTest < ActionDispatch::IntegrationTest
     @bob = Forefront::Admin.create!(name: "Bob", email: "bob-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "sales_person", manager: @admin)
 
     sign_in_as(@admin)
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "L", description: "D", customer_id: @customer.id, assigned_to_id: @alice.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: [ @alice, @bob ]).id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "L", description: "D", customer_id: @customer.id, assigned_to_id: @alice.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: [ @alice, @bob ]).id }, first_step: forefront_first_step }
     @lead = Forefront::Lead.order(:created_at).last
   end
 

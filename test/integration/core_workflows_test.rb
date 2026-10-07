@@ -27,7 +27,7 @@ class Forefront::CoreWorkflowsTest < ActionDispatch::IntegrationTest
   end
 
   test "creating, viewing, and listing a lead works end to end" do
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @admin).id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @admin).id }, first_step: forefront_first_step }
     lead = Forefront::Lead.last
 
     assert_redirected_to "/forefront/leads/#{lead.id}"
@@ -47,13 +47,15 @@ class Forefront::CoreWorkflowsTest < ActionDispatch::IntegrationTest
   end
 
   test "scheduling a followup on a lead works end to end" do
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @admin).id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "New prospect", description: "Inbound", customer_id: @customer.id, source_id: forefront_source.id, product_id: forefront_product(allocated_to: @admin).id }, first_step: forefront_first_step }
     lead = Forefront::Lead.last
+
+    assert_equal 1, lead.followups.count, "the first step is a followup"
 
     post "/forefront/leads/#{lead.id}/followups", params: { followup: { followup_type: "call", assigned_to_id: @admin.id, scheduled_for: 1.day.from_now } }
 
     assert_response :redirect
-    assert_equal 1, lead.followups.count
+    assert_equal 2, lead.followups.count
   end
 
   test "reassigning a ticket works end to end" do

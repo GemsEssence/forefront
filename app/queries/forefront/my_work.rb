@@ -23,6 +23,11 @@ module Forefront
       !viewer.sales_person?
     end
 
+    # Active Leads of the people in view with no Next step (CONTEXT.md).
+    def needing_next_step
+      Lead.needing_next_step.where(assigned_to: people).includes(:customer, :assigned_to).order(:due_at)
+    end
+
     # { "overdue" => [Item, ...], ... }, each sorted by date. Work due more
     # than a week out isn't listed.
     def sections

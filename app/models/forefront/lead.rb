@@ -1,6 +1,7 @@
 module Forefront
   class Lead < ApplicationRecord
     include Deadline
+    include HasNextStep
 
     belongs_to :customer
     belongs_to :created_by, class_name: "Forefront::Admin"
@@ -57,6 +58,13 @@ module Forefront
     after_save :ensure_subscription
     after_save :drop_subscription, if: -> { saved_change_to_status? && status_before_last_save == "won" }
 
+    # Active Leads with no Next step: no pending Followup and no open demo
+    # or proposal Ticket under them.
+    scope :needing_next_step, lambda {
+      active.where.not(id: Followup.pending.where(followupable_type: name).select(:followupable_id))
+            .where.not(id: Ticket.unfinished.where(category: %w[new_app_demo proposal]).where.not(lead_id: nil).select(:lead_id))
+    }
+
     # The Leads this person may know about: everything for an Admin; for
     # anyone else, all but the Private Leads of other people (CONTEXT.md).
     scope :visible_to, lambda { |admin|
@@ -87,6 +95,17 @@ module Forefront
 
     def active?
       !won? && !lost?
+    end
+
+    alias open_for_work? active?
+
+    # A pending Followup, or the open demo or proposal Ticket under the Lead.
+    def next_step
+      if (followup = pending_followup)
+        followup_step(followup)
+      elsif (ticket = tickets.unfinished.where(category: %w[new_app_demo proposal]).order(:due_at).first)
+        HasNextStep::Step.new(kind: :ticket, label: "#{ticket.title}, due #{ticket.due_at.strftime("%-d %b")}", at: ticket.due_at, record: ticket)
+      end
     end
 
     # Who may be handed this Lead: Sales persons allocated its Product, and

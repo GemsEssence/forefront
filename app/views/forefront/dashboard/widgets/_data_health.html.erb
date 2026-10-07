@@ -1,6 +1,6 @@
 <%= render layout: "forefront/dashboard/widget", locals: { title: "Data health" } do %>
   <dl class="grid grid-cols-2 gap-4 text-sm">
     <div><dt class="text-xs text-gray-500">Rejected Signup API calls · <%= scope.period.label %></dt><dd class="text-xl font-semibold"><%= metric_link :failed_intake, scope %></dd></div>
-    <div><dt class="text-xs text-gray-500">Open leads with no followup</dt><dd class="text-xl font-semibold"><%= metric_link :orphan_leads, scope %></dd></div>
+    <div><dt class="text-xs text-gray-500">Leads needing a next step</dt><dd class="text-xl font-semibold"><%= metric_link :needs_next_step, scope %></dd></div>
   </dl>
 <% end %>

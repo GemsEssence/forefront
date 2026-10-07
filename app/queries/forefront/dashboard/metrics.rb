@@ -75,8 +75,9 @@ module Forefront
       end
 
       # Orphan
-      define :orphan_leads, title: "Open leads with no followup", kind: :leads do |scope, _|
-        scope.leads.active.where.not(id: Followup.pending.where(followupable_type: Lead.name).select(:followupable_id))
+      # CONTEXT.md: Next step.
+      define :needs_next_step, title: "Leads needing a next step", kind: :leads do |scope, _|
+        scope.leads.where(id: Lead.needing_next_step.select(:id))
       end
 
       # Target meter / Team target

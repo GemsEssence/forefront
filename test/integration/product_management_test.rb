@@ -50,7 +50,7 @@ class Forefront::ProductManagementTest < ActionDispatch::IntegrationTest
     assert_match "Allowed", response.body
     assert_no_match "Forbidden Gadget", response.body
 
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "L", description: "D", customer_id: customer.id, source_id: forefront_source.id, product_id: forbidden.id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "L", description: "D", customer_id: customer.id, source_id: forefront_source.id, product_id: forbidden.id }, first_step: forefront_first_step }
     assert_response :unprocessable_entity
     assert_equal 0, Forefront::Lead.where(title: "L").count
   end

@@ -39,7 +39,7 @@ class Forefront::Dashboard::CompanyTest < ActionDispatch::IntegrationTest
 
     health = widget("data_health")
     assert_equal "1", css_select(health, "[data-metric='failed_intake']").first.text.squish
-    assert css_select(health, "[data-metric='orphan_leads']").any?
+    assert css_select(health, "[data-metric='needs_next_step']").any?
   end
 
   test "a manager can't open admin-only metrics" do

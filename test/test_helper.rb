@@ -23,6 +23,11 @@ class ActiveSupport::TestCase
     Forefront::Source.find_or_create_by!(name: name)
   end
 
+  # The first step (a Followup) a new Lead or conversion asks for.
+  def forefront_first_step
+    { followup_type: "call", scheduled_for: (Date.current + 1).strftime("%Y-%m-%dT10:00") }
+  end
+
   # Every new Lead needs a Product; allocate it to any Sales persons who
   # will hold the Lead.
   def forefront_product(name = "Widget", allocated_to: [])

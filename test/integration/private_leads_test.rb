@@ -18,7 +18,7 @@ class Forefront::PrivateLeadsTest < ActionDispatch::IntegrationTest
   def create_lead(as:, title: "Secret deal", **attrs)
     sign_in_as(as)
     post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: title, description: "D", customer_id: @customer.id, source_id: forefront_source.id,
-                                               product_id: @product.id, **attrs } }
+                                               product_id: @product.id, **attrs }, first_step: forefront_first_step }
     Forefront::Lead.find_by(title: title)
   end
 
@@ -58,7 +58,7 @@ class Forefront::PrivateLeadsTest < ActionDispatch::IntegrationTest
     ticket = Forefront::Ticket.create!(title: "Call", description: "D", customer: @customer, product: @product, created_by: @rep,
                                        assigned_to: @rep, category: "enquiry", priority: "medium", status: "open")
     sign_in_as(@rep)
-    post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Converted", source_id: forefront_source.id } }
+    post "/forefront/tickets/#{ticket.id}/conversion", params: { lead: { title: "Converted", source_id: forefront_source.id }, first_step: forefront_first_step }
 
     assert_not Forefront::Lead.find_by!(title: "Converted").private?
   end

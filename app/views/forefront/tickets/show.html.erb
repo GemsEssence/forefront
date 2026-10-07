@@ -17,6 +17,7 @@
       <div id="flash_messages">
         <%= render "forefront/shared/messages" %>
         <%= render "forefront/deadlines/banner", record: @ticket %>
+        <%= render "forefront/next_steps/banner", record: @ticket %>
       </div>
 
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -158,6 +159,13 @@
               <div>
                 <%= f.label :estimated_amount, "Estimated amount (#{currency_symbol})", class: "block text-xs font-medium text-gray-500" %>
                 <%= f.number_field :estimated_amount, step: "0.01", min: 0, class: "mt-1 block w-full border rounded" %>
+              </div>
+              <div>
+                <%= f.label :due_at, "Deadline", class: "block text-xs font-medium text-gray-500" %>
+                <%= f.date_field :due_at, value: Forefront::Lead.latest_deadline.strftime("%Y-%m-%d"), max: Forefront::Lead.latest_deadline.strftime("%Y-%m-%d"), required: true, class: "mt-1 block w-full border rounded" %>
+              </div>
+              <div class="md:col-span-4">
+                <%= render "forefront/followups/first_step_fields", required: true %>
               </div>
               <%= f.submit "Convert to Lead", class: "bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm" %>
             <% end %>

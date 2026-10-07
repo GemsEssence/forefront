@@ -47,10 +47,13 @@ module Forefront
       attr_reader :params, :current_admin, :lead, :errors
 
       # initial_status: a Lead converted from a Ticket starts at Contacted.
-      def initialize(params:, current_admin:, initial_status: "open")
+      # first_step: the first Followup (type, time), required when the Lead
+      # has an assignee; a Lead for the pool gets one from whoever takes it.
+      def initialize(params:, current_admin:, initial_status: "open", first_step: nil)
         @params = params
         @current_admin = current_admin
         @initial_status = initial_status
+        @first_step = first_step.presence || {}
         @errors = []
       end
 
@@ -68,7 +71,8 @@ module Forefront
         # lives here, not on the model, so Leads created before it stay valid.
         # A Lost Lead for the pair is reopened, never duplicated.
         blocking = blocking_lead
-        if blocking.nil? && @lead.product_id.present? && @lead.due_at.present? && @lead.save
+        first_step_missing = @lead.assigned_to_id.present? && @first_step[:scheduled_for].blank?
+        if blocking.nil? && @lead.product_id.present? && @lead.due_at.present? && !first_step_missing && save_with_first_step
           AuditEvent.record!(actor: current_admin, action: "created", auditable: @lead)
           NotificationOperations::AnnounceUnassigned.new(record: @lead, created_by: current_admin).call
 
@@ -86,13 +90,32 @@ module Forefront
           @lead.validate
           @lead.errors.add(:product, :blank) if @lead.product_id.blank?
           @lead.errors.add(:due_at, :blank) if @lead.due_at.blank?
+          @lead.errors.add(:base, "First step can't be blank") if first_step_missing
           @lead.errors.add(:base, @lead.blocking_message_for(blocking)) if blocking && !blocking.active?
-          @errors = @lead.errors.full_messages
+          @errors = (@lead.errors.full_messages + @errors).uniq
           { success: false, errors: @errors, lead: @lead, existing_lead: blocking }
         end
       end
 
       private
+
+      # The Lead and its first Followup land together or not at all.
+      def save_with_first_step
+        Lead.transaction do
+          raise ActiveRecord::Rollback unless @lead.save
+
+          if @first_step[:scheduled_for].present? && @lead.assigned_to_id.present?
+            followup = FollowupOperations::Create.new(followupable: @lead, params: @first_step.to_h.merge(assigned_to_id: @lead.assigned_to_id),
+                                                      current_admin: current_admin).call
+            unless followup[:success]
+              @errors = followup[:errors].map { |message| "First step: #{message}" }
+              raise ActiveRecord::Rollback
+            end
+          end
+          return true
+        end
+        false
+      end
 
       # The unfinished Lead the model refuses to duplicate, or else the Lost
       # one that should be reopened instead. A Won Lead blocks nothing: a

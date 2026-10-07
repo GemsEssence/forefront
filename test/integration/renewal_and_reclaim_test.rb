@@ -44,7 +44,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
   test "a new lead for a customer whose subscription lapsed 3+ months ago is flagged as a reclaim and rewarded once won and paid" do
     @lead.update!(status: "won", actual_amount: 100, expires_at: 4.months.ago.to_date)
 
-    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Win them back", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: @product.id } }
+    post "/forefront/leads", params: { lead: { due_at: (Date.current + 7).iso8601, title: "Win them back", description: "D", customer_id: @customer.id, source_id: forefront_source.id, product_id: @product.id }, first_step: forefront_first_step }
     new_lead = Forefront::Lead.order(:created_at).last
     assert_redirected_to "/forefront/leads/#{new_lead.id}"
 

@@ -1,4 +1,4 @@
-<%= render layout: "forefront/dashboard/widget", locals: { title: "Orphan" } do %>
-  <p class="text-sm text-gray-600">Open leads with no followup scheduled:
-    <span class="text-2xl font-semibold text-gray-900"><%= metric_link :orphan_leads, scope %></span></p>
+<%= render layout: "forefront/dashboard/widget", locals: { title: "Needs a next step" } do %>
+  <p class="text-sm text-gray-600">Open leads with no followup or stage ticket:
+    <span class="text-2xl font-semibold text-gray-900"><%= metric_link :needs_next_step, scope %></span></p>
 <% end %>
