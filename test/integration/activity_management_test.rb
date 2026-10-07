@@ -21,7 +21,7 @@ class Forefront::ActivityManagementTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Called the customer"
   end
 
-  test "adding a later activity updates every tab counter" do
+  test "a later activity is added to the top of the timeline" do
     @ticket.activities.create!(activity_type: "comment", body: "First", created_by: @admin)
 
     post "/forefront/tickets/#{@ticket.id}/activities",
@@ -29,7 +29,7 @@ class Forefront::ActivityManagementTest < ActionDispatch::IntegrationTest
          as: :turbo_stream
 
     assert_response :success
-    assert_includes response.body, %(target="tab_internal_notes_#{@ticket.id}")
+    assert_includes response.body, %(action="prepend" target="timeline_entries_#{@ticket.id}")
   end
 
   test "deleting an activity renders the turbo stream" do

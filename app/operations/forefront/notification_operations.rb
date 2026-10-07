@@ -30,7 +30,11 @@ module Forefront
 
       private
 
+      # Each alert is emailed once: emailed_at is checked, not just the
+      # notification being new.
       def email(notification)
+        return if notification.emailed_at.present?
+
         setting = EMAIL_SETTINGS[@kind]
         return unless setting && Settings.current.public_send(setting)
 

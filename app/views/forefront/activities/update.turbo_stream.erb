@@ -1,19 +1,5 @@
-<%# Determine which tab list the activity belongs to %>
-<% list_id = if @activity.comment? || @activity.remark?
-    "activities_list_#{@actable.id}_comments"
-  elsif @activity.next_step?
-    "activities_list_#{@actable.id}_next_steps"
-  else
-    "activities_list_#{@actable.id}_internal_notes"
-  end %>
-
 <%= turbo_stream.replace "activity_#{@activity.id}" do %>
-  <% tab_activities = @activities.select { |a| 
-    (@activity.comment? || @activity.remark?) ? (a.comment? || a.remark?) :
-    @activity.next_step? ? a.next_step? : a.internal_note?
-  } %>
-  <% index = tab_activities.index(@activity) || 0 %>
-  <%= render "forefront/activities/activity", activity: @activity, index: index, total: tab_activities.length, actable: @actable %>
+  <%= render "forefront/activities/activity", activity: @activity, actable: @actable %>
 <% end %>
 
 <%= turbo_stream.remove "activity_edit_form_#{@activity.id}" %>

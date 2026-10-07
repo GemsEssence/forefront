@@ -1,0 +1,29 @@
+<%# locals: record (a Lead or Ticket). Its Timeline (CONTEXT.md), newest first. %>
+<% entries = Forefront::Timeline.new(record, viewer: current_admin).entries %>
+<div id="timeline_<%= record.id %>" class="mt-8 bg-white shadow sm:rounded-lg" data-timeline>
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-lg font-medium text-gray-900">Timeline</h3>
+      <% if policy(Forefront::AuditEvent).index? %>
+        <%= link_to "Audit trail", audit_events_path(auditable_type: record.class.name, auditable_id: record.id), class: "text-sm text-indigo-600 hover:text-indigo-500" %>
+      <% end %>
+    </div>
+    <ul id="timeline_entries_<%= record.id %>" class="divide-y divide-gray-100">
+      <% entries.each do |entry| %>
+        <% if entry.activity %>
+          <%= render "forefront/activities/activity", activity: entry.activity, actable: record %>
+        <% else %>
+          <li data-entry class="py-3 text-sm">
+            <span class="font-medium text-gray-900"><%= entry.who&.name || "System" %></span>
+            <span class="text-gray-700"><%= entry.headline %></span>
+            <span class="text-xs text-gray-500 ml-2"><%= entry.at.strftime("%-d %b %Y %H:%M") %></span>
+            <% if entry.detail.present? %>
+              <p class="text-gray-600 mt-0.5"><%= entry.detail %></p>
+            <% end %>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+    <% if entries.empty? %><p class="text-sm text-gray-500">Nothing yet.</p><% end %>
+  </div>
+</div>

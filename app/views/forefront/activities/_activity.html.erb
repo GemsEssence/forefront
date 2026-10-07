@@ -4,7 +4,7 @@
 <% actable = local_assigns[:actable] || activity.actable %>
 <% editing = local_assigns[:editing] || false %>
 
-<li id="activity_<%= activity.id %>">
+<li id="activity_<%= activity.id %>" data-entry class="py-3">
   <% if editing && policy(activity).update? %>
     <%= turbo_frame_tag "activity_edit_form_#{activity.id}" do %>
       <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">

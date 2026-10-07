@@ -29,7 +29,7 @@ module Forefront
     end
 
     def filter_params
-      params.permit(:actor_id, :auditable_type, :event_action, :from, :to)
+      params.permit(:actor_id, :auditable_type, :auditable_id, :event_action, :from, :to)
     end
   end
 end
