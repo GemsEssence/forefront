@@ -29,7 +29,7 @@ class Forefront::RenewalAndReclaimTest < ActionDispatch::IntegrationTest
     Forefront::Payment.create!(lead: @lead, total_amount: 400, status: "paid", paid_at: Time.current)
 
     post "/forefront/tickets", params: { ticket: {
-      title: "Please renew", description: "D", customer_id: @customer.id, category: "renewal", priority: "medium", product_id: @product.id
+      title: "Please renew", description: "D", customer_id: @customer.id, category: "renewal", priority: "medium", product_id: @product.id, source_id: forefront_source.id
     } }
     ticket = Forefront::Ticket.order(:created_at).last
     assert_redirected_to "/forefront/tickets/#{ticket.id}"

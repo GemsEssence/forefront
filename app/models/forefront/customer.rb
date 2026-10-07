@@ -59,6 +59,14 @@ module Forefront
       digits.sub(/\A0+/, "")
     end
 
+    # Where this Customer first heard of us (CONTEXT.md: Source): the Source
+    # on the earliest Ticket or Lead they came in through.
+    def first_source
+      first_ticket = tickets.where.not(source_id: nil).order(:created_at).first
+      first_lead = leads.order(:created_at).first
+      [ first_ticket, first_lead ].compact.min_by(&:created_at)&.source
+    end
+
     def full_name
       business_name.present? ? "#{name} (#{business_name})" : name
     end

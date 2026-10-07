@@ -9,6 +9,7 @@ module Forefront
     belongs_to :product, class_name: "Forefront::Product", optional: true
     belongs_to :lead, class_name: "Forefront::Lead", optional: true
     belongs_to :campaign, class_name: "Forefront::Campaign", optional: true
+    belongs_to :source, class_name: "Forefront::Source", optional: true
     has_many :activities, as: :actable, class_name: "Forefront::Activity", dependent: :destroy
     has_many :assignments, as: :assignable, class_name: 'Forefront::Assignment', dependent: :destroy
     has_many :status_histories, as: :trackable, class_name: 'Forefront::StatusHistory', dependent: :destroy
@@ -101,7 +102,7 @@ module Forefront
 
     # The Source a Lead converted from this Ticket starts with.
     def conversion_source
-      campaign&.source || (Source.signup if signup?)
+      source || campaign&.source || (Source.signup if signup?)
     end
 
     def resolved_at

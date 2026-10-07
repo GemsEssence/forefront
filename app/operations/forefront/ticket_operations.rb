@@ -16,6 +16,14 @@ module Forefront
         @ticket.created_by = current_admin
         # A Ticket always has a Deadline (CONTEXT.md); left blank, it gets the limit.
         @ticket.due_at ||= Ticket.latest_deadline
+        # Where it came from (CONTEXT.md: Source): the Lead it's under, its
+        # Campaign, or the Signup; otherwise Staff say.
+        @ticket.source ||= @ticket.lead&.source || @ticket.campaign&.source || (Source.signup if @ticket.signup?)
+        if @ticket.source.nil? && !current_admin.system?
+          @ticket.validate
+          @ticket.errors.add(:source, :blank)
+          return { success: false, errors: (@errors = @ticket.errors.full_messages), ticket: @ticket }
+        end
         @ticket.assigned_to_id ||= current_admin.id if params[:assigned_to_id].blank? && !current_admin.admin?
 
         if @ticket.save
@@ -46,7 +54,7 @@ module Forefront
       def ticket_params
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
-          :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id, :campaign_id
+          :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id, :campaign_id, :source_id
         )
       end
     end
@@ -88,7 +96,7 @@ module Forefront
       def ticket_params
         params.permit(
           :title, :description, :customer_id, :assigned_to_id,
-          :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id
+          :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id, :source_id
         )
       end
     end

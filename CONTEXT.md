@@ -94,7 +94,7 @@ The Tickets and Leads that nobody is assigned to yet. A Sales person sees the pa
 A marketing push that Staff run on a Source (for example an ad run on LinkedIn), with a name and a start and end date. Created by any Staff member, and not tied to any Product. When a Customer contacts the sales team after seeing it, Staff record the enquiry as a Ticket for the Product they asked about, and it is that Ticket (and any Lead converted from it) that is credited to the Campaign — not the Customer. One Customer can therefore have come from several Campaigns, one per Product they enquired about; a second enquiry about a Product they already have an open Ticket for reuses that Ticket. Distinct from a Signup: a Customer who signs up in a Product's own application is a Signup regardless of any ad they saw.
 
 **Source**:
-Where a Lead came from, or where a Campaign runs — one list, maintained by Admins (e.g. LinkedIn, Upwork, Gitex, Referral).
+Where a Ticket or Lead came from, or where a Campaign runs — one list, maintained by Admins (e.g. LinkedIn, Upwork, Gitex, Referral, Signup). Every Ticket and Lead records one: a Signup's Ticket takes "Signup", a Campaign enquiry's takes the Campaign's Source, work under a Lead takes the Lead's, and Staff name it for the rest. A Customer's own origin is not stored: it is the Source of the earliest Ticket or Lead they came in through.
 _Avoid_: Platform (use Source for both meanings)
 
 **Action**:

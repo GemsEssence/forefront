@@ -41,7 +41,7 @@ class Forefront::ContactRevealActionTest < ActionDispatch::IntegrationTest
 
   test "opening a ticket for them answers the reveal" do
     reveal
-    post "/forefront/tickets", params: { ticket: { title: "Wants a demo", description: "D", customer_id: @priya.id, category: "new_app_demo", priority: "medium", status: "open" } }
+    post "/forefront/tickets", params: { ticket: { source_id: forefront_source.id, title: "Wants a demo", description: "D", customer_id: @priya.id, category: "new_app_demo", priority: "medium", status: "open" } }
 
     assert_not reminder_shown?
   end

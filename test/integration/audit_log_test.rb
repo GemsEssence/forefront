@@ -65,7 +65,7 @@ class Forefront::AuditLogTest < ActionDispatch::IntegrationTest
 
   test "creating, updating and deleting a ticket are all recorded" do
     sign_in_as(@admin)
-    post "/forefront/tickets", params: { ticket: { title: "Call back", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "high", status: "open" } }
+    post "/forefront/tickets", params: { ticket: { source_id: forefront_source.id, title: "Call back", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "high", status: "open" } }
     ticket = Forefront::Ticket.find_by!(title: "Call back")
     patch "/forefront/tickets/#{ticket.id}", params: { ticket: { priority: "low" } }
     delete "/forefront/tickets/#{ticket.id}"

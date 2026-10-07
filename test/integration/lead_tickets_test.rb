@@ -18,7 +18,7 @@ class Forefront::LeadTicketsTest < ActionDispatch::IntegrationTest
 
   def ticket_params(**overrides)
     { title: "Send the proposal", description: "Pricing for 20 seats", category: "proposal", priority: "high", status: "open",
-      customer_id: @customer.id, product_id: @product.id, lead_id: @lead.id }.merge(overrides)
+      customer_id: @customer.id, product_id: @product.id, lead_id: @lead.id, source_id: forefront_source.id }.merge(overrides)
   end
 
   test "the lead page links to a new ticket for this lead, pre-filled from the lead" do

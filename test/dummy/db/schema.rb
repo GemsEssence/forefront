@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -352,6 +352,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
     t.string "priority", default: "medium", null: false
     t.bigint "product_id"
     t.string "renewal_outcome"
+    t.bigint "source_id"
     t.string "status", default: "Open", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
@@ -364,6 +365,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
     t.index ["lead_id"], name: "index_forefront_tickets_on_lead_id"
     t.index ["priority"], name: "index_forefront_tickets_on_priority"
     t.index ["product_id"], name: "index_forefront_tickets_on_product_id"
+    t.index ["source_id"], name: "index_forefront_tickets_on_source_id"
     t.index ["status"], name: "index_forefront_tickets_on_status"
   end
 
@@ -413,4 +415,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
   add_foreign_key "forefront_tickets", "forefront_customers", column: "customer_id"
   add_foreign_key "forefront_tickets", "forefront_leads", column: "lead_id"
   add_foreign_key "forefront_tickets", "forefront_products", column: "product_id"
+  add_foreign_key "forefront_tickets", "forefront_sources", column: "source_id"
 end

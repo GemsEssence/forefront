@@ -37,7 +37,7 @@ class Forefront::TicketAssigneeTest < ActiveSupport::TestCase
 
   test "an admin creating an unassigned ticket leaves it unassigned" do
     result = Forefront::TicketOperations::Create.new(
-      params: ActionController::Parameters.new(title: "T", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "medium"),
+      params: ActionController::Parameters.new(title: "T", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "medium", source_id: forefront_source.id),
       current_admin: @admin
     ).call
 
@@ -47,7 +47,7 @@ class Forefront::TicketAssigneeTest < ActiveSupport::TestCase
 
   test "a sales person creating an unassigned ticket is assigned to it" do
     result = Forefront::TicketOperations::Create.new(
-      params: ActionController::Parameters.new(title: "T", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "medium"),
+      params: ActionController::Parameters.new(title: "T", description: "D", customer_id: @customer.id, category: "new_app_demo", priority: "medium", source_id: forefront_source.id),
       current_admin: @rep
     ).call
 

@@ -26,7 +26,7 @@ class Forefront::DeadlinesTest < ActionDispatch::IntegrationTest
   end
 
   def ticket_params(**overrides)
-    { title: "Call Acme", description: "D", customer_id: @customer.id, category: "enquiry", priority: "medium", product_id: @product.id }.merge(overrides)
+    { title: "Call Acme", description: "D", customer_id: @customer.id, category: "enquiry", priority: "medium", product_id: @product.id, source_id: forefront_source.id }.merge(overrides)
   end
 
   def lead(due_at: @today + 10, **attrs)

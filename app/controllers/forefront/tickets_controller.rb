@@ -114,7 +114,7 @@ module Forefront
     def ticket_params
       params.require(:ticket).permit(
         :title, :description, :customer_id, :assigned_to_id,
-        :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id
+        :category, :priority, :status, :due_at, :product_id, :renewal_outcome, :lead_id, :source_id
       )
     end
 

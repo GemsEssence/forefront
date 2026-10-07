@@ -64,7 +64,7 @@ class Forefront::NotificationsTest < ActionDispatch::IntegrationTest
 
   test "work created with an assignee notifies nobody" do
     sign_in_as(@rep)
-    post "/forefront/tickets", params: { ticket: { title: "Mine", description: "D", customer_id: Forefront::Customer.create!(name: "Acme", phone: "555-0100").id,
+    post "/forefront/tickets", params: { ticket: { source_id: forefront_source.id, title: "Mine", description: "D", customer_id: Forefront::Customer.create!(name: "Acme", phone: "555-0100").id,
                                                    category: "request", priority: "medium", status: "open" } }
 
     sign_in_as(@manager)
@@ -74,7 +74,7 @@ class Forefront::NotificationsTest < ActionDispatch::IntegrationTest
   test "whoever left the work unassigned isn't told about it" do
     other_admin = Forefront::Admin.create!(name: "Arjun Admin", email: "arjun-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "admin")
     sign_in_as(@admin)
-    post "/forefront/tickets", params: { ticket: { title: "For whoever's free", description: "D", customer_id: Forefront::Customer.create!(name: "Acme", phone: "555-0100").id,
+    post "/forefront/tickets", params: { ticket: { source_id: forefront_source.id, title: "For whoever's free", description: "D", customer_id: Forefront::Customer.create!(name: "Acme", phone: "555-0100").id,
                                                    category: "request", priority: "medium", status: "open", assigned_to_id: "" } }
 
     assert_nil Forefront::Ticket.last.assigned_to
