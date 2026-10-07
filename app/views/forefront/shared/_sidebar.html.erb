@@ -7,6 +7,7 @@
       <%= sidebar_link "Reports", reports_path %>
       <% unread = Forefront::Notification.unread.where(recipient: current_admin).count %>
       <div data-notification-bell><%= sidebar_link "Notifications", notifications_path do %><% if unread.positive? %> <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white"><%= unread %></span><% end %><% end %></div>
+      <%= sidebar_link "How it works", how_it_works_path %>
     </div>
 
     <% groups = { "Sales" => [ [ "Leads", leads_path ], [ "Tickets", tickets_path ], [ "Unassigned", unassigned_path ], [ "Receipts", unattached_receipts_path ], [ "Customers", customers_path ] ],

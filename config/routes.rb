@@ -24,6 +24,7 @@ Forefront::Engine.routes.draw do
 
   get "unassigned", to: "unassigned#index", as: :unassigned
   get "my_work", to: "my_work#index", as: :my_work
+  get "how_it_works", to: "help#show", as: :how_it_works
   get "performance", to: "performance#index", as: :performance
   get "performance/:id/trend", to: "performance#trend", as: :performance_trend
   resources :reports, only: [ :index, :show ]

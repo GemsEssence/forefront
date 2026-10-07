@@ -1,0 +1,51 @@
+<%# Written for Sales persons, in the words CONTEXT.md uses. Keep it to one screen. %>
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <h1 class="text-3xl font-bold text-gray-900 mb-1">How it works</h1>
+      <p class="text-sm text-gray-500 mb-6">The whole system in one screen. Start at <%= link_to "My work", my_work_path, class: "text-indigo-600" %> every morning.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">1. Work comes from the pool or from you</h2>
+          <p>New tickets and leads nobody holds yet sit in the <%= link_to "Unassigned", unassigned_path, class: "text-indigo-600" %> pool. <strong>Take</strong> one for a product allocated to you (up to the cap), or create a lead yourself. A lead you create by hand is <strong>private</strong>: only you, its assignee and Admins see it until it's won, lost or shared.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">2. Every open record has a next step and a deadline</h2>
+          <p>The <strong>next step</strong> is the followup you'll do next, or the demo or proposal ticket you're working. The page says "Next: …"; if it says "Needs a next step", schedule one. The <strong>deadline</strong> is when the lead must be won or lost (or the ticket resolved). Once it passes you can only look: ask your Manager to extend it.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">3. Move a lead with the buttons</h2>
+          <p>Under <em>What next?</em> pick what happened: <strong>Customer reached</strong>, <strong>Schedule demo</strong>, <strong>Send proposal</strong>, <strong>Customer went quiet</strong>, <strong>Won</strong> or <strong>Lost</strong>. Each asks only for what it needs and leaves a next step behind. Only your Manager can move a stage freely, to correct it.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">4. Mark followups Done, and say what's next</h2>
+          <p>When you've done a followup press <strong>Done</strong>: write what happened, then choose what follows — another followup, a stage action, or resolving the ticket. Nothing is not an answer, so a lead never goes quiet by accident.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">5. Tickets</h2>
+          <p>A ticket is any piece of work for a customer: a call, a support demo, a renewal. It has the same next step and deadline rules. When a customer is ready to buy, <strong>convert</strong> the ticket into a lead; the ticket becomes that lead's first ticket.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">6. Money</h2>
+          <p>Winning a lead asks for the actual amount and the subscription's expiry. Then record the <strong>Payment</strong>, split it into <strong>Installments</strong> if agreed, and log each <strong>Receipt</strong> as money arrives. Money the customer paid in the product's own app shows up under <%= link_to "Receipts", unattached_receipts_path, class: "text-indigo-600" %> for you to attach.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">7. Sharing and notes</h2>
+          <p>Worked a lead with a colleague? <strong>Share</strong> the credit at agreed percentages; everyone named can add notes and followups. Notes and every change live in the record's <strong>Timeline</strong>, so anyone who opens it can see what happened.</p>
+        </section>
+
+        <section data-help class="bg-white shadow sm:rounded-lg p-4">
+          <h2 class="font-semibold text-gray-900 mb-1">8. What Managers and Admins do</h2>
+          <p>Only the assignee works a record. Managers leave notes, reassign, reopen lost leads, extend deadlines and correct stages. Admins create and hand out work, set products, targets and settings, and read everything, but never work a record themselves.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
