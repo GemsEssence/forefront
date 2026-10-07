@@ -1,0 +1,50 @@
+<%# locals: item (a MyWork::Item), my_work. One thing to do: what, for whom, by when, what was last done. %>
+<% record = item.record %>
+<% customer = item.customer %>
+<% step = item.next_step %>
+<li class="px-4 py-3 text-sm" data-row>
+  <div class="flex items-start justify-between gap-4">
+    <div class="min-w-0">
+      <p>
+        <%= link_to item.label, polymorphic_path(item.path_target), class: "text-indigo-600 hover:text-indigo-500 font-medium" %>
+        <% if record %>
+          <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"><%= item.stage %></span>
+        <% end %>
+        <% if my_work.team? && item.owner %><span class="text-gray-500">· <%= item.owner.name %></span><% end %>
+      </p>
+      <% if customer %>
+        <p class="text-gray-700 mt-0.5">
+          <%= link_to customer.name, customer_path(customer), class: "hover:underline" %>
+          <span id="<%= dom_id(customer, :contact_details) %>" class="text-gray-500">
+            <% if policy(customer).see_contact_details? %>
+              · <%= customer.full_phone %>
+            <% else %>
+              · <%= customer.masked_phone %>
+              <%= button_to "Show contact details", customer_contact_reveal_path(customer), method: :post, class: "ml-1 text-xs text-indigo-600 hover:text-indigo-500" %>
+            <% end %>
+          </span>
+        </p>
+      <% end %>
+      <% if step %>
+        <p class="text-gray-700 mt-0.5"><span class="font-medium">Next:</span> <%= step.label %><%= " — #{item.note}" if item.note.present? %></p>
+      <% end %>
+      <p class="text-xs text-gray-500 mt-0.5">
+        <% if item.deadline %>
+          <span class="<%= 'text-red-600 font-medium' if record&.deadline_passed? %>">Deadline <%= item.deadline.strftime("%-d %b") %></span>
+        <% end %>
+        <% if record && (last = my_work.last_action(record)) %>· Last: <%= last %><% end %>
+      </p>
+    </div>
+    <div class="flex items-center gap-2 whitespace-nowrap">
+      <span class="text-gray-500"><%= item.date&.strftime("%-d %b") %></span>
+      <% if item.followup && policy(record).work_on? %>
+        <button type="button" onclick="forefrontOpenModal('followup_done_modal_<%= item.followup.id %>')" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs">Done</button>
+      <% else %>
+        <%= link_to "Open", polymorphic_path(item.path_target), class: "text-xs text-indigo-600 hover:text-indigo-500" %>
+      <% end %>
+    </div>
+  </div>
+  <% if item.followup && policy(record).work_on? %>
+    <%= render "forefront/followups/complete_form", followup: item.followup %>
+  <% end %>
+</li>

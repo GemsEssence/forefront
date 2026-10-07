@@ -5,11 +5,31 @@ module Forefront
   # have one (MyWorkPolicy).
   class MyWork
     # at: a Followup's time, which makes it overdue once it has passed.
-    Item = Struct.new(:label, :date, :at, :path_target, :owner, keyword_init: true)
+    # record: the Lead or Ticket the row is about; followup: the pending
+    # Followup when the row is one (so it can be marked Done in place).
+    Item = Struct.new(:label, :date, :at, :path_target, :owner, :record, :followup, :note, keyword_init: true) do
+      def customer
+        record&.customer
+      end
+
+      def stage
+        record&.status&.humanize
+      end
+
+      def next_step
+        record&.next_step
+      end
+
+      def deadline
+        record&.due_at
+      end
+    end
 
     SECTIONS = {
-      "overdue" => "Overdue", "today" => "Today", "next_7_days" => "Next 7 days", "undated" => "No date set"
+      "overdue" => "Overdue", "today" => "Today", "next_7_days" => "Next 7 days", "undated" => "No deadline set"
     }.freeze
+    # Shown folded away: nothing there needs doing today.
+    FOLDED = %w[next_7_days undated].freeze
 
     attr_reader :viewer, :today
 
@@ -60,16 +80,30 @@ module Forefront
     def items
       work = Ticket.unfinished.where(assigned_to: people).includes(:assigned_to).to_a +
              Lead.active.where(assigned_to: people).includes(:assigned_to).to_a
-      work.map { |record| Item.new(label: record.title, date: record.due_at, path_target: record, owner: record.assigned_to) } +
+      work.map { |record| Item.new(label: record.title, date: record.due_at, path_target: record, owner: record.assigned_to, record: record) } +
         followup_items + installment_items
     end
+
+    public
+
+    # What was last done on a record, for the row: "added activity, 6 Oct 09:00".
+    def last_action(record)
+      @last_actions ||= Hash.new do |memo, key|
+        event = AuditEvent.where(auditable_type: key.first, auditable_id: key.last).order(created_at: :desc).first
+        memo[key] = event && "#{event.action.humanize(capitalize: false)}, #{event.created_at.strftime("%-d %b %H:%M")}"
+      end
+      @last_actions[[ record.class.name, record.id ]]
+    end
+
+    private
 
     # Installments are listed themselves, so their reminder Followups aren't.
     def followup_items
       Followup.pending.where(assigned_to: people).where.not(followupable_type: Installment.name).includes(:followupable, :assigned_to).map do |followup|
         Item.new(label: "Followup (#{followup.followup_type}) on #{followup.followupable.title}",
                  date: followup.scheduled_for&.to_date, at: followup.scheduled_for,
-                 path_target: followup.followupable, owner: followup.assigned_to)
+                 path_target: followup.followupable, owner: followup.assigned_to,
+                 record: followup.followupable, followup: followup, note: followup.outcome)
       end
     end
 
@@ -78,7 +112,7 @@ module Forefront
                  .includes(payment: { lead: :assigned_to }).map do |installment|
         lead = installment.payment.lead
         Item.new(label: "Installment of #{money(installment.amount)} on #{lead.title}", date: installment.due_on,
-                 path_target: lead, owner: lead.assigned_to)
+                 path_target: lead, owner: lead.assigned_to, record: lead)
       end
     end
 
