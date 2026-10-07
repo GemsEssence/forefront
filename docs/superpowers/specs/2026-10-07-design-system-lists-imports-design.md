@@ -13,8 +13,8 @@ asked (see AGENTS.md).
 
 ## Out of scope (parked by Sumit)
 
-- **Item 8**: removing Renewal reward, Reclaim reward, the Expiry endpoint
-  URL and token from Product. Revisit later. Nothing about it changes here.
+- **Expiry endpoint URL and token** (part of item 8) stay on Product: the
+  Expiry pull (ADR 0007) uses them.
 - **Lead import**: the importer framework is built so it can be added, but
   no Lead importer, template or UI option ships now.
 
@@ -29,7 +29,8 @@ Each line below is one or more small, test-first commits.
 | B | Every list page, and every in-page section that can exceed 20 items: server-side pagination, search, filters | 1, 2 |
 | C | Modal new/edit for Sources, Lost reasons, Customers | 5, 10 |
 | D | Quick views: Products on the Staff list, Staff on the Product list | 6, 7 |
-| E | Product API key: shown in full once, busy state, update in place | 9 |
+| E1 | Remove Renewal and Reclaim rewards | 8 |
+| E2 | Product API key: shown in full once, busy state, update in place | 9 |
 | F | Customer origin, Customer search and filters, Customer insights | 11, 13, 14 |
 | G | Imports: Staff, Customers, Products, Sources, Lost reasons | 3, 4, 12 |
 
@@ -150,7 +151,30 @@ change restyles the pages it touches.
 - Product list: a "Staff" column showing allocated Staff, the same way.
 - Both eager-load allocations. A test guards against N+1 queries.
 
-## E. Product API key
+## E1. Remove Renewal and Reclaim rewards
+
+- Delete migration `20260904000003_add_renewal_and_reclaim_reward_to_forefront_products.rb`.
+  It adds only these two columns, and all data is local, so the
+  migration is removed rather than reversed. Regenerate
+  `test/dummy/db/schema.rb`.
+- Remove `renewal_reward_percentage` and `reclaim_reward_percentage` from
+  Product (validation, permitted params, `ProductOperations`, form), and
+  `Ticket#renewal_reward_amount` / `Lead#reclaim_reward_amount` with
+  their "Reward:" lines on the Ticket and Lead pages.
+- Delete `test/models/forefront/lead_reclaim_reward_test.rb`,
+  `test/models/forefront/ticket_renewal_reward_test.rb` and
+  `test/integration/product_rewards_test.rb`. Strip only the reward
+  assertions from `renewal_and_reclaim_test.rb` and `expiry_pull_test.rb`,
+  so Renewal Tickets, `renewal_outcome`, Reclaim Leads and the Expiry pull
+  stay covered.
+- CONTEXT.md: Renewal and Reclaim stay as concepts, but no reward is paid
+  for them. Remove the reward sentences.
+- Demo host: in `../demo_rails_forefront`, run
+  `bin/rails db:migrate:down VERSION=<its copy's version>` first, then
+  delete its copy of the migration.
+- Expiry endpoint URL and token stay unchanged.
+
+## E2. Product API key
 
 - The key is stored as a digest plus its last 4 characters, so it can only
   be shown at the moment it's made. That stays the case.
