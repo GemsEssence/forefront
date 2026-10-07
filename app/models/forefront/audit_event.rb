@@ -11,7 +11,7 @@ module Forefront
     # Lead, an Activity, a Followup, or a stage/status change.
     ACTIONS = %w[
       created added_activity scheduled_followup updated_followup changed_status
-      marked_awaiting_customer customer_responded converted reopened
+      marked_awaiting_customer customer_responded converted reopened completed_followup
     ].freeze
 
     scope :recent, -> { order(created_at: :desc, id: :desc) }

@@ -38,15 +38,12 @@
       <fieldset class="mb-3 border rounded p-3">
         <legend class="text-sm font-medium text-gray-700 px-1">When resolved, what's next for <%= trackable.lead.title %>?</legend>
         <label class="flex items-center gap-2 text-sm">
-          <%= f.radio_button :next_step, "stage" %> Move the lead to
+          <%= f.radio_button :next_step, "stage", checked: true %> Move the lead to
           <%= f.select :next_stage, Forefront::TicketOperations::ResolveLeadWork::NEXT_STAGES.map { |stage| [ stage.humanize, stage ] }, {}, { class: "border rounded" } %>
         </label>
         <label class="flex items-center gap-2 text-sm mt-2">
           <%= f.radio_button :next_step, "awaiting_customer" %> Waiting on the customer; follow up on
           <%= f.datetime_local_field :followup_on, class: "border rounded" %>
-        </label>
-        <label class="flex items-center gap-2 text-sm mt-2">
-          <%= f.radio_button :next_step, "none", checked: true %> Nothing yet
         </label>
       </fieldset>
     <% end %>

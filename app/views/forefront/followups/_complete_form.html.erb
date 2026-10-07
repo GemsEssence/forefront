@@ -1,0 +1,73 @@
+<%# locals: followup; on a failed submit also errors:, open: true, values: (the submitted completion params) %>
+<% values = local_assigns[:values] || {} %>
+<% record = followup.followupable %>
+<% id = "followup_done_modal_#{followup.id}" %>
+<% lead = record.is_a?(Forefront::Lead) %>
+<% default_at = Forefront::Followup.next_working_day_at.strftime("%Y-%m-%dT%H:%M") %>
+<% chosen = values[:next].presence || "followup" %>
+<%= render layout: "forefront/shared/modal", locals: { id: id, title: "Done: #{followup.followup_type.humanize} on #{followup.scheduled_for.strftime("%-d %b")}", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
+  <%= form_with url: followup_completion_path(followup), scope: :completion, method: :post, data: { turbo_frame: "_top" }, html: { class: "done-form" } do |f| %>
+    <div class="mb-3">
+      <%= f.label :outcome, "What happened?", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_area :outcome, value: values[:outcome], rows: 2, required: true, class: "mt-1 block w-full border rounded" %>
+    </div>
+
+    <fieldset class="mb-3 border rounded p-3" data-done-next>
+      <legend class="text-sm font-medium text-gray-700 px-1">What's next?</legend>
+
+      <label class="flex items-center gap-2 text-sm"><%= f.radio_button :next, "followup", checked: chosen == "followup", onchange: "forefrontDoneNext(this.form)" %> Another followup</label>
+      <div class="ml-6 mt-1 grid grid-cols-2 gap-2" data-next="followup">
+        <%= f.select :followup_type, Forefront::Followup.followup_types.keys.map { |k| [ k.humanize, k ] }, { selected: values[:followup_type].presence || "call" }, { class: "border rounded text-sm" } %>
+        <%= f.datetime_local_field :scheduled_for, value: values.key?(:scheduled_for) ? values[:scheduled_for] : default_at, class: "border rounded text-sm" %>
+      </div>
+
+      <% if lead %>
+        <% Forefront::LeadOperations::StageAction.offered(record).reject { |k| k == "quiet" }.each do |kind| %>
+          <label class="flex items-center gap-2 text-sm mt-2"><%= f.radio_button :next, "stage", checked: chosen == "stage" && values[:kind] == kind, onchange: "forefrontDoneNext(this.form)", id: "completion_next_stage_#{kind}", data: { kind: kind } %> <%= Forefront::LeadOperations::StageAction::LABELS[kind] %></label>
+          <div class="ml-6 mt-1 grid grid-cols-2 gap-2" data-next="stage" data-kind="<%= kind %>">
+            <% case kind %>
+            <% when "contacted" %>
+              <span class="text-xs text-gray-500 col-span-2">The next followup above is kept as the next step.</span>
+            <% when "demo", "proposal" %>
+              <label class="text-xs text-gray-600">Ticket due <%= f.date_field :ticket_due_at, value: values[:ticket_due_at].presence || [ 2.days.from_now.to_date, Forefront::Ticket.latest_deadline ].min.strftime("%Y-%m-%d"), max: Forefront::Ticket.latest_deadline.strftime("%Y-%m-%d"), class: "border rounded text-sm", disabled: true %></label>
+            <% when "won" %>
+              <label class="text-xs text-gray-600">Amount <%= f.number_field :actual_amount, value: values[:actual_amount].presence || record.actual_amount || record.estimated_amount, step: "0.01", min: 0, class: "border rounded text-sm w-28", disabled: true %></label>
+              <label class="text-xs text-gray-600">Expires <%= f.date_field :expires_at, value: values[:expires_at], class: "border rounded text-sm", disabled: true %></label>
+            <% when "lost" %>
+              <%= f.collection_select :lost_reason_id, Forefront::LostReason.active.ordered, :id, :name, { prompt: "Why?", selected: values[:lost_reason_id] }, { class: "border rounded text-sm", disabled: true } %>
+              <%= f.text_field :note, value: values[:note], placeholder: "What happened (required)", class: "border rounded text-sm", disabled: true %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <label class="flex items-center gap-2 text-sm mt-2"><%= f.radio_button :next, "status", checked: chosen == "status", onchange: "forefrontDoneNext(this.form)" %> Change the ticket's status to</label>
+        <div class="ml-6 mt-1" data-next="status">
+          <%= f.select :status, %w[in_progress on_hold waiting_customer].map { |s| [ s.humanize, s ] }, { selected: values[:status] }, { class: "border rounded text-sm" } %>
+          <span class="text-xs text-gray-500">Its due date stays the next step.</span>
+        </div>
+        <label class="flex items-center gap-2 text-sm mt-2"><%= f.radio_button :next, "close", checked: chosen == "close", onchange: "forefrontDoneNext(this.form)" %> Resolve the ticket</label>
+      <% end %>
+    </fieldset>
+
+    <div class="flex justify-end space-x-2">
+      <button type="button" onclick="forefrontCloseModal('<%= id %>')" class="px-3 py-1 border rounded">Cancel</button>
+      <%= f.submit "Done", class: "bg-indigo-600 text-white px-3 py-1 rounded" %>
+    </div>
+  <% end %>
+
+  <script>
+    // Only the chosen "next" sends its fields; a stage radio also sets the kind.
+    function forefrontDoneNext(form) {
+      var checked = form.querySelector('input[name="completion[next]"]:checked');
+      var kind = checked && checked.dataset.kind;
+      form.querySelectorAll('[data-next]').forEach(function (group) {
+        var on = checked && group.dataset.next === checked.value && (!group.dataset.kind || group.dataset.kind === kind);
+        group.querySelectorAll('input, select').forEach(function (field) { field.disabled = !on; });
+      });
+      var kindField = form.querySelector('input[name="completion[kind]"]');
+      if (!kindField) { kindField = document.createElement('input'); kindField.type = 'hidden'; kindField.name = 'completion[kind]'; form.appendChild(kindField); }
+      kindField.value = kind || '';
+    }
+    forefrontDoneNext(document.querySelector('#<%= id %> form'));
+  </script>
+<% end %>

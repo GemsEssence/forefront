@@ -49,16 +49,17 @@ class Forefront::LeadWorkNextStepTest < ActionDispatch::IntegrationTest
     assert_match "Scheduled for can't be blank", flash[:alert]
   end
 
-  test "resolving with nothing next just resolves the ticket" do
+  test "resolving without saying what's next is refused, so the lead keeps a next step" do
     resolve_demo(next_step: "none")
 
-    assert @demo_ticket.reload.resolved?
+    assert_not @demo_ticket.reload.resolved?
     assert @lead.reload.demo?
+    assert_match "Say what's next for the lead", flash[:alert]
   end
 
   test "the ticket's dialog asks what's next only for a lead's demo or proposal ticket" do
     get "/forefront/tickets/#{@demo_ticket.id}"
-    assert_select "input[type=radio][name='status_history[next_step]']", 3
+    assert_select "input[type=radio][name='status_history[next_step]']", 2
 
     other = Forefront::Ticket.create!(title: "Bug", description: "D", customer: @customer, created_by: @rep, assigned_to: @rep,
                                       category: "issue", priority: "low", status: "open")
@@ -68,7 +69,7 @@ class Forefront::LeadWorkNextStepTest < ActionDispatch::IntegrationTest
 
   test "the lead page says when the demo was done" do
     travel_to Time.zone.local(2026, 10, 3, 15) do
-      resolve_demo(next_step: "none")
+      resolve_demo(next_step: "stage", next_stage: "proposal")
     end
 
     get "/forefront/leads/#{@lead.id}"

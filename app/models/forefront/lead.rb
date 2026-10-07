@@ -99,6 +99,12 @@ module Forefront
 
     alias open_for_work? active?
 
+    # Whether finishing or cancelling this Followup would still leave a next step.
+    def other_next_step?(followup)
+      followups.pending.where.not(id: followup.id).exists? ||
+        tickets.unfinished.where(category: %w[new_app_demo proposal]).exists?
+    end
+
     # A pending Followup, or the open demo or proposal Ticket under the Lead.
     def next_step
       if (followup = pending_followup)

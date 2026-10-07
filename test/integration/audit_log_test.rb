@@ -123,12 +123,12 @@ class Forefront::AuditLogWorkOnALeadTest < ActionDispatch::IntegrationTest
   test "scheduling and completing a followup are recorded against the lead" do
     post "/forefront/leads/#{@lead.id}/followups", params: { followup: { followup_type: "call", scheduled_for: 2.days.from_now } }
     followup = @lead.followups.last
-    patch "/forefront/leads/#{@lead.id}/followups/#{followup.id}", params: { followup: { status: "completed" } }
+    post "/forefront/followups/#{followup.id}/completion", params: { completion: { outcome: "Spoke to Priya", next: "followup", followup_type: "call", scheduled_for: 3.days.from_now.strftime("%Y-%m-%dT10:00") } }
 
     sign_in_as(@admin)
     get "/forefront/audit_log"
     assert_select "tr", text: /Ravi Rep.*scheduled followup.*Lead.*Big Deal/m
-    assert_select "tr", text: /Ravi Rep.*updated followup.*Lead.*Big Deal.*Status: pending → completed/m
+    assert_select "tr", text: /Ravi Rep.*completed followup.*Lead.*Big Deal.*Outcome: — → Spoke to Priya/m
   end
 
   test "reassigning a lead records who it moved from and to" do

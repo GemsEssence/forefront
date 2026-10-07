@@ -74,6 +74,11 @@ module Forefront
       !resolved? && !closed?
     end
 
+    # A Ticket's due date is always there to fall back on.
+    def other_next_step?(_followup)
+      due_at.present? || followups.pending.exists?
+    end
+
     # A pending Followup, or else the Ticket's own due date.
     def next_step
       if (followup = pending_followup)

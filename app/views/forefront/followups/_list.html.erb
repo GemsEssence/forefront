@@ -27,12 +27,16 @@
               <%= f.status.humanize %>
             </span>
             <% if may_work %>
+              <button type="button" onclick="forefrontOpenModal('<%= "followup_done_modal_#{f.id}" %>')" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs">Done</button>
               <button type="button" onclick="forefrontOpenModal('<%= "followup_edit_modal_#{f.id}" %>')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded text-xs">Edit</button>
             <% end %>
           </div>
         </div>
 
-        <%= render 'forefront/followups/edit_form', followup: f, followupable: followupable if may_work %>
+        <% if may_work %>
+          <%= render 'forefront/followups/complete_form', followup: f %>
+          <%= render 'forefront/followups/edit_form', followup: f, followupable: followupable %>
+        <% end %>
       <% end %>
     </div>
   <% else %>

@@ -128,6 +128,8 @@ module Forefront
       private
 
       def next_step_errors
+        return [ "Say what's next for the lead" ] unless %w[stage awaiting_customer].include?(params[:next_step])
+
         result =
           case params[:next_step]
           when "stage"

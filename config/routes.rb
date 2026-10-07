@@ -62,6 +62,10 @@ Forefront::Engine.routes.draw do
     resources :enquiries, only: [ :create ]
   end
 
+  resources :followups, only: [] do
+    resource :completion, only: [ :create ]
+  end
+
   resources :unattached_receipts, only: [ :index ] do
     member do
       post :attach
