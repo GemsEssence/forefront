@@ -79,9 +79,10 @@ class Forefront::LeadAwaitingCustomerTest < ActionDispatch::IntegrationTest
     assert_select "tr", text: /Ravi Rep.*customer responded.*Lead.*Big Deal/m
   end
 
-  test "the lead page offers the awaiting-customer action while the lead is being worked" do
+  test "the lead page offers Customer went quiet while the lead is being worked" do
     get "/forefront/leads/#{@lead.id}"
 
-    assert_select "form[action='/forefront/leads/#{@lead.id}/awaiting_customer'] input[name='followup[scheduled_for]'][required]"
+    assert_select "[data-stage-actions] button", text: "Customer went quiet"
+    assert_select "#stage_action_modal_lead_#{@lead.id}_quiet input[name='stage_action[scheduled_for]'][required]"
   end
 end

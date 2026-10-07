@@ -17,10 +17,18 @@ class Forefront::LeadStageTest < ActionDispatch::IntegrationTest
     post "/forefront/leads/#{@lead.id}/status_histories", params: { status_history: { status: stage } }
   end
 
-  test "the change-stage dialog offers the lead stages in order" do
+  test "a manager's Move stage dialog offers the lead stages in order; the sales person gets actions instead" do
+    get "/forefront/leads/#{@lead.id}"
+    assert_select "[data-stage-actions] button", text: "Customer reached"
+    assert_select "button", text: "Move stage", count: 0
+
+    manager = Forefront::Admin.create!(name: "Mona Manager", email: "mona-#{SecureRandom.hex(4)}@example.com", password: "password123", role: "manager")
+    @admin.update!(manager: manager)
+    delete "/forefront/admins/sign_out"
+    sign_in_as(manager)
     get "/forefront/leads/#{@lead.id}"
 
-    assert_select "button", text: "Change Stage"
+    assert_select "button", text: "Move stage"
     options = css_select("#status_history_modal_lead_#{@lead.id} select#status_history_status option").map(&:text).reject(&:blank?)
     assert_equal [ "Open", "Contacted", "Demo", "Proposal", "Negotiation", "Won", "Lost" ], options
   end

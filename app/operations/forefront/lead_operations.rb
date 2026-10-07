@@ -181,6 +181,103 @@ module Forefront
       end
     end
 
+    # A stage action (CONTEXT.md: Lead): how a Sales person moves a Lead on.
+    # Each kind asks only for what it needs and always leaves a Next step, all
+    # of it happening or none of it.
+    class StageAction
+      KINDS = %w[contacted demo proposal quiet won lost].freeze
+
+      # The actions a Lead at each stage offers, in the order the page shows them.
+      OFFERED = {
+        "open" => %w[contacted lost],
+        "contacted" => %w[demo proposal quiet won lost],
+        "demo" => %w[proposal quiet won lost],
+        "proposal" => %w[demo quiet won lost],
+        "negotiation" => %w[demo proposal quiet won lost]
+      }.freeze
+
+      LABELS = {
+        "contacted" => "Customer reached", "demo" => "Schedule demo", "proposal" => "Send proposal",
+        "quiet" => "Customer went quiet", "won" => "Won", "lost" => "Lost"
+      }.freeze
+
+      def self.offered(lead)
+        kinds = OFFERED.fetch(lead.status, [])
+        lead.awaiting_customer? ? kinds - [ "quiet" ] : kinds
+      end
+
+      attr_reader :lead, :params, :current_admin, :errors
+
+      def initialize(lead:, params:, current_admin:)
+        @lead = lead
+        @params = params
+        @current_admin = current_admin
+        @errors = []
+      end
+
+      def kind
+        params[:kind].to_s
+      end
+
+      def call
+        return failure("That isn't an action this lead offers") unless self.class.offered(lead).include?(kind)
+
+        Lead.transaction do
+          case kind
+          when "contacted"
+            move("contacted") && schedule_followup
+          when "demo", "proposal"
+            move(kind, ticket_due_at: params[:ticket_due_at])
+          when "quiet"
+            take(AwaitCustomer.new(lead: lead, params: followup_params, current_admin: current_admin).call)
+          when "won"
+            move("won", actual_amount: params[:actual_amount]) && set_expiry
+          when "lost"
+            move("lost", lost_reason_id: params[:lost_reason_id])
+          end
+          raise ActiveRecord::Rollback if errors.any?
+        end
+
+        if errors.any?
+          lead.reload
+          { success: false, errors: errors, lead: lead }
+        else
+          { success: true, lead: lead }
+        end
+      end
+
+      private
+
+      def move(status, **extra)
+        take(StatusHistoryOperations::Create.new(trackable: lead, params: { status: status, note: params[:note] }.merge(extra), current_admin: current_admin).call)
+      end
+
+      def schedule_followup
+        take(FollowupOperations::Create.new(followupable: lead, params: followup_params, current_admin: current_admin).call)
+      end
+
+      def set_expiry
+        return true if params[:expires_at].blank?
+
+        take(lead.update(expires_at: params[:expires_at]) ? { success: true } : { success: false, errors: lead.errors.full_messages })
+      end
+
+      def followup_params
+        { followup_type: params[:followup_type].presence || "call", scheduled_for: params[:scheduled_for], outcome: params[:note] }
+      end
+
+      # Collects an operation's errors; true when it succeeded.
+      def take(result)
+        @errors += result[:errors] unless result[:success]
+        result[:success]
+      end
+
+      def failure(message)
+        @errors = [ message ]
+        { success: false, errors: @errors, lead: lead }
+      end
+    end
+
     # The Customer has gone quiet: flag the Lead and schedule the Followup that
     # chases them, together or not at all.
     class AwaitCustomer

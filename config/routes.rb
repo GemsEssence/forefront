@@ -42,6 +42,7 @@ Forefront::Engine.routes.draw do
     resource :take, only: [ :create ]
     resource :reopen, only: [ :create ]
     resource :deadline, only: [ :create ]
+    resource :stage_action, only: [ :create ]
     resources :activities, only: [:create, :edit, :update, :destroy], controller: 'activities'
     resources :assignments, only: [:create], controller: 'assignments'
     resources :status_histories, only: [:create], controller: 'status_histories'

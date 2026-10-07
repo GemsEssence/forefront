@@ -42,7 +42,8 @@ class Forefront::WhoActsTest < ActionDispatch::IntegrationTest
     get "/forefront/leads/#{@lead.id}"
     assert_match "Add Activity", response.body
     assert_match "+ Add Followup", response.body
-    assert_select "button", text: "Change Stage"
+    assert_select "[data-stage-actions] button", text: "Won"
+    assert_select "button", text: "Move stage", count: 0
 
     note(@lead)
     followup(@lead)

@@ -52,12 +52,12 @@ class Forefront::LeadAmountTest < ActionDispatch::IntegrationTest
     assert lead.reload.update(title: "Renamed")
   end
 
-  test "the status modal asks for the actual amount, pre-filled with the estimate" do
-    lead = build_lead(estimated_amount: 1000)
+  test "the Won action asks for the actual amount, pre-filled with the estimate" do
+    lead = build_lead(estimated_amount: 1000, status: "contacted")
     lead.save!
 
     get "/forefront/leads/#{lead.id}"
-    assert_select "#status_history_modal_lead_#{lead.id} input[name='status_history[actual_amount]'][value='1000.0']"
+    assert_select "#stage_action_modal_lead_#{lead.id}_won input[name='stage_action[actual_amount]'][value='1000.0']"
   end
 
   test "winning through the status modal records the actual amount" do

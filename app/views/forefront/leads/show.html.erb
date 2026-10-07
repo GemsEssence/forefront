@@ -190,38 +190,18 @@
       </div>
 
       <% if @lead.active? && policy(@lead).work? %>
-        <div class="mt-6 bg-white shadow sm:rounded-lg p-4">
-          <% if @lead.awaiting_customer? %>
-            <div class="flex items-center justify-between">
-              <p class="text-sm text-amber-800">
-                <span class="font-medium">Awaiting customer since <%= @lead.awaiting_customer_since.strftime("%-d %b") %></span>
-                <% if (followup = @lead.next_followup) %>
-                  · Next followup <%= followup.scheduled_for.strftime("%-d %b") %>
-                <% end %>
-              </p>
-              <%= button_to "Customer responded", lead_awaiting_customer_path(@lead), method: :delete, class: "bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded text-sm" %>
-            </div>
-          <% else %>
-            <details>
-              <summary class="text-sm font-medium text-gray-700 cursor-pointer">Customer gone quiet? Mark as awaiting customer</summary>
-              <%= form_with url: lead_awaiting_customer_path(@lead), scope: :followup, method: :post, class: "mt-3 grid grid-cols-1 md:grid-cols-4 gap-3 items-end" do |f| %>
-                <div>
-                  <%= f.label :followup_type, "Chase by", class: "block text-xs font-medium text-gray-500" %>
-                  <%= f.select :followup_type, Forefront::Followup.followup_types.map { |k, _| [ k.humanize, k ] }, {}, { class: "mt-1 block w-full border rounded" } %>
-                </div>
-                <div>
-                  <%= f.label :scheduled_for, "Followup on", class: "block text-xs font-medium text-gray-500" %>
-                  <%= f.datetime_local_field :scheduled_for, required: true, class: "mt-1 block w-full border rounded" %>
-                </div>
-                <div>
-                  <%= f.label :outcome, "Note", class: "block text-xs font-medium text-gray-500" %>
-                  <%= f.text_field :outcome, class: "mt-1 block w-full border rounded" %>
-                </div>
-                <%= f.submit "Mark awaiting customer", class: "bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded text-sm" %>
+        <% if @lead.awaiting_customer? %>
+          <div class="mt-6 bg-white shadow sm:rounded-lg p-4 flex items-center justify-between">
+            <p class="text-sm text-amber-800">
+              <span class="font-medium">Awaiting customer since <%= @lead.awaiting_customer_since.strftime("%-d %b") %></span>
+              <% if (followup = @lead.next_followup) %>
+                · Next followup <%= followup.scheduled_for.strftime("%-d %b") %>
               <% end %>
-            </details>
-          <% end %>
-        </div>
+            </p>
+            <%= button_to "Customer responded", lead_awaiting_customer_path(@lead), method: :delete, class: "bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded text-sm" %>
+          </div>
+        <% end %>
+        <%= render "forefront/leads/stage_actions", lead: @lead %>
       <% end %>
 
       <div class="mt-6 flex items-center justify-between">
@@ -237,9 +217,9 @@
               <button type="button" onclick="forefrontOpenModal('<%= modal_id(:reopen, @lead) %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Reopen</button>
             </div>
           <% end %>
-        <% elsif policy(@lead).move_stage? %>
+        <% elsif policy(@lead).move_stage? && !policy(@lead).work? %>
           <div>
-            <button type="button" onclick="forefrontOpenModal('<%= "status_history_modal_#{@lead.class.name.demodulize.underscore}_#{@lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm"><%= policy(@lead).work? ? "Change Stage" : "Move stage" %></button>
+            <button type="button" onclick="forefrontOpenModal('<%= "status_history_modal_#{@lead.class.name.demodulize.underscore}_#{@lead.id}" %>')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Move stage</button>
           </div>
         <% end %>
       </div>
@@ -248,7 +228,7 @@
         <% if @lead.lost? %>
           <%= render 'forefront/leads/reopen_form', lead: @lead if policy(@lead).reopen? %>
         <% else %>
-          <%= render 'forefront/status_histories/form', trackable: @lead if policy(@lead).move_stage? %>
+          <%= render 'forefront/status_histories/form', trackable: @lead if policy(@lead).move_stage? && !policy(@lead).work? %>
         <% end %>
       </div>
 

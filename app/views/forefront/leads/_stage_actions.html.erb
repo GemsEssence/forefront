@@ -1,0 +1,15 @@
+<%# locals: lead. The stage actions (CONTEXT.md: Lead) its assignee can take now. %>
+<% kinds = Forefront::LeadOperations::StageAction.offered(lead) %>
+<div class="mt-6 bg-white shadow sm:rounded-lg p-4" data-stage-actions>
+  <h2 class="text-lg font-medium text-gray-900">What next?</h2>
+  <p class="text-sm text-gray-500 mb-3">The lead is at <span class="font-medium"><%= lead.status.humanize %></span>. Pick what happened.</p>
+  <div class="flex flex-wrap gap-2">
+    <% kinds.each do |kind| %>
+      <% danger = kind == "lost" %>
+      <button type="button" onclick="forefrontOpenModal('stage_action_modal_lead_<%= lead.id %>_<%= kind %>')" class="<%= danger ? 'border border-red-300 text-red-700 hover:bg-red-50' : 'bg-indigo-600 hover:bg-indigo-700 text-white' %> px-3 py-1 rounded text-sm"><%= Forefront::LeadOperations::StageAction::LABELS[kind] %></button>
+    <% end %>
+  </div>
+</div>
+<% kinds.each do |kind| %>
+  <%= render "forefront/leads/stage_action_form", lead: lead, kind: kind %>
+<% end %>

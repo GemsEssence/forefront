@@ -72,9 +72,9 @@ class Forefront::LeadStageTicketsTest < ActionDispatch::IntegrationTest
     assert_empty @lead.tickets
   end
 
-  test "the stage dialog asks when the new ticket is due" do
+  test "the Schedule demo action asks when the new ticket is due" do
     get "/forefront/leads/#{@lead.id}"
 
-    assert_select "#status_history_modal_lead_#{@lead.id} input[type=date][name='status_history[ticket_due_at]']"
+    assert_select "#stage_action_modal_lead_#{@lead.id}_demo input[type=date][name='stage_action[ticket_due_at]']"
   end
 end

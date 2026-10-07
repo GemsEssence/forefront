@@ -53,11 +53,11 @@ class Forefront::LeadLostTest < ActionDispatch::IntegrationTest
     assert_match "Lost reason is no longer in use", response.body
   end
 
-  test "the stage dialog offers only active lost reasons" do
+  test "the Lost action offers only active lost reasons" do
     get "/forefront/leads/#{@lead.id}"
 
-    assert_select "select[name='status_history[lost_reason_id]'] option", text: "Price"
-    assert_select "select[name='status_history[lost_reason_id]'] option", text: "Retired reason", count: 0
+    assert_select "select[name='stage_action[lost_reason_id]'] option", text: "Price"
+    assert_select "select[name='stage_action[lost_reason_id]'] option", text: "Retired reason", count: 0
   end
 
   test "a lost reason that leads use can't be deleted" do

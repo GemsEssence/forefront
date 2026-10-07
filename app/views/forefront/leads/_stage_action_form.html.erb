@@ -1,0 +1,58 @@
+<%# locals: lead, kind; on a failed submit also errors:, open: true, values: (the submitted stage_action params) %>
+<% values = local_assigns[:values] || {} %>
+<% id = "stage_action_modal_lead_#{lead.id}_#{kind}" %>
+<% title = Forefront::LeadOperations::StageAction::LABELS[kind] %>
+<% default_at = Forefront::Followup.next_working_day_at.strftime("%Y-%m-%dT%H:%M") %>
+<% latest_ticket = Forefront::Ticket.latest_deadline %>
+<%= render layout: "forefront/shared/modal", locals: { id: id, title: title, open: local_assigns[:open], errors: local_assigns[:errors] } do %>
+  <%= form_with url: lead_stage_action_path(lead), scope: :stage_action, method: :post, data: { turbo_frame: "_top" } do |f| %>
+    <%= f.hidden_field :kind, value: kind %>
+
+    <% case kind %>
+    <% when "contacted", "quiet" %>
+      <p class="text-sm text-gray-600 mb-3"><%= kind == "contacted" ? "You've spoken to the customer. When do you follow up next?" : "The customer has gone quiet. When do you chase them?" %></p>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <%= f.label :followup_type, "Do", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :followup_type, Forefront::Followup.followup_types.keys.map { |k| [ k.humanize, k ] }, { selected: values[:followup_type].presence || "call" }, { class: "mt-1 block w-full border rounded" } %>
+        </div>
+        <div>
+          <%= f.label :scheduled_for, "On", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.datetime_local_field :scheduled_for, value: values.key?(:scheduled_for) ? values[:scheduled_for] : default_at, required: true, class: "mt-1 block w-full border rounded" %>
+        </div>
+      </div>
+    <% when "demo", "proposal" %>
+      <p class="text-sm text-gray-600 mb-3">This opens a <%= kind == "demo" ? "New App Demo" : "Proposal" %> ticket under the lead; that ticket is your next step.</p>
+      <div class="mb-3">
+        <%= f.label :ticket_due_at, "Ticket due", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.date_field :ticket_due_at, value: values[:ticket_due_at].presence || [ 2.days.from_now.to_date, latest_ticket ].min.strftime("%Y-%m-%d"), max: latest_ticket.strftime("%Y-%m-%d"), required: true, class: "mt-1 block w-full border rounded" %>
+      </div>
+    <% when "won" %>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <%= f.label :actual_amount, "Actual amount (#{currency_symbol})", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :actual_amount, value: values[:actual_amount].presence || lead.actual_amount || lead.estimated_amount, step: "0.01", min: 0, required: true, class: "mt-1 block w-full border rounded" %>
+        </div>
+        <div>
+          <%= f.label :expires_at, "Subscription expires", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :expires_at, value: values[:expires_at].presence || lead.expires_at&.strftime("%Y-%m-%d"), class: "mt-1 block w-full border rounded" %>
+        </div>
+      </div>
+    <% when "lost" %>
+      <div class="mb-3">
+        <%= f.label :lost_reason_id, "Lost reason", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.collection_select :lost_reason_id, Forefront::LostReason.active.ordered, :id, :name, { prompt: "Why was it lost?", selected: values[:lost_reason_id] }, { required: true, class: "mt-1 block w-full border rounded" } %>
+      </div>
+    <% end %>
+
+    <div class="mb-3">
+      <%= f.label :note, kind == "lost" ? "What happened (required)" : "Note (optional)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_area :note, value: values[:note], rows: 2, required: kind == "lost", class: "mt-1 block w-full border rounded" %>
+    </div>
+
+    <div class="flex justify-end space-x-2">
+      <button type="button" onclick="forefrontCloseModal('<%= id %>')" class="px-3 py-1 border rounded">Cancel</button>
+      <%= f.submit title, class: "bg-indigo-600 text-white px-3 py-1 rounded" %>
+    </div>
+  <% end %>
+<% end %>
