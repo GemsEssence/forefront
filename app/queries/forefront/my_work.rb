@@ -99,7 +99,8 @@ module Forefront
 
     # Installments are listed themselves, so their reminder Followups aren't.
     def followup_items
-      Followup.pending.where(assigned_to: people).where.not(followupable_type: Installment.name).includes(:followupable, :assigned_to).map do |followup|
+      Followup.pending.where(assigned_to: people).where.not(followupable_type: Installment.name).includes(:followupable, :assigned_to)
+              .select { |followup| followup.followupable&.open_for_work? }.map do |followup|
         Item.new(label: "Followup (#{followup.followup_type}) on #{followup.followupable.title}",
                  date: followup.scheduled_for&.to_date, at: followup.scheduled_for,
                  path_target: followup.followupable, owner: followup.assigned_to,

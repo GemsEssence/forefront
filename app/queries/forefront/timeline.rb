@@ -4,7 +4,8 @@ module Forefront
   # still be edited); stage, status and assignment changes come with their
   # notes; everything else comes from the record's Audit events.
   class Timeline
-    Entry = Struct.new(:at, :who, :headline, :detail, :activity, keyword_init: true)
+    # rank breaks ties within one second: created, then assigned, then the rest.
+    Entry = Struct.new(:at, :who, :headline, :detail, :activity, :rank, keyword_init: true)
 
     # Already covered by a live note, a StatusHistory or an Assignment.
     COVERED_ACTIONS = %w[added_activity edited_activity changed_status assigned updated_followup].freeze
@@ -17,7 +18,7 @@ module Forefront
     end
 
     def entries
-      @entries ||= (notes + status_changes + assignments + events + opened_tickets).sort_by { |entry| -entry.at.to_f }
+      @entries ||= (notes + status_changes + assignments + events + opened_tickets).sort_by { |entry| [ -entry.at.to_f, -(entry.rank || 3) ] }
     end
 
     private
@@ -35,7 +36,7 @@ module Forefront
     def assignments
       record.assignments.includes(:to_user, :from_user, :changed_by).map do |assignment|
         from = assignment.from_user ? " (from #{assignment.from_user.name})" : ""
-        Entry.new(at: assignment.created_at, who: assignment.changed_by, headline: "Assigned to #{assignment.to_user.name}#{from}", detail: assignment.note)
+        Entry.new(at: assignment.created_at, who: assignment.changed_by, headline: "Assigned to #{assignment.to_user.name}#{from}", detail: assignment.note, rank: 1)
       end
     end
 
@@ -49,7 +50,7 @@ module Forefront
     def events
       scope = AuditEvent.where(auditable: record).where.not(action: COVERED_ACTIONS)
       scope = scope.or(AuditEvent.where(auditable: record.customer, action: "revealed_contact")) if record.respond_to?(:customer)
-      scope.includes(:actor).map { |event| Entry.new(at: event.created_at, who: event.actor, **words_for(event)) }
+      scope.includes(:actor).map { |event| Entry.new(at: event.created_at, who: event.actor, rank: (event.action == "created" ? 0 : 3), **words_for(event)) }
     end
 
     def words_for(event)

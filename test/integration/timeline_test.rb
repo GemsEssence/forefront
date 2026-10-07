@@ -39,6 +39,7 @@ class Forefront::TimelineTest < ActionDispatch::IntegrationTest
     travel 1.hour
     sign_in_as(@manager)
     post "/forefront/leads/#{lead.id}/deadline", params: { deadline: { due_at: (Date.current + 25).iso8601, note: "Board meets late" } }
+    travel 1.minute
     post "/forefront/leads/#{lead.id}/assignments", params: { assignment: { to_user_id: @colleague.id, note: "Meera knows them" } }
 
     sign_in_as(@colleague)

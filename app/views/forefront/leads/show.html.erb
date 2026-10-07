@@ -109,19 +109,6 @@
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @lead.assigned_to.name %></dd>
               </div>
             <% end %>
-            <% if @lead.due_at.present? %>
-              <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">Due Date</dt>
-                <dd class="mt-1 text-sm <%= @lead.overdue? ? 'text-red-600 font-semibold' : @lead.due_soon? ? 'text-orange-600' : 'text-gray-900' %> sm:mt-0 sm:col-span-2">
-                  <%= @lead.due_at.strftime("%B %d, %Y") %>
-                  <% if @lead.overdue? %>
-                    <span class="ml-2 text-red-600">(Overdue)</span>
-                  <% elsif @lead.due_soon? %>
-                    <span class="ml-2 text-orange-600">(Due Soon)</span>
-                  <% end %>
-                </dd>
-              </div>
-            <% end %>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Created At</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @lead.created_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
@@ -160,7 +147,7 @@
               <% end %>
             </ul>
           <% else %>
-            <p class="text-sm text-gray-500">This lead has had more than one assignee. By default, whoever holds it when it's won gets full credit — record a share only if they've mutually agreed to split it.</p>
+            <p class="text-sm text-gray-500">Worked this lead with a colleague? By default whoever holds it when it's won gets full credit; record a share only once you've agreed the split between you.</p>
           <% end %>
         </div>
       <% end %>

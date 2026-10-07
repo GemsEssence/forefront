@@ -6,7 +6,7 @@
 <% default_at = Forefront::Followup.next_working_day_at.strftime("%Y-%m-%dT%H:%M") %>
 <% chosen = values[:next].presence || "followup" %>
 <%= render layout: "forefront/shared/modal", locals: { id: id, title: "Done: #{followup.followup_type.humanize} on #{followup.scheduled_for.strftime("%-d %b")}", open: local_assigns[:open], errors: local_assigns[:errors] } do %>
-  <%= form_with url: followup_completion_path(followup), scope: :completion, method: :post, data: { turbo_frame: "_top" }, html: { class: "done-form" } do |f| %>
+  <%= form_with url: followup_completion_path(followup), scope: :completion, method: :post, namespace: id, data: { turbo_frame: "_top" }, html: { class: "done-form" } do |f| %>
     <div class="mb-3">
       <%= f.label :outcome, "What happened?", class: "block text-sm font-medium text-gray-700" %>
       <%= f.text_area :outcome, value: values[:outcome], rows: 2, required: true, class: "mt-1 block w-full border rounded" %>
@@ -23,7 +23,7 @@
 
       <% if lead %>
         <% Forefront::LeadOperations::StageAction.offered(record).reject { |k| k == "quiet" }.each do |kind| %>
-          <label class="flex items-center gap-2 text-sm mt-2"><%= f.radio_button :next, "stage", checked: chosen == "stage" && values[:kind] == kind, onchange: "forefrontDoneNext(this.form)", id: "completion_next_stage_#{kind}", data: { kind: kind } %> <%= Forefront::LeadOperations::StageAction::LABELS[kind] %></label>
+          <label class="flex items-center gap-2 text-sm mt-2"><%= f.radio_button :next, "stage", checked: chosen == "stage" && values[:kind] == kind, onchange: "forefrontDoneNext(this.form)", id: "#{id}_next_stage_#{kind}", data: { kind: kind } %> <%= Forefront::LeadOperations::StageAction::LABELS[kind] %></label>
           <div class="ml-6 mt-1 grid grid-cols-2 gap-2" data-next="stage" data-kind="<%= kind %>">
             <% case kind %>
             <% when "contacted" %>

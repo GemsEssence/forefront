@@ -20,7 +20,7 @@
               · <%= customer.full_phone %>
             <% else %>
               · <%= customer.masked_phone %>
-              <%= button_to "Show contact details", customer_contact_reveal_path(customer), method: :post, class: "ml-1 text-xs text-indigo-600 hover:text-indigo-500" %>
+              <%= button_to "Show contact details", customer_contact_reveal_path(customer), method: :post, form_class: "inline", class: "ml-1 text-xs text-indigo-600 hover:text-indigo-500" %>
             <% end %>
           </span>
         </p>
@@ -28,12 +28,15 @@
       <% if step %>
         <p class="text-gray-700 mt-0.5"><span class="font-medium">Next:</span> <%= step.label %><%= " — #{item.note}" if item.note.present? %></p>
       <% end %>
-      <p class="text-xs text-gray-500 mt-0.5">
-        <% if item.deadline %>
-          <span class="<%= 'text-red-600 font-medium' if record&.deadline_passed? %>">Deadline <%= item.deadline.strftime("%-d %b") %></span>
-        <% end %>
-        <% if record && (last = my_work.last_action(record)) %>· Last: <%= last %><% end %>
-      </p>
+      <% last = record && my_work.last_action(record) %>
+      <% if item.deadline || last %>
+        <p class="text-xs text-gray-500 mt-0.5">
+          <% if item.deadline %>
+            <span class="<%= 'text-red-600 font-medium' if record&.deadline_passed? %>">Deadline <%= item.deadline.strftime("%-d %b") %></span>
+          <% end %>
+          <% if last %><%= " · " if item.deadline %>Last: <%= last %><% end %>
+        </p>
+      <% end %>
     </div>
     <div class="flex items-center gap-2 whitespace-nowrap">
       <span class="text-gray-500"><%= item.date&.strftime("%-d %b") %></span>

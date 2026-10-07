@@ -5,7 +5,7 @@
 <% default_at = Forefront::Followup.next_working_day_at.strftime("%Y-%m-%dT%H:%M") %>
 <% latest_ticket = Forefront::Ticket.latest_deadline %>
 <%= render layout: "forefront/shared/modal", locals: { id: id, title: title, open: local_assigns[:open], errors: local_assigns[:errors] } do %>
-  <%= form_with url: lead_stage_action_path(lead), scope: :stage_action, method: :post, data: { turbo_frame: "_top" } do |f| %>
+  <%= form_with url: lead_stage_action_path(lead), scope: :stage_action, method: :post, namespace: id, data: { turbo_frame: "_top" } do |f| %>
     <%= f.hidden_field :kind, value: kind %>
 
     <% case kind %>

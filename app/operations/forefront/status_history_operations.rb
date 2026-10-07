@@ -37,6 +37,7 @@ module Forefront
             open_stage_ticket
             close_open_tickets if trackable.lost?
           end
+          cancel_pending_followups if trackable.saved_change_to_status? && !trackable.open_for_work?
         end
 
         { success: true, trackable: trackable }
@@ -59,6 +60,11 @@ module Forefront
 
         result = TicketOperations::Create.new(params: stage_ticket_params(kind), current_admin: current_admin).call
         raise ActiveRecord::RecordInvalid, result[:ticket] unless result[:success]
+      end
+
+      # A finished record has no next step left to chase.
+      def cancel_pending_followups
+        trackable.followups.pending.find_each { |followup| followup.update!(status: "cancelled") }
       end
 
       # A lost sale has no work left; a won one may still need onboarding.
